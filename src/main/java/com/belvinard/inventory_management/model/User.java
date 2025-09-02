@@ -9,11 +9,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -37,7 +34,7 @@ public class User extends BaseEntity {
 
     @NotBlank
     @Size(min = 5, max = 10, message = "Username must be between 5 and 10 characters")
-    @Column(name = "username", unique = true)
+    @Column(name = "username")
     private String userName;
 
     @NotBlank
