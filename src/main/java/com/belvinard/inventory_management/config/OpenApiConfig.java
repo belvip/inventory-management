@@ -27,7 +27,8 @@ public class OpenApiConfig {
                         .addSecuritySchemes("basicAuth", 
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
-                                        .scheme("basic")));
+                                        .scheme("basic")
+                                        .description("Basic Authentication (username: admin, password: password)")));
     }
     
     @Bean
