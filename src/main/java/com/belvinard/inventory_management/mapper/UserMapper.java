@@ -13,6 +13,7 @@ public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     // Entity -> ResponseDTO
+    @Mapping(source = "id", target = "userId")
     @Mapping(source = "role.roleName", target = "roleName")
     UserResponseDto toResponseDto(User user);
 

@@ -17,10 +17,18 @@ public class OpenApiConfig {
     
     @Bean
     public OpenAPI openAPI() {
+        String description = "REST API for managing inventory items, stock levels, and warehouse operations\n\n" +
+                "**Demo Test Users:**\n" +
+                "- **Admin**: username: `admin`, password: `password`\n" +
+                "- **Manager**: username: `manager`, password: `password`\n" +
+                "- **Sales**: username: `sales`, password: `password`\n" +
+                "- **User**: username: `user`, password: `password`\n\n" +
+                "Use these credentials with Basic Authentication to test the API endpoints.";
+        
         return new OpenAPI()
                 .info(new Info()
                         .title("Inventory Management API")
-                        .description("REST API for managing inventory items, stock levels, and warehouse operations")
+                        .description(description)
                         .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
                 .components(new io.swagger.v3.oas.models.Components()
@@ -28,7 +36,7 @@ public class OpenApiConfig {
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("basic")
-                                        .description("Basic Authentication (username: admin, password: password)")));
+                                        .description("Basic Authentication - Use demo credentials from API description")));
     }
     
     @Bean
