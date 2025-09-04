@@ -28,6 +28,8 @@ public record UserRequestDto(
         @Size(min = 6, max = 120, message = "Password must be between 6 and 120 characters")
         String password,
 
+        String image,
+
         @Valid
         AddressDto address
 

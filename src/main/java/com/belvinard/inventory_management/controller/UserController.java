@@ -3,7 +3,6 @@ package com.belvinard.inventory_management.controller;
 import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.dto.UpdateUserRoleRequest;
-import com.belvinard.inventory_management.model.User;
 import com.belvinard.inventory_management.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,28 +27,6 @@ public class UserController {
     private final UserService userService;
 
     // ===========================================================
-    // UPDATE ROLE
-    // ===========================================================
-    @Operation(
-            summary = "Update a user's role",
-            description = "Allows an ADMIN to update the role of an existing user.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "User role updated successfully"),
-                    @ApiResponse(responseCode = "400", description = "Validation failed", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication required", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden - Only ADMIN can access this endpoint", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
-                    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
-            }
-    )
-    //@PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/role")
-    public ResponseEntity<String> updateUserRole(@RequestBody @Valid UpdateUserRoleRequest request) {
-        userService.updateUserRole(request.userId(), request.roleName());
-        return ResponseEntity.ok("User role updated successfully");
-    }
-
-    // ===========================================================
     // CREATE USER
     // ===========================================================
     @Operation(
@@ -59,16 +36,53 @@ public class UserController {
                     @ApiResponse(responseCode = "201", description = "User created successfully",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = "Validation failed", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication required", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden - Only ADMIN can access this endpoint", content = @Content),
-                    @ApiResponse(responseCode = "409", description = "Conflict - Username or email already exists", content = @Content),
-                    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+                    @ApiResponse(responseCode = "409", description = "Conflict - Username or email already exists", content = @Content)
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid UserRequestDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(dto));
+    }
+
+    // ===========================================================
+    // UPDATE USER
+    // ===========================================================
+    @Operation(
+            summary = "Update a user",
+            description = "Allows an ADMIN to update an existing user's details.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User updated successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Validation failed", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+            }
+    )
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDto> updateUser(
+            @PathVariable Long id,
+            @RequestBody @Valid UserRequestDto dto
+    ) {
+        return ResponseEntity.ok(userService.updateUser(id, dto));
+    }
+
+    // ===========================================================
+    // UPDATE ROLE
+    // ===========================================================
+    @Operation(
+            summary = "Update a user's role",
+            description = "Allows an ADMIN to update the role of an existing user.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User role updated successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+            }
+    )
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/role")
+    public ResponseEntity<String> updateUserRole(@RequestBody @Valid UpdateUserRoleRequest request) {
+        userService.updateUserRole(request.userId(), request.roleName());
+        return ResponseEntity.ok("User role updated successfully");
     }
 
     // ===========================================================
@@ -79,16 +93,13 @@ public class UserController {
             description = "Fetches a user by their unique ID. Accessible by ADMIN, SALES, or MANAGER.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User found",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication required", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden - Access denied", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
-                    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -99,18 +110,15 @@ public class UserController {
             summary = "Delete a user",
             description = "Allows an ADMIN to delete a user by ID.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "User deleted successfully"),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication required", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden - Only ADMIN can access this endpoint", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
-                    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+                    @ApiResponse(responseCode = "200", description = "User deleted successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.ok("User deleted successfully");
+    public ResponseEntity<UserResponseDto> deleteUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.deleteUser(id));
     }
 
     // ===========================================================
@@ -121,16 +129,12 @@ public class UserController {
             description = "Allows ADMIN, SALES, or MANAGER to search for users by username, email, or other fields.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Users found",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid search keyword", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication required", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden - Access denied", content = @Content),
-                    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
             }
     )
-    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
     @GetMapping("/search")
-    public ResponseEntity<List<User>> searchUser(@RequestParam String keyword) {
+    public ResponseEntity<List<UserResponseDto>> searchUser(@RequestParam String keyword) {
         return ResponseEntity.ok(userService.searchUser(keyword));
     }
 
@@ -142,15 +146,12 @@ public class UserController {
             description = "Fetches all users in the system. Accessible by ADMIN, SALES, or MANAGER.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication required", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden - Access denied", content = @Content),
-                    @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
             }
     )
-    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 }

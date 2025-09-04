@@ -47,6 +47,8 @@ public class User extends BaseEntity {
     @Column(name = "password")
     @JsonIgnore
     private String password;
+
+    private String image;
     
 
     @Embedded
