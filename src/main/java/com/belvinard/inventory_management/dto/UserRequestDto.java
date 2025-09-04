@@ -16,7 +16,7 @@ public record UserRequestDto(
         String lastName,
 
         @NotBlank(message = "Username is required")
-        @Size(min = 5, max = 10, message = "Username must be between 5 and 10 characters")
+        @Size(min = 4, max = 10, message = "Username must be between 3 and 10 characters")
         String userName,
 
         @NotBlank(message = "Email is required")

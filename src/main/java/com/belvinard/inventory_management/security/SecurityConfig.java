@@ -52,6 +52,8 @@ public class SecurityConfig {
 
             if (!userRepository.existsByUserName("user")) {
                 User user1 = new User("user", "user@user.com", "{noop}password");
+                user1.setFirstName("User");
+                user1.setLastName("Test");
                 user1.setAccountNonLocked(false);
                 user1.setAccountNonExpired(true);
                 user1.setCredentialsNonExpired(true);
@@ -66,6 +68,8 @@ public class SecurityConfig {
 
             if (!userRepository.existsByUserName("admin")) {
                 User admin = new User("admin", "admin@admin.com", "{noop}password");
+                admin.setFirstName("Admin");
+                admin.setLastName("User");
                 admin.setAccountNonLocked(true);
                 admin.setAccountNonExpired(true);
                 admin.setCredentialsNonExpired(true);
@@ -80,6 +84,8 @@ public class SecurityConfig {
 
             if(!userRepository.existsByUserName("manager")) {
                 User manager = new User("manager", "manager@manager.com", "{noop}password");
+                manager.setFirstName("Manager");
+                manager.setLastName("User");
                 manager.setAccountNonLocked(true);
                 manager.setAccountNonExpired(true);
                 manager.setCredentialsNonExpired(true);
@@ -94,6 +100,8 @@ public class SecurityConfig {
 
             if (!userRepository.existsByUserName("sales")) {
                 User sales = new User("sales", "sales@sales.com", "{noop}password");
+                sales.setFirstName("Sales");
+                sales.setLastName("User");
                 sales.setAccountNonLocked(true);
                 sales.setAccountNonExpired(true);
                 sales.setCredentialsNonExpired(true);

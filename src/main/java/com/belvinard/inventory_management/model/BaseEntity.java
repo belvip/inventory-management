@@ -1,11 +1,13 @@
 package com.belvinard.inventory_management.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
@@ -18,10 +20,12 @@ public abstract class BaseEntity implements Serializable {
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime createdDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate createdDate;
 
     @UpdateTimestamp
-    private LocalDateTime updatedDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate updatedDate;
 
     public Long getId() {
         return id;

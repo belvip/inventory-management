@@ -33,7 +33,7 @@ public class User extends BaseEntity {
     private String lastName;
 
     @NotBlank
-    @Size(min = 5, max = 10, message = "Username must be between 5 and 10 characters")
+    @Size(min = 4, max = 10, message = "Username must be between 4 and 10 characters")
     @Column(name = "username")
     private String userName;
 
