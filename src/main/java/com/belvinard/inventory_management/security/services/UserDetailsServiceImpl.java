@@ -1,8 +1,7 @@
-package com.belvinard.inventory_management.security;
+package com.belvinard.inventory_management.security.services;
 
 import com.belvinard.inventory_management.model.User;
 import com.belvinard.inventory_management.repository.UserRepository;
-import com.belvinard.inventory_management.security.services.UserDetailsImpl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
