@@ -5,6 +5,7 @@ import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 
 import com.belvinard.inventory_management.exception.ResourceConflictException;
+import com.belvinard.inventory_management.mapper.AddressMapper;
 import com.belvinard.inventory_management.mapper.UserMapper;
 import com.belvinard.inventory_management.model.Address;
 import com.belvinard.inventory_management.model.AppRole;
@@ -14,6 +15,7 @@ import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.repository.UserRepository;
 import com.belvinard.inventory_management.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,9 +33,11 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final AddressMapper addressMapper;
 
     @Override
-    public UserResponseDto createUser(UserRequestDto dto) {
+    @Transactional
+    public UserResponseDto createUser(@Valid UserRequestDto dto) {
         if (userRepository.existsByEmail(dto.email())) {
             throw new ResourceConflictException("Email already exists: " + dto.email());
         }
@@ -44,34 +48,24 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toEntity(dto);
         user.setPassword(passwordEncoder.encode(dto.password()));
 
-        Role defaultRole = roleRepository.findByRoleName(AppRole.ROLE_USER).orElse(null);
-        if (defaultRole != null) {
-            user.setRole(defaultRole);
+        Role defaultRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
+                .orElseThrow(() -> new IllegalStateException("Default role not configured"));
+        user.setRole(defaultRole);
+
+        if (dto.address() != null) {
+            Address address = addressMapper.toEntity(dto.address());
+            user.setAddress(address);
         }
 
         User saved = userRepository.save(user);
-
-        if (dto.address() != null) {
-            Address address = new Address(
-                    dto.address().address1(),
-                    dto.address().address2(),
-                    dto.address().city(),
-                    dto.address().postalCode(),
-                    dto.address().country()
-            );
-            saved.setAddress(address);
-            saved = userRepository.save(saved);
-        }
-
         return createResponseDto(saved);
     }
-
     @Override
     public void updateUserRole(Long userId, String roleName) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-        Role role = roleRepository.findByRoleName(AppRole.valueOf(roleName))
+        Role role = roleRepository.findByRoleName(AppRole.valueOf(roleName.trim()))
                 .orElseThrow(() -> new EntityNotFoundException("Role not found: " + roleName));
         user.setRole(role);
         userRepository.save(user);
@@ -94,7 +88,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponseDto> searchUser(String keyword) {
-        return userRepository.findByUserNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword)
+        return userRepository.findByUserNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(keyword, keyword, keyword, keyword)
                 .stream()
                 .map(this::createResponseDto)
                 .toList();
