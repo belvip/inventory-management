@@ -11,5 +11,6 @@ public record UserResponseDto(
         boolean accountNonExpired,
         boolean credentialsNonExpired,
         String roleName,
+        String image,
         AddressDto address
 ) {}

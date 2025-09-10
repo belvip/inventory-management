@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -15,12 +16,16 @@ import java.time.LocalDate;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "users",
+@AllArgsConstructor
+@Table(
+        name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "username"),
                 @UniqueConstraint(columnNames = "email")
-        })
+        }
+)
 public class User extends BaseEntity {
+
     @Column(name = "user_id")
     private Long userId;
 
@@ -33,7 +38,7 @@ public class User extends BaseEntity {
     private String lastName;
 
     @NotBlank
-    @Size(min = 5, max = 10, message = "Username must be between 5 and 10 characters")
+    @Size(min = 4, max = 10, message = "Username must be between 4 and 10 characters")
     @Column(name = "username")
     private String userName;
 
@@ -47,7 +52,8 @@ public class User extends BaseEntity {
     @Column(name = "password")
     @JsonIgnore
     private String password;
-    
+
+    private String image;
 
     @Embedded
     private Address address;
@@ -70,8 +76,7 @@ public class User extends BaseEntity {
     @ToString.Exclude
     private Role role;
 
-
-
+    // Constructeurs custom
     public User(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;
@@ -81,9 +86,5 @@ public class User extends BaseEntity {
     public User(String userName, String email) {
         this.userName = userName;
         this.email = email;
-    }
-
-    public Long getUserId() {
-        return userId;
     }
 }
