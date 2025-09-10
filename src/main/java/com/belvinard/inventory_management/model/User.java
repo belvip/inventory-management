@@ -1,8 +1,10 @@
 package com.belvinard.inventory_management.model;
 
+import com.belvinard.inventory_management.dto.AddressDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -87,5 +89,8 @@ public class User extends BaseEntity {
 
     public Long getUserId() {
         return userId;
+    }
+
+    public void setAddress(@Valid AddressDto address) {
     }
 }

@@ -39,8 +39,8 @@ public class UserController {
                     @ApiResponse(responseCode = "409", description = "Conflict - Username or email already exists", content = @Content)
             }
     )
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
+    //@PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/create")
     public ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid UserRequestDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(dto));
     }
@@ -58,8 +58,8 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}")
+    //@PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/update/{id}")
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable Long id,
             @RequestBody @Valid UserRequestDto dto
@@ -78,8 +78,8 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/role")
+    //@PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/update/role")
     public ResponseEntity<String> updateUserRole(@RequestBody @Valid UpdateUserRoleRequest request) {
         userService.updateUserRole(request.userId(), request.roleName());
         return ResponseEntity.ok("User role updated successfully");
@@ -97,7 +97,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    @PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
@@ -115,7 +115,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<UserResponseDto> deleteUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.deleteUser(id));
@@ -132,7 +132,7 @@ public class UserController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
             }
     )
-    @PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
     @GetMapping("/search")
     public ResponseEntity<List<UserResponseDto>> searchUser(@RequestParam String keyword) {
         return ResponseEntity.ok(userService.searchUser(keyword));
@@ -149,7 +149,7 @@ public class UserController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
             }
     )
-    @PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
