@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -66,6 +67,20 @@ public class MyGlobalExceptionHandler {
         );
         return buildErrorResponse("Constraint Violation", errors, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<ErrorResponse> handleResourceConflict(ResourceConflictException ex) {
+        Map<String, String> errors = new HashMap<>();
+        if (ex.getMessage().contains("Email")) {
+            errors.put("email", ex.getMessage());
+        } else if (ex.getMessage().contains("Username")) {
+            errors.put("username", ex.getMessage());
+        } else {
+            errors.put("error", ex.getMessage());
+        }
+        return buildErrorResponse("Conflict", errors, HttpStatus.CONFLICT);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGlobalException(Exception ex, WebRequest request) {
