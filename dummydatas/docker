@@ -7,13 +7,8 @@ services:
     env_file: .env
     environment:
       - PORT=${APP_PORT}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      - SPRING_DATASOURCE_USERNAME=${DB_USER}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     ports:
-      - "8282:${APP_PORT:-8282}"
-    depends_on:
-      - minio
+      - "8282:${APP_PORT}"
     networks:
       - default
 
@@ -21,8 +16,8 @@ services:
     image: minio/minio
     env_file: .env
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000:${MINIO_URL:-9000}"
+      - "9001:${MINIO_CONSOLE_PORT:-9001}"
     volumes:
       - minio_data:/data
     environment:
@@ -38,3 +33,11 @@ networks:
 
 volumes:
   minio_data:
+
+
+
+docker build -t belvinar/new-inventory:latest .
+docker-compose up -d
+
+docker stop browser-test && docker rm browser-test
+docker run -d --name inventory-8282 --env-file .env -p 8282:8282 belvinar/new-inventory:latest
