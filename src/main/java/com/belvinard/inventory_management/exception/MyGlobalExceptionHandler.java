@@ -92,6 +92,19 @@ public class MyGlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(MinioOperationException.class)
+    public ResponseEntity<ErrorResponse> handleMinioOperationException(MinioOperationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("minio", ex.getMessage());
+
+        return buildErrorResponse(
+                "MinIO Error",
+                errors,
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+
     private String buildInvalidFormatMessage(InvalidFormatException ex) {
         if (ex.getTargetType().isEnum()) {
             String allowed = Arrays.stream(ex.getTargetType().getEnumConstants())
