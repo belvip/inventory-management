@@ -41,3 +41,8 @@ docker-compose up -d
 
 docker stop browser-test && docker rm browser-test
 docker run -d --name inventory-8282 --env-file .env -p 8282:8282 belvinar/new-inventory:latest
+
+
+
+ netstat -aon | findstr "8282"
+ taskkill /F /PID 6148

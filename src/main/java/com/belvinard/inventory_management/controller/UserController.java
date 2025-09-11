@@ -5,6 +5,7 @@ import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.dto.UpdateUserRoleRequest;
 import com.belvinard.inventory_management.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,12 +13,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @RestController
@@ -144,6 +147,43 @@ public class UserController {
     @GetMapping("/search")
     public ResponseEntity<List<UserResponseDto>> searchUser(@RequestParam String keyword) {
         return ResponseEntity.ok(userService.searchUser(keyword));
+    }
+
+
+    // ===========================================================
+    // UPDATE USER IMAGE
+    // ===========================================================
+    @Operation(summary = "Modifier l’image d’un utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image mise à jour avec succès",
+                    content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé"),
+            @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
+    })
+    @PutMapping(value = "/{userId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponseDto> updateUserImage(
+            @PathVariable Long userId,
+            @Parameter(description = "Fichier image à uploader", required = true)
+            @RequestPart("image") MultipartFile image // ✅ utilisation de @RequestPart
+    ) throws Exception {
+        // log.info("Mise à jour de l'image pour l'utilisateur {}", userId);
+
+        if (image == null || image.isEmpty()) {
+            throw new IllegalArgumentException("L'image ne peut pas être vide");
+        }
+
+        UserResponseDto updatedUser = userService.updateUserImage(userId, image);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+
+    // ===========================================================
+    // GET PRESIGNED USER IMAGE URL
+    // ===========================================================
+    @Operation(summary = "PUBLIC: Obtenir le lien temporaire de l’image d’un utilisateur")
+    @GetMapping("/{id}/image-url")
+    public ResponseEntity<String> getPresignedUserImageUrl(@PathVariable Long id) {
+        String presignedUrl = userService.getPresignedImageUrl(id);
+        return ResponseEntity.ok(presignedUrl);
     }
 
     // ===========================================================

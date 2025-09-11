@@ -4,7 +4,9 @@ import com.belvinard.inventory_management.dto.AddressDto;
 import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 
+import com.belvinard.inventory_management.exception.APIException;
 import com.belvinard.inventory_management.exception.ResourceConflictException;
+import com.belvinard.inventory_management.exception.ResourceNotFoundException;
 import com.belvinard.inventory_management.mapper.AddressMapper;
 import com.belvinard.inventory_management.mapper.UserMapper;
 import com.belvinard.inventory_management.model.Address;
@@ -13,15 +15,17 @@ import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.model.User;
 import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.repository.UserRepository;
+import com.belvinard.inventory_management.service.MinioService;
 import com.belvinard.inventory_management.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -34,6 +38,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final AddressMapper addressMapper;
+    private final MinioService minioService;
 
     @Override
     @Transactional
@@ -129,6 +134,40 @@ public class UserServiceImpl implements UserService {
         User updated = userRepository.save(user);
         return createResponseDto(updated);
     }
+
+    @Override
+    public UserResponseDto updateUserImage(Long userId, MultipartFile image) throws IOException {
+        User userFromDb = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        String fileName = minioService.uploadImage(image);
+        userFromDb.setImage(fileName);
+        String imageUrl = minioService.getPreSignedUrl(fileName, 15);
+        User updatedUser = userRepository.save(userFromDb);
+
+        // mapper to dto
+        return userMapper.toResponseDto(updatedUser);
+    }
+
+
+    @Override
+    public String getPresignedImageUrl(Long id) {
+        // 1. Chercher l’article
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article with id " + id + " not found !!"));
+
+        // 2. Vérifier s’il y a une image
+        String fileName = user.getImage();
+
+        if (fileName == null || fileName.isBlank()) {
+            throw new APIException("No image found for this article");
+        }
+
+        // 3. Retourner l’URL signée
+        return minioService.getPreSignedUrl(fileName, 900); // 15 minutes
+    }
+
+
 
     private UserResponseDto createResponseDto(User user) {
         UserResponseDto baseResponse = userMapper.toResponseDto(user);
