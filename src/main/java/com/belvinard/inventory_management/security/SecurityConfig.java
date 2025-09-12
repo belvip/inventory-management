@@ -24,10 +24,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    /*@Bean
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }*/
+    }
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -44,7 +44,9 @@ public class SecurityConfig {
 
 
     @Bean
-    public CommandLineRunner initData(RoleRepository roleRepository, UserRepository userRepository) {
+    public CommandLineRunner initData(RoleRepository roleRepository,
+                                      UserRepository userRepository,
+                                      PasswordEncoder passwordEncoder) {
         return args -> {
             Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
@@ -60,7 +62,8 @@ public class SecurityConfig {
 
 
             if (!userRepository.existsByUserName("user")) {
-                User user1 = new User("user", "user@user.com", "{noop}password");
+                User user1 = new User("user", "user@user.com",
+                        passwordEncoder.encode("password"));
                 user1.setFirstName("User");
                 user1.setLastName("Test");
                 user1.setAccountNonLocked(false);
@@ -76,7 +79,8 @@ public class SecurityConfig {
             }
 
             if (!userRepository.existsByUserName("admin")) {
-                User admin = new User("admin", "admin@admin.com", "{noop}password");
+                User admin = new User("admin", "admin@admin.com",
+                        passwordEncoder.encode("password"));
                 admin.setFirstName("Admin");
                 admin.setLastName("User");
                 admin.setAccountNonLocked(true);
@@ -92,7 +96,8 @@ public class SecurityConfig {
             }
 
             if(!userRepository.existsByUserName("manager")) {
-                User manager = new User("manager", "manager@manager.com", "{noop}password");
+                User manager = new User("manager", "manager@manager.com",
+                        passwordEncoder.encode("password"));
                 manager.setFirstName("Manager");
                 manager.setLastName("User");
                 manager.setAccountNonLocked(true);
@@ -108,7 +113,8 @@ public class SecurityConfig {
             }
 
             if (!userRepository.existsByUserName("sales")) {
-                User sales = new User("sales", "sales@sales.com", "{noop}password");
+                User sales = new User("sales", "sales@sales.com",
+                        passwordEncoder.encode("password"));
                 sales.setFirstName("Sales");
                 sales.setLastName("User");
                 sales.setAccountNonLocked(true);
