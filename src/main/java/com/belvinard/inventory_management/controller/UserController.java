@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,7 +51,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class)))
     })
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid UserRequestDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(dto));
@@ -69,7 +70,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable Long id,
@@ -108,7 +109,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
@@ -126,7 +127,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<UserResponseDto> deleteUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.deleteUser(id));
@@ -143,7 +144,7 @@ public class UserController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
             }
     )
-    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<List<UserResponseDto>> searchUser(@RequestParam String keyword) {
         return ResponseEntity.ok(userService.searchUser(keyword));
@@ -154,6 +155,7 @@ public class UserController {
     // UPDATE USER IMAGE
     // ===========================================================
     @Operation(summary = "Modifier l’image d’un utilisateur")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Image mise à jour avec succès",
                     content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
@@ -181,6 +183,7 @@ public class UserController {
     // ===========================================================
     @Operation(summary = "PUBLIC: Obtenir le lien temporaire de l’image d’un utilisateur")
     @GetMapping("/{id}/image-url")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<String> getPresignedUserImageUrl(@PathVariable Long id) {
         String presignedUrl = userService.getPresignedImageUrl(id);
         return ResponseEntity.ok(presignedUrl);
@@ -197,7 +200,7 @@ public class UserController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
             }
     )
-    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
