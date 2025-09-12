@@ -90,7 +90,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/role")
     public ResponseEntity<String> updateUserRole(@RequestBody @Valid UpdateUserRoleRequest request) {
         userService.updateUserRole(request.userId(), request.roleName());
