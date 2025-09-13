@@ -97,7 +97,7 @@ public class SecurityConfig {
                         passwordEncoder.encode("password"));
                 user1.setFirstName("User");
                 user1.setLastName("Test");
-                user1.setAccountNonLocked(false);
+                user1.setAccountNonLocked(true);
                 user1.setAccountNonExpired(true);
                 user1.setCredentialsNonExpired(true);
                 user1.setEnabled(true);
