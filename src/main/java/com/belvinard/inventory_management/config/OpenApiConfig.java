@@ -30,13 +30,14 @@ public class OpenApiConfig {
                         .title("Inventory Management API")
                         .description(description)
                         .version("1.0.0"))
-                .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new io.swagger.v3.oas.models.Components()
-                        .addSecuritySchemes("basicAuth", 
+                        .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
-                                        .scheme("basic")
-                                        .description("Basic Authentication - Use demo credentials from API description")));
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                                        .description("BearerAuthentication - Use demo credentials from API description")));
     }
     
     @Bean

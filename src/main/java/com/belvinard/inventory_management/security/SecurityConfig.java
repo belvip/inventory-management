@@ -5,9 +5,14 @@ import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.model.User;
 import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.repository.UserRepository;
+import com.belvinard.inventory_management.security.jwt.AuthEntryPointJwt;
+import com.belvinard.inventory_management.security.jwt.AuthTokenFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,7 +30,16 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final AuthEntryPointJwt unauthorizedHandler;
+
+    @Bean
+    public AuthTokenFilter authenticationJwtTokenFilter() {
+        return new AuthTokenFilter();
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -44,12 +58,23 @@ public class SecurityConfig {
                         .requestMatchers("/api/demo/**").permitAll()
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .requestMatchers("api/v1/csrf-token").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated());
+        http.exceptionHandling(exception
+                -> exception.authenticationEntryPoint(unauthorizedHandler));
+        http.addFilterBefore(authenticationJwtTokenFilter(),
+                UsernamePasswordAuthenticationFilter.class);
 
         http.formLogin(withDefaults());
         http.httpBasic(withDefaults());
         return http.build();
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
 
 
     @Bean

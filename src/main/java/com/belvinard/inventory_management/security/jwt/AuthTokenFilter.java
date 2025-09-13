@@ -23,10 +23,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
 
-
     private final UserDetailsServiceImpl userDetailsService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
