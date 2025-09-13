@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  inventory:
+    image: inventory
+    build: .
+    env_file: .env
+    environment:
+      - PORT=${APP_PORT}
+    ports:
+      - "8282:${APP_PORT}"
+    networks:
+      - default
+
+  minio:
+    image: minio/minio
+    env_file: .env
+    ports:
+      - "9000:${MINIO_URL:-9000}"
+      - "9001:${MINIO_CONSOLE_PORT:-9001}"
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  minio_data:
+
+
+
+docker build -t belvinar/new-inventory:latest .
+docker-compose up -d
+
+docker stop browser-test && docker rm browser-test
+docker run -d --name inventory-8282 --env-file .env -p 8282:8282 belvinar/new-inventory:latest
+
+
+
+ netstat -aon | findstr "8282"
+ taskkill /F /PID 6148

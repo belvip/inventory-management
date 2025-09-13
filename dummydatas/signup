@@ -1,0 +1,162 @@
+[
+  {
+    "firstName": "Hassan",
+    "lastName": "Tchinda",
+    "username": "htchinda",
+    "email": "hassan.tchinda@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/e74c3c/ffffff?text=HT",
+    "address": {
+      "address1": "Avenue de l'Indépendance",
+      "address2": "Quartier Bonapriso",
+      "city": "Douala",
+      "postalCode": "23701",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  },
+  {
+    "firstName": "Marlyse",
+    "lastName": "Ngo Biyong",
+    "username": "mngobiyong",
+    "email": "marlyse.ngo.biyong@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/3498db/ffffff?text=MN",
+    "address": {
+      "address1": "Rue 1060",
+      "address2": "Quartier Ngoa-Ekelle",
+      "city": "Yaoundé",
+      "postalCode": "23702",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  },
+  {
+    "firstName": "Patrick",
+    "lastName": "Djoumessi",
+    "username": "pdjoumessi",
+    "email": "patrick.djoumessi@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/9b59b6/ffffff?text=PD",
+    "address": {
+      "address1": "Avenue Charles Atangana",
+      "address2": "Quartier Mvog-Ada",
+      "city": "Yaoundé",
+      "postalCode": "23703",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  },
+  {
+    "firstName": "Chantal",
+    "lastName": "Simo",
+    "username": "csimo",
+    "email": "chantal.simo@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/2ecc71/ffffff?text=CS",
+    "address": {
+      "address1": "Rue Joss",
+      "address2": "Quartier Akwa",
+      "city": "Douala",
+      "postalCode": "23704",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  },
+  {
+    "firstName": "Boris",
+    "lastName": "Ebongue",
+    "username": "bebongue",
+    "email": "boris.ebongue@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/f1c40f/ffffff?text=BE",
+    "address": {
+      "address1": "Boulevard de la République",
+      "address2": "Quartier Bali",
+      "city": "Douala",
+      "postalCode": "23705",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  },
+  {
+    "firstName": "Laurette",
+    "lastName": "Bikoko",
+    "username": "lbikoko",
+    "email": "laurette.bikoko@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/e67e22/ffffff?text=LB",
+    "address": {
+      "address1": "Rue des Princes",
+      "address2": "Quartier Bepanda",
+      "city": "Douala",
+      "postalCode": "23706",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  },
+  {
+    "firstName": "Francis",
+    "lastName": "Tambo",
+    "username": "ftambo",
+    "email": "francis.tambo@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/c0392b/ffffff?text=FT",
+    "address": {
+      "address1": "Rue 1.050",
+      "address2": "Quartier Deido",
+      "city": "Douala",
+      "postalCode": "23707",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  },
+  {
+    "firstName": "Estelle",
+    "lastName": "Nkou",
+    "username": "enkou",
+    "email": "estelle.nkou@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/16a085/ffffff?text=EN",
+    "address": {
+      "address1": "Rue de la Joie",
+      "address2": "Quartier Bastos",
+      "city": "Yaoundé",
+      "postalCode": "23708",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  },
+  {
+    "firstName": "Cedric",
+    "lastName": "Mbia",
+    "username": "cmbia",
+    "email": "cedric.mbia@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/27ae60/ffffff?text=CM",
+    "address": {
+      "address1": "Boulevard du 20 mai",
+      "address2": "Quartier Melen",
+      "city": "Yaoundé",
+      "postalCode": "23709",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  },
+  {
+    "firstName": "Sandrine",
+    "lastName": "Nyobe",
+    "username": "snyobe",
+    "email": "sandrine.nyobe@example.com",
+    "password": "pass123",
+    "image": "https://placehold.co/150x150/8e44ad/ffffff?text=SN",
+    "address": {
+      "address1": "Avenue Kennedy",
+      "address2": "Quartier Elig-Essono",
+      "city": "Yaoundé",
+      "postalCode": "23710",
+      "country": "Cameroon"
+    },
+    "signUpMethod": "email"
+  }
+]

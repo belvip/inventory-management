@@ -1,3 +1,4 @@
+
 package com.belvinard.inventory_management.security.services;
 
 import com.belvinard.inventory_management.model.User;

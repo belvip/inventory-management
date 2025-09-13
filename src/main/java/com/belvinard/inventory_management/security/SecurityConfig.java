@@ -5,15 +5,24 @@ import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.model.User;
 import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.repository.UserRepository;
+import com.belvinard.inventory_management.security.jwt.AuthEntryPointJwt;
+import com.belvinard.inventory_management.security.jwt.AuthTokenFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import java.time.LocalDate;
 
@@ -21,7 +30,15 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final AuthEntryPointJwt unauthorizedHandler;
+    private final AuthTokenFilter authTokenFilter;
+
+
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -29,16 +46,38 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests((requests) ->
                 requests
-                        .anyRequest().permitAll());
-        http.csrf(AbstractHttpConfigurer::disable);
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/demo/**").permitAll()
+                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
+
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .anyRequest().authenticated());
+        http.exceptionHandling(exception
+                -> exception.authenticationEntryPoint(unauthorizedHandler));
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.addFilterBefore(authTokenFilter,
+                UsernamePasswordAuthenticationFilter.class);
+
+        // Disable form login and HTTP basic for JWT-only authentication
+        http.formLogin(AbstractHttpConfigurer::disable);
+        http.httpBasic(AbstractHttpConfigurer::disable);
         return http.build();
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+
 
     @Bean
-    public CommandLineRunner initData(RoleRepository roleRepository, UserRepository userRepository) {
+    public CommandLineRunner initData(RoleRepository roleRepository,
+                                      UserRepository userRepository,
+                                      PasswordEncoder passwordEncoder) {
         return args -> {
             Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
@@ -54,14 +93,15 @@ public class SecurityConfig {
 
 
             if (!userRepository.existsByUserName("user")) {
-                User user1 = new User("user", "user@user.com", "{noop}password");
+                User user1 = new User("user", "user@user.com",
+                        passwordEncoder.encode("password"));
                 user1.setFirstName("User");
                 user1.setLastName("Test");
-                user1.setAccountNonLocked(false);
+                user1.setAccountNonLocked(true);
                 user1.setAccountNonExpired(true);
                 user1.setCredentialsNonExpired(true);
                 user1.setEnabled(true);
-                user1.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                user1.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
                 user1.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 user1.setTwoFactorEnabled(false);
                 user1.setSignUpMethod("email");
@@ -70,14 +110,15 @@ public class SecurityConfig {
             }
 
             if (!userRepository.existsByUserName("admin")) {
-                User admin = new User("admin", "admin@admin.com", "{noop}password");
+                User admin = new User("admin", "admin@admin.com",
+                        passwordEncoder.encode("password"));
                 admin.setFirstName("Admin");
                 admin.setLastName("User");
                 admin.setAccountNonLocked(true);
                 admin.setAccountNonExpired(true);
                 admin.setCredentialsNonExpired(true);
                 admin.setEnabled(true);
-                admin.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                admin.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
                 admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 admin.setTwoFactorEnabled(false);
                 admin.setSignUpMethod("email");
@@ -86,14 +127,15 @@ public class SecurityConfig {
             }
 
             if(!userRepository.existsByUserName("manager")) {
-                User manager = new User("manager", "manager@manager.com", "{noop}password");
+                User manager = new User("manager", "manager@manager.com",
+                        passwordEncoder.encode("password"));
                 manager.setFirstName("Manager");
                 manager.setLastName("User");
                 manager.setAccountNonLocked(true);
                 manager.setAccountNonExpired(true);
                 manager.setCredentialsNonExpired(true);
                 manager.setEnabled(true);
-                manager.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                manager.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
                 manager.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 manager.setTwoFactorEnabled(false);
                 manager.setSignUpMethod("email");
@@ -102,14 +144,15 @@ public class SecurityConfig {
             }
 
             if (!userRepository.existsByUserName("sales")) {
-                User sales = new User("sales", "sales@sales.com", "{noop}password");
+                User sales = new User("sales", "sales@sales.com",
+                        passwordEncoder.encode("password"));
                 sales.setFirstName("Sales");
                 sales.setLastName("User");
                 sales.setAccountNonLocked(true);
                 sales.setAccountNonExpired(true);
                 sales.setCredentialsNonExpired(true);
                 sales.setEnabled(true);
-                sales.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                sales.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
                 sales.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 sales.setTwoFactorEnabled(false);
                 sales.setSignUpMethod("email");

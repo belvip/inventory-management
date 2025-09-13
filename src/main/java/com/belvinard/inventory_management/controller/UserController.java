@@ -5,6 +5,7 @@ import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.dto.UpdateUserRoleRequest;
 import com.belvinard.inventory_management.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,12 +13,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @RestController
@@ -47,7 +51,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class)))
     })
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid UserRequestDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(dto));
@@ -66,7 +70,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable Long id,
@@ -86,7 +90,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/role")
     public ResponseEntity<String> updateUserRole(@RequestBody @Valid UpdateUserRoleRequest request) {
         userService.updateUserRole(request.userId(), request.roleName());
@@ -105,7 +109,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
@@ -123,7 +127,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<UserResponseDto> deleteUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.deleteUser(id));
@@ -140,7 +144,7 @@ public class UserController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
             }
     )
-    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<List<UserResponseDto>> searchUser(@RequestParam String keyword) {
         return ResponseEntity.ok(userService.searchUser(keyword));
@@ -151,15 +155,40 @@ public class UserController {
     // ===========================================================
     @Operation(
             summary = "Get all users",
-            description = "Fetches all users in the system. Accessible by ADMIN, SALES, or MANAGER.",
+            description = "Fetches all users in the system. Accessible by ADMIN only.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
             }
     )
-    //@PreAuthorize("hasAnyRole('ADMIN','SALES','MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    // ===========================================================
+    // UPDATE USER IMAGE
+    // ===========================================================
+    @Operation(summary = "Modifier l'image d'un utilisateur")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image mise à jour avec succès",
+                    content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé"),
+            @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
+    })
+    @PutMapping(value = "/{userId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponseDto> updateUserImage(
+            @PathVariable Long userId,
+            @Parameter(description = "Fichier image à uploader", required = true)
+            @RequestPart("image") MultipartFile image
+    ) throws Exception {
+        if (image == null || image.isEmpty()) {
+            throw new IllegalArgumentException("L'image ne peut pas être vide");
+        }
+
+        UserResponseDto updatedUser = userService.updateUserImage(userId, image);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 }
