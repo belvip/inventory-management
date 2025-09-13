@@ -57,6 +57,16 @@ public class UserServiceImpl implements UserService {
         Role defaultRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                 .orElseThrow(() -> new IllegalStateException("Default role not configured"));
         user.setRole(defaultRole);
+        
+        // Définir les champs de sécurité
+        user.setAccountNonLocked(true);
+        user.setAccountNonExpired(true);
+        user.setCredentialsNonExpired(true);
+        user.setEnabled(true);
+        user.setCredentialsExpiryDate(java.time.LocalDate.now().plusDays(90));
+        user.setAccountExpiryDate(java.time.LocalDate.now().plusYears(1));
+        user.setTwoFactorEnabled(false);
+        user.setSignUpMethod("admin_created");
 
         if (dto.address() != null) {
             Address address = addressMapper.toEntity(dto.address());
