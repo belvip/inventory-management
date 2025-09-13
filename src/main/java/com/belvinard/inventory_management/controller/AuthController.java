@@ -3,6 +3,11 @@ package com.belvinard.inventory_management.controller;
 import com.belvinard.inventory_management.security.jwt.JwtUtils;
 import com.belvinard.inventory_management.security.request.LoginRequest;
 import com.belvinard.inventory_management.security.request.LoginResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +30,21 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("${api.prefix}/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Authentication endpoints for user login")
 public class AuthController {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
+    @Operation(
+            summary = "User login",
+            description = "Authenticate user with username/password and return JWT token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Login successful",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "Bad credentials", content = @Content),
+                    @ApiResponse(responseCode = "400", description = "Invalid request format", content = @Content)
+            }
+    )
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication;

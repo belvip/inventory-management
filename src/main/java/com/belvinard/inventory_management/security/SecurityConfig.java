@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,11 +35,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     private final AuthEntryPointJwt unauthorizedHandler;
+    private final AuthTokenFilter authTokenFilter;
 
-    @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
-    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -47,26 +46,24 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf ->
-                csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/api/v1/auth/**")
-        );
-        //http.csrf(AbstractHttpConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests((requests) ->
                 requests
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/demo/**").permitAll()
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
-                        .requestMatchers("api/v1/csrf-token").permitAll()
+
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated());
         http.exceptionHandling(exception
                 -> exception.authenticationEntryPoint(unauthorizedHandler));
-        http.addFilterBefore(authenticationJwtTokenFilter(),
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.addFilterBefore(authTokenFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
-        http.formLogin(withDefaults());
-        http.httpBasic(withDefaults());
+        // Disable form login and HTTP basic for JWT-only authentication
+        http.formLogin(AbstractHttpConfigurer::disable);
+        http.httpBasic(AbstractHttpConfigurer::disable);
         return http.build();
     }
 

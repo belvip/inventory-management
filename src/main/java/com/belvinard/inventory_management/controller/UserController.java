@@ -109,7 +109,7 @@ public class UserController {
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
@@ -144,18 +144,34 @@ public class UserController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
             }
     )
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<List<UserResponseDto>> searchUser(@RequestParam String keyword) {
         return ResponseEntity.ok(userService.searchUser(keyword));
     }
 
+    // ===========================================================
+    // GET ALL USERS
+    // ===========================================================
+    @Operation(
+            summary = "Get all users",
+            description = "Fetches all users in the system. Accessible by ADMIN only.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
+            }
+    )
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
 
     // ===========================================================
     // UPDATE USER IMAGE
     // ===========================================================
-    @Operation(summary = "Modifier l’image d’un utilisateur")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @Operation(summary = "Modifier l'image d'un utilisateur")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Image mise à jour avec succès",
                     content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
@@ -166,43 +182,13 @@ public class UserController {
     public ResponseEntity<UserResponseDto> updateUserImage(
             @PathVariable Long userId,
             @Parameter(description = "Fichier image à uploader", required = true)
-            @RequestPart("image") MultipartFile image // ✅ utilisation de @RequestPart
+            @RequestPart("image") MultipartFile image
     ) throws Exception {
-        // log.info("Mise à jour de l'image pour l'utilisateur {}", userId);
-
         if (image == null || image.isEmpty()) {
             throw new IllegalArgumentException("L'image ne peut pas être vide");
         }
 
         UserResponseDto updatedUser = userService.updateUserImage(userId, image);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-    }
-
-    // ===========================================================
-    // GET PRESIGNED USER IMAGE URL
-    // ===========================================================
-    @Operation(summary = "PUBLIC: Obtenir le lien temporaire de l’image d’un utilisateur")
-    @GetMapping("/{id}/image-url")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    public ResponseEntity<String> getPresignedUserImageUrl(@PathVariable Long id) {
-        String presignedUrl = userService.getPresignedImageUrl(id);
-        return ResponseEntity.ok(presignedUrl);
-    }
-
-    // ===========================================================
-    // GET ALL USERS
-    // ===========================================================
-    @Operation(
-            summary = "Get all users",
-            description = "Fetches all users in the system. Accessible by ADMIN, SALES, or MANAGER.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class)))
-            }
-    )
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @GetMapping
-    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
     }
 }
