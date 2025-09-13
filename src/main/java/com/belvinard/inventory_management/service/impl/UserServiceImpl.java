@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    //private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final AddressMapper addressMapper;
     private final MinioService minioService;
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toEntity(dto);
-        //user.setPassword(passwordEncoder.encode(dto.password()));
+        user.setPassword(passwordEncoder.encode(dto.password()));
 
         Role defaultRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                 .orElseThrow(() -> new IllegalStateException("Default role not configured"));
@@ -118,7 +118,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(dto.email());
 
         if (dto.password() != null && !dto.password().isBlank()) {
-            //user.setPassword(passwordEncoder.encode(dto.password()));
+            user.setPassword(passwordEncoder.encode(dto.password()));
         }
 
         if (dto.address() != null) {
