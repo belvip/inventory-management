@@ -1,5 +1,6 @@
 package com.belvinard.inventory_management.controller;
 
+import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.model.AppRole;
 import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.model.User;
@@ -10,6 +11,8 @@ import com.belvinard.inventory_management.security.request.LoginRequest;
 import com.belvinard.inventory_management.security.request.SignupRequest;
 import com.belvinard.inventory_management.security.response.LoginResponse;
 import com.belvinard.inventory_management.security.response.MessageResponse;
+import com.belvinard.inventory_management.security.response.UserInfoResponse;
+import com.belvinard.inventory_management.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,13 +26,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
+    private final UserService userService;
 
     @Operation(
             summary = "User login",
@@ -144,8 +146,8 @@ public class AuthController {
         user.setAccountNonExpired(true);
         user.setCredentialsNonExpired(true);
         user.setEnabled(true);
-        user.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
-        user.setAccountExpiryDate(LocalDate.now().plusYears(1));
+        user.setCredentialsExpiryDate(LocalDate.now().plusDays(90)); // Mot de passe expire en 90 jours
+        user.setAccountExpiryDate(LocalDate.now().plusYears(1)); // Compte expire en 1 an
         user.setTwoFactorEnabled(false);
 
         userRepository.save(user);
@@ -153,4 +155,47 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+    @Operation(
+            summary = "Get current user details",
+            description = "Get detailed information about the currently authenticated user",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User details retrieved successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserInfoResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+            }
+    )
+    @GetMapping("/user")
+    public ResponseEntity<?> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
+        UserResponseDto userDto = userService.findByUsername(userDetails.getUsername());
+        
+        // Récupérer l'entité User pour les champs sensibles (uniquement pour le profil utilisateur)
+        User user = userRepository.findByUserName(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+        UserInfoResponse response = new UserInfoResponse(
+                userDto.userId(),
+                userDto.firstName(),
+                userDto.lastName(),
+                userDto.userName(),
+                userDto.email(),
+                userDto.image(),
+                userDto.address(),
+                userDto.accountNonLocked(),
+                userDto.accountNonExpired(),
+                userDto.credentialsNonExpired(),
+                userDto.enabled(),
+                user.getCredentialsExpiryDate(),
+                user.getAccountExpiryDate(),
+                user.isTwoFactorEnabled(),
+                user.getSignUpMethod(),
+                roles
+        );
+
+        return ResponseEntity.ok(response);
+    }
 }
+

@@ -35,39 +35,5 @@ public class DemoController {
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/users/admin")
-    @Operation(summary = "Get admin user info", description = "Returns admin user information for testing")
-    public ResponseEntity<UserResponseDto> getAdminUser() {
-        return userRepository.findByUserName("admin")
-                .map(userMapper::toResponseDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 
-    @GetMapping("/users/manager")
-    @Operation(summary = "Get manager user info", description = "Returns manager user information for testing")
-    public ResponseEntity<UserResponseDto> getManagerUser() {
-        return userRepository.findByUserName("manager")
-                .map(userMapper::toResponseDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/users/sales")
-    @Operation(summary = "Get sales user info", description = "Returns sales user information for testing")
-    public ResponseEntity<UserResponseDto> getSalesUser() {
-        return userRepository.findByUserName("sales")
-                .map(userMapper::toResponseDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/users/user")
-    @Operation(summary = "Get regular user info", description = "Returns regular user information for testing")
-    public ResponseEntity<UserResponseDto> getRegularUser() {
-        return userRepository.findByUserName("user")
-                .map(userMapper::toResponseDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 }

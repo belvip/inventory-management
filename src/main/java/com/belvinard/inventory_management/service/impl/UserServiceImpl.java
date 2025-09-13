@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -149,6 +150,13 @@ public class UserServiceImpl implements UserService {
         return userMapper.toResponseDto(updatedUser);
     }
 
+    @Override
+    public UserResponseDto findByUsername(String username) {
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+        return createResponseDto(user);
+    }
+
 
     @Override
     public String getPresignedImageUrl(Long id) {
@@ -198,4 +206,5 @@ public class UserServiceImpl implements UserService {
             addressDto
         );
     }
+
 }

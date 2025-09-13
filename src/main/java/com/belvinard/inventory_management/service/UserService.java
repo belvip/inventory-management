@@ -2,6 +2,7 @@ package com.belvinard.inventory_management.service;
 
 import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
+import com.belvinard.inventory_management.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,4 +26,6 @@ public interface UserService {
     UserResponseDto updateUserImage(Long userId, MultipartFile image) throws IOException;
 
     String getPresignedImageUrl(Long id);
+
+    UserResponseDto findByUsername(String username);
 }

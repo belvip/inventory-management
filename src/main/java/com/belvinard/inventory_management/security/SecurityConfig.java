@@ -101,7 +101,7 @@ public class SecurityConfig {
                 user1.setAccountNonExpired(true);
                 user1.setCredentialsNonExpired(true);
                 user1.setEnabled(true);
-                user1.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                user1.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
                 user1.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 user1.setTwoFactorEnabled(false);
                 user1.setSignUpMethod("email");
@@ -118,7 +118,7 @@ public class SecurityConfig {
                 admin.setAccountNonExpired(true);
                 admin.setCredentialsNonExpired(true);
                 admin.setEnabled(true);
-                admin.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                admin.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
                 admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 admin.setTwoFactorEnabled(false);
                 admin.setSignUpMethod("email");
@@ -135,7 +135,7 @@ public class SecurityConfig {
                 manager.setAccountNonExpired(true);
                 manager.setCredentialsNonExpired(true);
                 manager.setEnabled(true);
-                manager.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                manager.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
                 manager.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 manager.setTwoFactorEnabled(false);
                 manager.setSignUpMethod("email");
@@ -152,7 +152,7 @@ public class SecurityConfig {
                 sales.setAccountNonExpired(true);
                 sales.setCredentialsNonExpired(true);
                 sales.setEnabled(true);
-                sales.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+                sales.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
                 sales.setAccountExpiryDate(LocalDate.now().plusYears(1));
                 sales.setTwoFactorEnabled(false);
                 sales.setSignUpMethod("email");
