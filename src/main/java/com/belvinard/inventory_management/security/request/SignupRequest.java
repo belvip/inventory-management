@@ -4,6 +4,8 @@ import com.belvinard.inventory_management.dto.AddressDto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 public class SignupRequest {
     @NotBlank
@@ -30,5 +32,8 @@ public class SignupRequest {
     private String image;
 
     private AddressDto address;
+
+    private String signUpMethod = "email";
+
 
 }

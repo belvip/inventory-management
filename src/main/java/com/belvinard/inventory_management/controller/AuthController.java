@@ -1,13 +1,21 @@
 package com.belvinard.inventory_management.controller;
 
+import com.belvinard.inventory_management.model.AppRole;
+import com.belvinard.inventory_management.model.Role;
+import com.belvinard.inventory_management.model.User;
+import com.belvinard.inventory_management.repository.RoleRepository;
+import com.belvinard.inventory_management.repository.UserRepository;
 import com.belvinard.inventory_management.security.jwt.JwtUtils;
 import com.belvinard.inventory_management.security.request.LoginRequest;
+import com.belvinard.inventory_management.security.request.SignupRequest;
 import com.belvinard.inventory_management.security.response.LoginResponse;
+import com.belvinard.inventory_management.security.response.MessageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +25,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
 import java.util.stream.Collectors;
 
 @RestController
@@ -34,6 +46,9 @@ import java.util.stream.Collectors;
 public class AuthController {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder encoder;
 
     @Operation(
             summary = "User login",
@@ -77,5 +92,65 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "User registration",
+            description = "Register a new user account with default ROLE_USER. Username and email must be unique.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User registered successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Username or email already exists",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Validation error", content = @Content)
+            }
+    )
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+        if (userRepository.existsByUserName(signUpRequest.getUsername())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+        }
+
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
+        }
+
+        // Create new user's account
+        User user = new User(signUpRequest.getUsername(),
+                signUpRequest.getEmail(),
+                encoder.encode(signUpRequest.getPassword()));
+
+        // Set user details from SignupRequest
+        user.setFirstName(signUpRequest.getFirstName());
+        user.setLastName(signUpRequest.getLastName());
+        user.setImage(signUpRequest.getImage());
+        user.setSignUpMethod(signUpRequest.getSignUpMethod());
+
+        // Set address if provided
+        if (signUpRequest.getAddress() != null) {
+            user.setAddress(new com.belvinard.inventory_management.model.Address(
+                signUpRequest.getAddress().address1(),
+                signUpRequest.getAddress().address2(),
+                signUpRequest.getAddress().city(),
+                signUpRequest.getAddress().postalCode(),
+                signUpRequest.getAddress().country()
+            ));
+        }
+
+        // Set default role as USER for public signup
+        Role role = roleRepository.findByRoleName(AppRole.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+
+        user.setRole(role);
+        user.setAccountNonLocked(true);
+        user.setAccountNonExpired(true);
+        user.setCredentialsNonExpired(true);
+        user.setEnabled(true);
+        user.setCredentialsExpiryDate(LocalDate.now().plusYears(1));
+        user.setAccountExpiryDate(LocalDate.now().plusYears(1));
+        user.setTwoFactorEnabled(false);
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
 
 }
