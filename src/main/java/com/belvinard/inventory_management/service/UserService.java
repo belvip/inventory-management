@@ -32,4 +32,10 @@ public interface UserService {
     void updatePasswordByUsername(String username, String password);
 
     void updateAccountLockStatus(Long userId, boolean lock);
+
+    void updateCredentialsExpiryStatus(Long userId, boolean expire);
+
+    void updateAccountEnabledStatus(Long userId, boolean enabled);
+
+    void updateAccountExpiryStatus(Long userId, boolean expire);
 }

@@ -1,10 +1,6 @@
 package com.belvinard.inventory_management.controller;
 
-import com.belvinard.inventory_management.dto.UserRequestDto;
-import com.belvinard.inventory_management.dto.UserResponseDto;
-import com.belvinard.inventory_management.dto.UpdateUserRoleRequest;
-import com.belvinard.inventory_management.dto.UpdatePasswordRequest;
-import com.belvinard.inventory_management.dto.UpdateAccountLockStatusRequest;
+import com.belvinard.inventory_management.dto.*;
 import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.service.UserService;
@@ -253,6 +249,70 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(request.userId()));
     }
 
+    // ===========================================================
+    // UPDATE CREDENTIALS EXPIRY STATUS
+    // ===========================================================
+    @Operation(
+            summary = "PRIVATE: Met à jour le statut d'expiration des identifiants",
+            description = "Permet de définir si les identifiants d’un utilisateur sont expirés ou non."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Statut des identifiants mis à jour avec succès"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur introuvable"),
+            @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/update-credentials-expiry-status")
+    public ResponseEntity<String> updateCredentialsExpiryStatus(
+            @org.springframework.web.bind.annotation.RequestBody UpdateCredentialsExpiryStatusRequest request
+    ) {
+        userService.updateCredentialsExpiryStatus(request.getUserId(), request.isExpire());
+        return ResponseEntity.ok("Credentials expiry status updated");
+    }
+
+    // ===========================================================
+    // UPDATE ACCOUNT ENABLED STATUS
+    // ===========================================================
+    @Operation(
+            summary = "PRIVATE: Active ou désactive un compte utilisateur",
+            description = "Permet d’activer ou de désactiver un compte utilisateur en fonction de l’ID."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Statut du compte mis à jour avec succès"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur introuvable"),
+            @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/update-enabled-status")
+    public ResponseEntity<String> updateAccountEnabledStatus(
+            @org.springframework.web.bind.annotation.RequestBody UpdateAccountEnabledStatusRequest request
+    ) {
+        userService.updateAccountEnabledStatus(request.getUserId(), request.isEnabled());
+        return ResponseEntity.ok("Account enabled status updated");
+    }
+
+    // ===========================================================
+    // UPDATE ACCOUNT EXPIRY STATUS
+    // ===========================================================
+    @Operation(
+            summary = "PRIVATE: Met à jour le statut d’expiration du compte",
+            description = "Permet de définir si le compte utilisateur est expiré ou non."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Statut d'expiration du compte mis à jour avec succès"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur introuvable"),
+            @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/update-expiry-status")
+    public ResponseEntity<String> updateAccountExpiryStatus(
+            @org.springframework.web.bind.annotation.RequestBody UpdateAccountExpiryStatusRequest request
+    ) {
+        userService.updateAccountExpiryStatus(request.getUserId(), request.isExpire());
+        return ResponseEntity.ok("Account expiry status updated");
+    }
+
+    
 
 
 

@@ -229,6 +229,31 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    public void updateCredentialsExpiryStatus(Long userId, boolean expire) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new RuntimeException("User not found"));
+        user.setCredentialsNonExpired(!expire);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateAccountEnabledStatus(Long userId, boolean enabled) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new RuntimeException("User not found"));
+        user.setEnabled(enabled);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateAccountExpiryStatus(Long userId, boolean expire) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new RuntimeException("User not found"));
+        user.setAccountNonExpired(!expire);
+        userRepository.save(user);
+    }
+
+
 
     private UserResponseDto createResponseDto(User user) {
         UserResponseDto baseResponse = userMapper.toResponseDto(user);
