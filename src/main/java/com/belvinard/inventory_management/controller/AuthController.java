@@ -255,7 +255,7 @@ public class AuthController {
     @PostMapping("/signout")
     public ResponseEntity<?> logoutUser(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUserName(userDetails.getUsername()).get();
-        refreshTokenService.deleteByUserId(user.getUserId());
+        refreshTokenService.deleteByUserId(user.getId());
         return ResponseEntity.ok(new MessageResponse("Log out successful!"));
     }
 }
