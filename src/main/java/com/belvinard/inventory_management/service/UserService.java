@@ -31,4 +31,5 @@ public interface UserService {
     
     void updatePasswordByUsername(String username, String password);
 
+    void updateAccountLockStatus(Long userId, boolean lock);
 }

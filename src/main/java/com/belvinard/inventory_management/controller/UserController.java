@@ -4,6 +4,7 @@ import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.dto.UpdateUserRoleRequest;
 import com.belvinard.inventory_management.dto.UpdatePasswordRequest;
+import com.belvinard.inventory_management.dto.UpdateAccountLockStatusRequest;
 import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.service.UserService;
@@ -233,6 +234,25 @@ public class UserController {
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }
+
+    @Operation(
+            summary = "Update account lock status",
+            description = "Allows an ADMIN to lock or unlock a user account for security purposes."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Account lock status updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied - ADMIN role required")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/update-lock-status")
+    public ResponseEntity<UserResponseDto> updateAccountLockStatus(@RequestBody @Valid UpdateAccountLockStatusRequest request) {
+        userService.updateAccountLockStatus(request.userId(), request.lock());
+        return ResponseEntity.ok(userService.getUserById(request.userId()));
+    }
+
 
 
 
