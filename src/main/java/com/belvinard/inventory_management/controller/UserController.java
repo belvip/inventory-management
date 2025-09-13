@@ -4,6 +4,8 @@ import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.dto.UpdateUserRoleRequest;
 import com.belvinard.inventory_management.dto.UpdatePasswordRequest;
+import com.belvinard.inventory_management.model.Role;
+import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +36,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final RoleRepository roleRepository;
 
     // ===========================================================
     // CREATE USER
@@ -214,6 +217,23 @@ public class UserController {
         userService.updatePasswordByUsername(userDetails.getUsername(), request.password());
         return ResponseEntity.ok("Password updated successfully");
     }
+
+
+    @Operation(
+            summary = "Get all roles",
+            description = "Fetches all available roles in the system. Accessible by ADMIN only.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Roles retrieved successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Role.class))),
+                    @ApiResponse(responseCode = "403", description = "Access denied", content = @Content)
+            }
+    )
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/roles")
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
+    }
+
 
 
 }
