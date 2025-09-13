@@ -28,4 +28,7 @@ public interface UserService {
     String getPresignedImageUrl(Long id);
 
     UserResponseDto findByUsername(String username);
+    
+    void updatePasswordByUsername(String username, String password);
+
 }

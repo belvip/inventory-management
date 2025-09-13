@@ -27,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -186,6 +185,41 @@ public class UserServiceImpl implements UserService {
     }
 
 
+
+    @Override
+    @Transactional
+    public void updatePasswordByUsername(String username, String password) {
+        // Validation des paramètres
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
+        if (password.length() < 6) {
+            throw new IllegalArgumentException("Password must be at least 6 characters long");
+        }
+
+        // Rechercher l'utilisateur
+        User user = userRepository.findByUserName(username.trim())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
+
+        // Vérifier que le compte est actif
+        if (!user.isEnabled()) {
+            throw new IllegalStateException("Cannot update password for disabled user");
+        }
+        if (!user.isAccountNonLocked()) {
+            throw new IllegalStateException("Cannot update password for locked user");
+        }
+
+        // Encoder et sauvegarder le nouveau mot de passe
+        user.setPassword(passwordEncoder.encode(password.trim()));
+        
+        // Mettre à jour la date d'expiration des credentials
+        user.setCredentialsExpiryDate(java.time.LocalDate.now().plusDays(90));
+        
+        userRepository.save(user);
+    }
 
     private UserResponseDto createResponseDto(User user) {
         UserResponseDto baseResponse = userMapper.toResponseDto(user);

@@ -51,8 +51,8 @@ public class SecurityConfig {
                 requests
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/demo/**").permitAll()
+                        .requestMatchers("/api/v1/users/update-password").authenticated()
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
-
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated());
         http.exceptionHandling(exception

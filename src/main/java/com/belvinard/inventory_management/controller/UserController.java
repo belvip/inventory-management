@@ -3,6 +3,7 @@ package com.belvinard.inventory_management.controller;
 import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.dto.UpdateUserRoleRequest;
+import com.belvinard.inventory_management.dto.UpdatePasswordRequest;
 import com.belvinard.inventory_management.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
@@ -191,4 +194,26 @@ public class UserController {
         UserResponseDto updatedUser = userService.updateUserImage(userId, image);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
+
+
+    @Operation(
+            summary = "Update own password",
+            description = "Allows an authenticated user to update their own password.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Password updated successfully",
+                            content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+                    @ApiResponse(responseCode = "400", description = "Invalid request or validation failed",
+                            content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+            }
+    )
+    @PutMapping("/update-password")
+    public ResponseEntity<String> updatePassword(
+            @RequestBody @Valid UpdatePasswordRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        userService.updatePasswordByUsername(userDetails.getUsername(), request.password());
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
+
 }
