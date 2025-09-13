@@ -197,5 +197,19 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
+    @Operation(
+            summary = "Get current username",
+            description = "Get the username of the currently authenticated user",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Username retrieved successfully",
+                            content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
+            }
+    )
+    @GetMapping("/username")
+    public String currentUserName(@AuthenticationPrincipal UserDetails userDetails) {
+        return (userDetails != null) ? userDetails.getUsername() : "";
+    }
 }
 
