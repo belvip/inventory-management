@@ -9,10 +9,8 @@ import com.belvinard.inventory_management.exception.ResourceConflictException;
 import com.belvinard.inventory_management.exception.ResourceNotFoundException;
 import com.belvinard.inventory_management.mapper.AddressMapper;
 import com.belvinard.inventory_management.mapper.UserMapper;
-import com.belvinard.inventory_management.model.Address;
-import com.belvinard.inventory_management.model.AppRole;
-import com.belvinard.inventory_management.model.Role;
-import com.belvinard.inventory_management.model.User;
+import com.belvinard.inventory_management.model.*;
+import com.belvinard.inventory_management.repository.PasswordResetTokenRepository;
 import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.repository.UserRepository;
 import com.belvinard.inventory_management.service.MinioService;
@@ -20,18 +18,24 @@ import com.belvinard.inventory_management.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UserServiceImpl implements UserService {
+    @Value("${frontend.url}")
+    String frontendUrl;
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -39,6 +43,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final AddressMapper addressMapper;
     private final MinioService minioService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Override
     @Transactional
@@ -253,6 +258,21 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    public void generatePasswordResetToken(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        String token = UUID.randomUUID().toString();
+        Instant expiryDate = Instant.now().plus(24, ChronoUnit.HOURS);
+        PasswordResetToken resetToken = new PasswordResetToken(token, expiryDate, user);
+
+        passwordResetTokenRepository.save(resetToken);
+
+        String resetUrl = frontendUrl + "/reset-password?token=" + token;
+        // Send email to user
+
+
+    }
 
 
     private UserResponseDto createResponseDto(User user) {

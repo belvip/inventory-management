@@ -312,8 +312,5 @@ public class UserController {
         return ResponseEntity.ok("Account expiry status updated");
     }
 
-    
-
-
 
 }

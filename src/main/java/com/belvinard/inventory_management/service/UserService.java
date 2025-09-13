@@ -38,4 +38,6 @@ public interface UserService {
     void updateAccountEnabledStatus(Long userId, boolean enabled);
 
     void updateAccountExpiryStatus(Long userId, boolean expire);
+
+    void generatePasswordResetToken(String email);
 }
