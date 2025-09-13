@@ -13,6 +13,11 @@ import com.belvinard.inventory_management.security.response.LoginResponse;
 import com.belvinard.inventory_management.security.response.MessageResponse;
 import com.belvinard.inventory_management.security.response.UserInfoResponse;
 import com.belvinard.inventory_management.service.UserService;
+import com.belvinard.inventory_management.service.RefreshTokenService;
+import com.belvinard.inventory_management.model.RefreshToken;
+import com.belvinard.inventory_management.security.request.TokenRefreshRequest;
+import com.belvinard.inventory_management.security.response.TokenRefreshResponse;
+import com.belvinard.inventory_management.exception.TokenRefreshException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -51,6 +56,7 @@ public class AuthController {
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
     @Operation(
             summary = "User login",
@@ -87,10 +93,13 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        // Prepare the response body, now including the JWT token directly in the body
-        LoginResponse response = new LoginResponse(userDetails.getUsername(), roles, jwtToken);
+        // Créer le refresh token
+        User user = userRepository.findByUserName(userDetails.getUsername()).get();
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        // Return the response entity with the JWT token included in the response body
+        // Prepare the response body with JWT and refresh token
+        LoginResponse response = new LoginResponse(userDetails.getUsername(), roles, jwtToken, refreshToken.getToken());
+
         return ResponseEntity.ok(response);
     }
 
@@ -210,6 +219,44 @@ public class AuthController {
     @GetMapping("/username")
     public String currentUserName(@AuthenticationPrincipal UserDetails userDetails) {
         return (userDetails != null) ? userDetails.getUsername() : "";
+    }
+
+    @Operation(
+            summary = "Refresh JWT token",
+            description = "Generate new JWT token using refresh token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Token refreshed successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TokenRefreshResponse.class))),
+                    @ApiResponse(responseCode = "403", description = "Refresh token expired", content = @Content)
+            }
+    )
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtils.generateTokenFromUsername(user.getUserName());
+                    return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
+                })
+                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Refresh token is not in database!"));
+    }
+
+    @Operation(
+            summary = "User logout",
+            description = "Logout user and invalidate refresh token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User logged out successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class)))
+            }
+    )
+    @PostMapping("/signout")
+    public ResponseEntity<?> logoutUser(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByUserName(userDetails.getUsername()).get();
+        refreshTokenService.deleteByUserId(user.getUserId());
+        return ResponseEntity.ok(new MessageResponse("Log out successful!"));
     }
 }
 

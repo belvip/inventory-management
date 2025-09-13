@@ -4,14 +4,15 @@ import java.util.List;
 
 public class LoginResponse {
     private String jwtToken;
-
+    private String refreshToken;
     private String username;
     private List<String> roles;
 
-    public LoginResponse(String username, List<String> roles, String jwtToken) {
+    public LoginResponse(String username, List<String> roles, String jwtToken, String refreshToken) {
         this.username = username;
         this.roles = roles;
         this.jwtToken = jwtToken;
+        this.refreshToken = refreshToken;
     }
 
     public String getJwtToken() {
@@ -36,5 +37,13 @@ public class LoginResponse {
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }
