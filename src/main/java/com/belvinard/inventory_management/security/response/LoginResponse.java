@@ -1,4 +1,4 @@
-package com.belvinard.inventory_management.security.request;
+package com.belvinard.inventory_management.security.response;
 
 import java.util.List;
 

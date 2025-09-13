@@ -2,7 +2,7 @@ package com.belvinard.inventory_management.controller;
 
 import com.belvinard.inventory_management.security.jwt.JwtUtils;
 import com.belvinard.inventory_management.security.request.LoginRequest;
-import com.belvinard.inventory_management.security.request.LoginResponse;
+import com.belvinard.inventory_management.security.response.LoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
