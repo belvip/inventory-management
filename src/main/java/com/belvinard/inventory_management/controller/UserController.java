@@ -39,7 +39,7 @@ public class UserController {
     // CREATE USER
     // ===========================================================
     @Operation(
-            summary = "Create a new user",
+            summary = "Create a new user - Only admin",
             description = "Creates a new user with default role ROLE_USER. "
                     + "Fails if email or username already exist."
     )
@@ -64,7 +64,7 @@ public class UserController {
     // UPDATE USER
     // ===========================================================
     @Operation(
-            summary = "Update a user",
+            summary = "Update a user - Only admin",
             description = "Allows an ADMIN to update an existing user's details.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User updated successfully",
@@ -86,7 +86,7 @@ public class UserController {
     // UPDATE ROLE
     // ===========================================================
     @Operation(
-            summary = "Update a user's role",
+            summary = "Update a user's role - Only admin",
             description = "Allows an ADMIN to update the role of an existing user.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User role updated successfully"),
@@ -104,7 +104,7 @@ public class UserController {
     // GET USER BY ID
     // ===========================================================
     @Operation(
-            summary = "Get a user by ID",
+            summary = "Get a user by ID - Only admin",
             description = "Fetches a user by their unique ID. Accessible by ADMIN, SALES, or MANAGER.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User found",
@@ -122,7 +122,7 @@ public class UserController {
     // DELETE USER
     // ===========================================================
     @Operation(
-            summary = "Delete a user",
+            summary = "Delete a user - Only admin",
             description = "Allows an ADMIN to delete a user by ID.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User deleted successfully",
@@ -140,7 +140,7 @@ public class UserController {
     // SEARCH USERS
     // ===========================================================
     @Operation(
-            summary = "Search users by keyword",
+            summary = "Search users by keyword - Only admin",
             description = "Allows ADMIN, SALES, or MANAGER to search for users by username, email, or other fields.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Users found",
@@ -157,7 +157,7 @@ public class UserController {
     // GET ALL USERS
     // ===========================================================
     @Operation(
-            summary = "Get all users",
+            summary = "Get all users - Only admin",
             description = "Fetches all users in the system. Accessible by ADMIN only.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
@@ -173,7 +173,7 @@ public class UserController {
     // ===========================================================
     // UPDATE USER IMAGE
     // ===========================================================
-    @Operation(summary = "Modifier l'image d'un utilisateur")
+    @Operation(summary = "Modifier l'image d'un utilisateur - Only admin")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Image mise à jour avec succès",
@@ -197,7 +197,7 @@ public class UserController {
 
 
     @Operation(
-            summary = "Update own password",
+            summary = "Update own password - user authenticated",
             description = "Allows an authenticated user to update their own password.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Password updated successfully",
@@ -232,7 +232,7 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Update account lock status",
+            summary = "Update account lock status - Only admin",
             description = "Allows an ADMIN to lock or unlock a user account for security purposes."
     )
     @ApiResponses(value = {
@@ -253,7 +253,7 @@ public class UserController {
     // UPDATE CREDENTIALS EXPIRY STATUS
     // ===========================================================
     @Operation(
-            summary = "PRIVATE: Met à jour le statut d'expiration des identifiants",
+            summary = "PRIVATE: Met à jour le statut d'expiration des identifiants - Only admin",
             description = "Permet de définir si les identifiants d’un utilisateur sont expirés ou non."
     )
     @ApiResponses({
@@ -274,7 +274,7 @@ public class UserController {
     // UPDATE ACCOUNT ENABLED STATUS
     // ===========================================================
     @Operation(
-            summary = "PRIVATE: Active ou désactive un compte utilisateur",
+            summary = "PRIVATE: Active ou désactive un compte utilisateur - Only admin",
             description = "Permet d’activer ou de désactiver un compte utilisateur en fonction de l’ID."
     )
     @ApiResponses({
@@ -295,7 +295,7 @@ public class UserController {
     // UPDATE ACCOUNT EXPIRY STATUS
     // ===========================================================
     @Operation(
-            summary = "PRIVATE: Met à jour le statut d’expiration du compte",
+            summary = "PRIVATE: Met à jour le statut d’expiration du compte - Only admin",
             description = "Permet de définir si le compte utilisateur est expiré ou non."
     )
     @ApiResponses({

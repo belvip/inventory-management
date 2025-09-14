@@ -259,17 +259,26 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("Log out successful!"));
     }
 
+    @Operation(
+            summary = "Forgot password",
+            description = "Send password reset email to the specified email address",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Password reset email sent successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Error sending password reset email",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class)))
+            }
+    )
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestParam String email){
         try{
             userService.generatePasswordResetToken(email);
             return ResponseEntity.ok(new MessageResponse("Password reset email sent!"));
         }catch (Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error sending password reset email"));
         }
-
-
     }
 }
 

@@ -15,6 +15,7 @@ import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.repository.UserRepository;
 import com.belvinard.inventory_management.service.MinioService;
 import com.belvinard.inventory_management.service.UserService;
+import com.belvinard.inventory_management.utils.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class UserServiceImpl implements UserService {
     private final AddressMapper addressMapper;
     private final MinioService minioService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -270,6 +272,7 @@ public class UserServiceImpl implements UserService {
 
         String resetUrl = frontendUrl + "/reset-password?token=" + token;
         // Send email to user
+        emailService.sendPasswordResetEmail(user.getEmail(), resetUrl);;
 
 
     }

@@ -45,12 +45,12 @@
     }
   },
   {
-    "firstName": "Pierre",
-    "lastName": "Tchouassi",
-    "userName": "ptchouassi",
-    "email": "ptchouassi@example.com",
-    "password": "tchouassi_pass",
-    "image": "https://placehold.co/150x150/2ecc71/ffffff?text=PT",
+    "firstName": "Pachinco",
+    "lastName": "Pouadjeu",
+    "userName": "belvi",
+    "email": "pouadjeubelvi@gmail.com",
+    "password": "belvi123",
+    "image": "https://placehold.co/150x150/2ecc71/ffffff?text=PT.jpg",
     "address": {
       "address1": "Boulevard de la Liberté 12",
       "address2": "Akwa",
