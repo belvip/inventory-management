@@ -54,7 +54,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/update-password").authenticated()
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .anyRequest().authenticated());
+                        .requestMatchers("/api/v1/oauth2/**").permitAll()
+                        .anyRequest().authenticated())
+                        .oauth2Login(oauth ->{
+                            //oauth.defaultSuccessUrl("/api/v1/users");
+                            //oauth.loginPage("/api/v1/auth/login");
+
+                        });
         http.exceptionHandling(exception
                 -> exception.authenticationEntryPoint(unauthorizedHandler));
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
