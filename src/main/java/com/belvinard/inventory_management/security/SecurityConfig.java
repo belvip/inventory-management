@@ -54,7 +54,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/update-password").authenticated()
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/oauth2/**").permitAll()
+                        //.requestMatchers("/api/v1/oauth2/**").permitAll()
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())
                         .oauth2Login(oauth ->{
                             //oauth.defaultSuccessUrl("/api/v1/users");
