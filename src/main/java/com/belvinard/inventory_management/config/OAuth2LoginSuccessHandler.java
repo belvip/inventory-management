@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,17 +35,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
-
-    @Autowired
-    private final UserService userService;
-
-
-    @Autowired
+    private final ApplicationContext applicationContext;
     private final JwtUtils jwtUtils;
-
-
-    @Autowired
-    RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
 
     @Value("${frontend.url}")
@@ -76,7 +69,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
             System.out.println("HELLO OAUTH: " + email + " : " + name + " : " + username);
 
 
-            userService.findByEmail(email)
+            getUserService().findByEmail(email)
                     .ifPresentOrElse(user -> {
                         DefaultOAuth2User oauthUser = new DefaultOAuth2User(
                                 List.of(new SimpleGrantedAuthority(user.getRole().getRoleName().name())),
@@ -101,7 +94,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                         newUser.setEmail(email);
                         newUser.setUserName(username);
                         newUser.setSignUpMethod(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId());
-                        userService.registerUser(newUser);
+                        getUserService().registerUser(newUser);
                         DefaultOAuth2User oauthUser = new DefaultOAuth2User(
                                 List.of(new SimpleGrantedAuthority(newUser.getRole().getRoleName().name())),
                                 attributes,
@@ -149,12 +142,16 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
         String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
 
 
-        // Redirect to the frontend with the JWT token
-        String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/redirect")
+        // Redirect to backend success endpoint with JWT token
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8282/api/v1/auth/oauth2/success")
                 .queryParam("token", jwtToken)
                 .build().toUriString();
         this.setDefaultTargetUrl(targetUrl);
         super.onAuthenticationSuccess(request, response, authentication);
+    }
+
+    private UserService getUserService() {
+        return applicationContext.getBean(UserService.class);
     }
 }
 

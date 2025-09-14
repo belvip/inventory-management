@@ -303,5 +303,16 @@ public class AuthController {
                     .body(new MessageResponse(e.getMessage()));
         }
     }
+
+    @GetMapping("/oauth2/success")
+    public ResponseEntity<?> oauth2Success(@RequestParam(required = false) String token) {
+        if (token != null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "OAuth2 login successful!");
+            response.put("token", token);
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.ok(new MessageResponse("OAuth2 login successful!"));
+    }
 }
 

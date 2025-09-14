@@ -1,5 +1,6 @@
 package com.belvinard.inventory_management.security;
 
+import com.belvinard.inventory_management.config.OAuth2LoginSuccessHandler;
 import com.belvinard.inventory_management.model.AppRole;
 import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.model.User;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -22,11 +24,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import java.time.LocalDate;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -36,7 +35,8 @@ public class SecurityConfig {
 
     private final AuthEntryPointJwt unauthorizedHandler;
     private final AuthTokenFilter authTokenFilter;
-
+    @Lazy
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
 
     @Bean
@@ -51,21 +51,23 @@ public class SecurityConfig {
                 requests
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/demo/**").permitAll()
+                        .requestMatchers("/api/v1/auth/oauth2/success").permitAll()
                         .requestMatchers("/api/v1/users/update-password").authenticated()
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        //.requestMatchers("/api/v1/oauth2/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())
                         .oauth2Login(oauth ->{
-                            //oauth.defaultSuccessUrl("/api/v1/users");
-                            //oauth.loginPage("/api/v1/auth/login");
+                            oauth.successHandler(oAuth2LoginSuccessHandler);
 
                         });
         http.exceptionHandling(exception
                 -> exception.authenticationEntryPoint(unauthorizedHandler));
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement(session -> {
+            session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+            session.maximumSessions(1);
+        });
         http.addFilterBefore(authTokenFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
