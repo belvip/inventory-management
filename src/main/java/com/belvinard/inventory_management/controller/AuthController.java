@@ -1,5 +1,7 @@
 package com.belvinard.inventory_management.controller;
 
+import com.belvinard.inventory_management.dto.ForgotPasswordRequest;
+import com.belvinard.inventory_management.dto.ResetPasswordRequest;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.model.AppRole;
 import com.belvinard.inventory_management.model.Role;
@@ -270,14 +272,35 @@ public class AuthController {
             }
     )
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestParam String email){
-        try{
-            userService.generatePasswordResetToken(email);
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            userService.generatePasswordResetToken(request.getEmail());
             return ResponseEntity.ok(new MessageResponse("Password reset email sent!"));
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error sending password reset email"));
+        }
+    }
+
+    @Operation(
+            summary = "Reset password",
+            description = "Reset user password using a valid reset token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Password reset successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid token or request",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class)))
+            }
+    )
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try{
+            userService.resetPassword(request);
+            return ResponseEntity.ok(new MessageResponse("Password reset successfully!"));
+        }catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponse(e.getMessage()));
         }
     }
 }

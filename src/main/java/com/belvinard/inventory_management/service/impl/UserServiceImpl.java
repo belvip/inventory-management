@@ -1,6 +1,7 @@
 package com.belvinard.inventory_management.service.impl;
 
 import com.belvinard.inventory_management.dto.AddressDto;
+import com.belvinard.inventory_management.dto.ResetPasswordRequest;
 import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 
@@ -274,6 +275,27 @@ public class UserServiceImpl implements UserService {
         // Send email to user
         emailService.sendPasswordResetEmail(user.getEmail(), resetUrl);;
 
+
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        if (resetToken.isUsed()){
+            throw new RuntimeException("Password reset token has already been used");
+        }
+
+        if (resetToken.getExpiryDate().isBefore(Instant.now())) {
+            throw new ResourceNotFoundException("Password reset token has expired");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        resetToken.setUsed(true);
+        passwordResetTokenRepository.save(resetToken);
 
     }
 

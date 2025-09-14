@@ -1,8 +1,10 @@
 package com.belvinard.inventory_management.service;
 
+import com.belvinard.inventory_management.dto.ResetPasswordRequest;
 import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.model.User;
+import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -40,4 +42,6 @@ public interface UserService {
     void updateAccountExpiryStatus(Long userId, boolean expire);
 
     void generatePasswordResetToken(String email);
+
+    void resetPassword(@Valid ResetPasswordRequest request);
 }
