@@ -1,5 +1,7 @@
 package com.belvinard.inventory_management.controller;
 
+import com.belvinard.inventory_management.dto.ForgotPasswordRequest;
+import com.belvinard.inventory_management.dto.ResetPasswordRequest;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 import com.belvinard.inventory_management.model.AppRole;
 import com.belvinard.inventory_management.model.Role;
@@ -13,6 +15,11 @@ import com.belvinard.inventory_management.security.response.LoginResponse;
 import com.belvinard.inventory_management.security.response.MessageResponse;
 import com.belvinard.inventory_management.security.response.UserInfoResponse;
 import com.belvinard.inventory_management.service.UserService;
+import com.belvinard.inventory_management.service.RefreshTokenService;
+import com.belvinard.inventory_management.model.RefreshToken;
+import com.belvinard.inventory_management.security.request.TokenRefreshRequest;
+import com.belvinard.inventory_management.security.response.TokenRefreshResponse;
+import com.belvinard.inventory_management.exception.TokenRefreshException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -51,6 +58,7 @@ public class AuthController {
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
     @Operation(
             summary = "User login",
@@ -87,10 +95,13 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        // Prepare the response body, now including the JWT token directly in the body
-        LoginResponse response = new LoginResponse(userDetails.getUsername(), roles, jwtToken);
+        // Créer le refresh token
+        User user = userRepository.findByUserName(userDetails.getUsername()).get();
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        // Return the response entity with the JWT token included in the response body
+        // Prepare the response body with JWT and refresh token
+        LoginResponse response = new LoginResponse(userDetails.getUsername(), roles, jwtToken, refreshToken.getToken());
+
         return ResponseEntity.ok(response);
     }
 
@@ -210,6 +221,98 @@ public class AuthController {
     @GetMapping("/username")
     public String currentUserName(@AuthenticationPrincipal UserDetails userDetails) {
         return (userDetails != null) ? userDetails.getUsername() : "";
+    }
+
+    @Operation(
+            summary = "Refresh JWT token",
+            description = "Generate new JWT token using refresh token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Token refreshed successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TokenRefreshResponse.class))),
+                    @ApiResponse(responseCode = "403", description = "Refresh token expired", content = @Content)
+            }
+    )
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtils.generateTokenFromUsername(user.getUserName());
+                    return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
+                })
+                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Refresh token is not in database!"));
+    }
+
+    @Operation(
+            summary = "User logout",
+            description = "Logout user and invalidate refresh token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User logged out successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class)))
+            }
+    )
+    @PostMapping("/signout")
+    public ResponseEntity<?> logoutUser(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByUserName(userDetails.getUsername()).get();
+        refreshTokenService.deleteByUserId(user.getId());
+        return ResponseEntity.ok(new MessageResponse("Log out successful!"));
+    }
+
+    @Operation(
+            summary = "Forgot password",
+            description = "Send password reset email to the specified email address",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Password reset email sent successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Error sending password reset email",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class)))
+            }
+    )
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            userService.generatePasswordResetToken(request.getEmail());
+            return ResponseEntity.ok(new MessageResponse("Password reset email sent!"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error sending password reset email"));
+        }
+    }
+
+    @Operation(
+            summary = "Reset password",
+            description = "Reset user password using a valid reset token",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Password reset successfully",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid token or request",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class)))
+            }
+    )
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try{
+            userService.resetPassword(request);
+            return ResponseEntity.ok(new MessageResponse("Password reset successfully!"));
+        }catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/oauth2/success")
+    public ResponseEntity<?> oauth2Success(@RequestParam(required = false) String token) {
+        if (token != null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "OAuth2 login successful!");
+            response.put("token", token);
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.ok(new MessageResponse("OAuth2 login successful!"));
     }
 }
 

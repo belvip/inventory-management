@@ -35,6 +35,10 @@ public class JwtUtils {
 
     public String generateTokenFromUsername(UserDetails userDetails) {
         String username = userDetails.getUsername();
+        return generateTokenFromUsername(username);
+    }
+
+    public String generateTokenFromUsername(String username) {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())

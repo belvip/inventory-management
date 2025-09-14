@@ -1,6 +1,7 @@
 package com.belvinard.inventory_management.service.impl;
 
 import com.belvinard.inventory_management.dto.AddressDto;
+import com.belvinard.inventory_management.dto.ResetPasswordRequest;
 import com.belvinard.inventory_management.dto.UserRequestDto;
 import com.belvinard.inventory_management.dto.UserResponseDto;
 
@@ -9,30 +10,35 @@ import com.belvinard.inventory_management.exception.ResourceConflictException;
 import com.belvinard.inventory_management.exception.ResourceNotFoundException;
 import com.belvinard.inventory_management.mapper.AddressMapper;
 import com.belvinard.inventory_management.mapper.UserMapper;
-import com.belvinard.inventory_management.model.Address;
-import com.belvinard.inventory_management.model.AppRole;
-import com.belvinard.inventory_management.model.Role;
-import com.belvinard.inventory_management.model.User;
+import com.belvinard.inventory_management.model.*;
+import com.belvinard.inventory_management.repository.PasswordResetTokenRepository;
 import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.repository.UserRepository;
 import com.belvinard.inventory_management.service.MinioService;
 import com.belvinard.inventory_management.service.UserService;
+import com.belvinard.inventory_management.utils.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UserServiceImpl implements UserService {
+    @Value("${frontend.url}")
+    String frontendUrl;
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -40,6 +46,8 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final AddressMapper addressMapper;
     private final MinioService minioService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -185,6 +193,127 @@ public class UserServiceImpl implements UserService {
         return minioService.getPreSignedUrl(fileName, 900); // 15 minutes
     }
 
+
+
+    @Override
+    @Transactional
+    public void updatePasswordByUsername(String username, String password) {
+        // Validation des paramètres
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
+        if (password.length() < 6) {
+            throw new IllegalArgumentException("Password must be at least 6 characters long");
+        }
+
+        // Rechercher l'utilisateur
+        User user = userRepository.findByUserName(username.trim())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
+
+        // Vérifier que le compte est actif
+        if (!user.isEnabled()) {
+            throw new IllegalStateException("Cannot update password for disabled user");
+        }
+        if (!user.isAccountNonLocked()) {
+            throw new IllegalStateException("Cannot update password for locked user");
+        }
+
+        // Encoder et sauvegarder le nouveau mot de passe
+        user.setPassword(passwordEncoder.encode(password.trim()));
+        
+        // Mettre à jour la date d'expiration des credentials
+        user.setCredentialsExpiryDate(java.time.LocalDate.now().plusDays(90));
+        
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateAccountLockStatus(Long userId, boolean lock) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new RuntimeException("User not found"));
+        user.setAccountNonLocked(!lock);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateCredentialsExpiryStatus(Long userId, boolean expire) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new RuntimeException("User not found"));
+        user.setCredentialsNonExpired(!expire);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateAccountEnabledStatus(Long userId, boolean enabled) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new RuntimeException("User not found"));
+        user.setEnabled(enabled);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateAccountExpiryStatus(Long userId, boolean expire) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new RuntimeException("User not found"));
+        user.setAccountNonExpired(!expire);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void generatePasswordResetToken(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        String token = UUID.randomUUID().toString();
+        Instant expiryDate = Instant.now().plus(24, ChronoUnit.HOURS);
+        PasswordResetToken resetToken = new PasswordResetToken(token, expiryDate, user);
+
+        passwordResetTokenRepository.save(resetToken);
+
+        String resetUrl = frontendUrl + "/reset-password?token=" + token;
+        // Send email to user
+        emailService.sendPasswordResetEmail(user.getEmail(), resetUrl);;
+
+
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        if (resetToken.isUsed()){
+            throw new RuntimeException("Password reset token has already been used");
+        }
+
+        if (resetToken.getExpiryDate().isBefore(Instant.now())) {
+            throw new ResourceNotFoundException("Password reset token has expired");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        resetToken.setUsed(true);
+        passwordResetTokenRepository.save(resetToken);
+
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+
+    }
+
+    @Override
+    public User registerUser(User user) {
+        if(user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        return  userRepository.save(user);
+    }
 
 
     private UserResponseDto createResponseDto(User user) {
