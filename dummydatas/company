@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Ets. Ngomna & Fils",
+    "description": "Leader de l'import-export de produits agroalimentaires au Cameroun.",
+    "address": {
+      "address1": "Avenue Ahmadou Ahidjo",
+      "address2": "BP 580",
+      "city": "Yaoundé",
+      "postalCode": "23701",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-YAO-0123-A",
+    "image": "https://placehold.co/200x200/407D88/ffffff?text=ENF",
+    "email": "contact@ngomna.com",
+    "phoneNumber": "+237699123456",
+    "website": "www.ngomna-et-fils.cm"
+  },
+  {
+    "name": "Douala Tech Hub",
+    "description": "Incubateur de start-ups spécialisé dans les technologies de l'information.",
+    "address": {
+      "address1": "Rue de la Joie",
+      "address2": "Akwa",
+      "city": "Douala",
+      "postalCode": "23702",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-DLA-0456-B",
+    "image": "https://placehold.co/200x200/5E8B7E/ffffff?text=DTH",
+    "email": "info@doualatechhub.cm",
+    "phoneNumber": "+237677987654",
+    "website": "www.doualatechhub.cm"
+  },
+  {
+    "name": "Beti & Mbok Construction",
+    "description": "Entreprise de BTP reconnue pour ses infrastructures routières et bâtiments publics.",
+    "address": {
+      "address1": "Boulevard de la Liberté",
+      "address2": "Bali",
+      "city": "Douala",
+      "postalCode": "23703",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-DLA-0789-C",
+    "image": "https://placehold.co/200x200/6A89CC/ffffff?text=BMC",
+    "email": "contact@betimbok.cm",
+    "phoneNumber": "+237655543210",
+    "website": "www.betimbok.com"
+  },
+  {
+    "name": "Coopérative Agropastorale de l'Adamaoua",
+    "description": "Spécialisée dans la production et la distribution de lait et de viande.",
+    "address": {
+      "address1": "Route de Ngaoundéré",
+      "address2": "BP 101",
+      "city": "Ngaoundéré",
+      "postalCode": "23704",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-NGA-0112-D",
+    "image": "https://placehold.co/200x200/94A9B3/ffffff?text=CAA",
+    "email": "info@coop-adam.cm",
+    "phoneNumber": "+237688765432",
+    "website": "www.coop-adamaoua.cm"
+  },
+  {
+    "name": "Éditions du Mont Cameroun",
+    "description": "Maison d'édition dédiée à la promotion des auteurs et de la littérature camerounaise.",
+    "address": {
+      "address1": "Rue des Princes",
+      "address2": "Bonamoussadi",
+      "city": "Douala",
+      "postalCode": "23705",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-DLA-0987-E",
+    "image": "https://placehold.co/200x200/C8A2C8/ffffff?text=EMC",
+    "email": "editions@montcameroun.cm",
+    "phoneNumber": "+237669876543",
+    "website": "www.editionsmontcameroun.cm"
+  },
+  {
+    "name": "Ets. Nana & Frères",
+    "description": "Fournisseur de matériel électrique et solutions d'énergie solaire.",
+    "address": {
+      "address1": "Avenue du 27 août",
+      "address2": "Bastos",
+      "city": "Yaoundé",
+      "postalCode": "23706",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-YAO-0654-F",
+    "image": "https://placehold.co/200x200/A3C1AD/ffffff?text=ENF",
+    "email": "contact@nanafreres.cm",
+    "phoneNumber": "+237674123456",
+    "website": "www.nanafreres.com"
+  },
+  {
+    "name": "Moussa Transport Express",
+    "description": "Service de logistique et de transport de marchandises dans tout le pays.",
+    "address": {
+      "address1": "Rue de la Gare",
+      "address2": "BP 234",
+      "city": "Garoua",
+      "postalCode": "23707",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-GAR-0321-G",
+    "image": "https://placehold.co/200x200/81C6E3/ffffff?text=MTE",
+    "email": "info@moussa-express.cm",
+    "phoneNumber": "+237691234567",
+    "website": "www.moussa-transport.cm"
+  },
+  {
+    "name": "Fumbe Bakery",
+    "description": "Boulangerie-pâtisserie spécialisée dans les produits artisanaux et locaux.",
+    "address": {
+      "address1": "Rue Ngodi",
+      "address2": "Deido",
+      "city": "Douala",
+      "postalCode": "23708",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-DLA-0219-H",
+    "image": "https://placehold.co/200x200/D0B8B0/ffffff?text=FB",
+    "email": "contact@fumbebakery.com",
+    "phoneNumber": "+237688998877",
+    "website": "www.fumbebakery.cm"
+  },
+  {
+    "name": "Kouogang Services Financiers",
+    "description": "Cabinet de conseil en finance et comptabilité pour les PME.",
+    "address": {
+      "address1": "Boulevard du 20 Mai",
+      "address2": "Centre-ville",
+      "city": "Bafoussam",
+      "postalCode": "23709",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-BAF-0777-I",
+    "image": "https://placehold.co/200x200/B2D3C2/ffffff?text=KSF",
+    "email": "consulting@kouogang.cm",
+    "phoneNumber": "+237699776655",
+    "website": "www.kouogang-sf.cm"
+  },
+  {
+    "name": "Bambili Bio-Farms",
+    "description": "Ferme agritouristique spécialisée dans la culture biologique de cacao et café.",
+    "address": {
+      "address1": "Route de Bambui",
+      "address2": "BP 45",
+      "city": "Bambili",
+      "postalCode": "23710",
+      "country": "Cameroon"
+    },
+    "fiscalCode": "237-BAM-0101-J",
+    "image": "https://placehold.co/200x200/A0D2DB/ffffff?text=BBF",
+    "email": "bambili.bio@farms.cm",
+    "phoneNumber": "+237678112233",
+    "website": "www.bambilibiofarms.cm"
+  }
+]
