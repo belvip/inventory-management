@@ -1,5 +1,6 @@
 package com.belvinard.inventory_management.controller;
 
+import com.belvinard.inventory_management.config.AppConstant;
 import com.belvinard.inventory_management.dto.CompanyRequestDto;
 import com.belvinard.inventory_management.dto.CompanyResponseDto;
 import com.belvinard.inventory_management.dto.PagedResponse;
@@ -18,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/companies")
+@RequestMapping("${api.prefix}/companies")
 @RequiredArgsConstructor
 @Tag(name = "Companies", description = "Endpoints for managing companies")
 public class CompanyController {
@@ -49,39 +50,23 @@ public class CompanyController {
 
     @Operation(
             summary = "Get all companies (paginated)",
-            description = "Retrieve a paginated list of companies with metadata like total pages and total elements"
+            description = "Retrieve a paginated and sortable list of companies. Default pageNumber=0, pageSize=50, sortBy=id, sortOrder=asc"
     )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successfully retrieved companies",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = PagedResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved companies",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PagedResponse.class))),
+            @ApiResponse(responseCode = "400", description = "No companies found",
+                    content = @Content(mediaType = "application/json"))
     })
     @GetMapping
     public ResponseEntity<PagedResponse<CompanyResponseDto>> getAllCompanies(
-            @Parameter(description = "Page number (starts from 0)", example = "0")
-            @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
-
-            @Parameter(description = "Number of items per page", example = "10")
-            @RequestParam(value = "pageSize", required = false) Integer pageSize,
-
-            @Parameter(description = "Sort by field", example = "id")
-            @RequestParam(value = "sortBy", required = false) String sortBy,
-
-            @Parameter(description = "Sort direction: asc or desc", example = "asc")
-            @RequestParam(value = "sortOrder", required = false) String sortOrder
+            @RequestParam(defaultValue = AppConstant.PAGE_NUMBER) Integer pageNumber,
+            @RequestParam(defaultValue = AppConstant.PAGE_SIZE) Integer pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortOrder
     ) {
-        PagedResponse<CompanyResponseDto> response = companyService.getAllCompanies(
-                pageNumber, pageSize, sortBy, sortOrder
-        );
+        PagedResponse<CompanyResponseDto> response = companyService.getAllCompanies(pageNumber, pageSize, sortBy, sortOrder);
         return ResponseEntity.ok(response);
     }
 

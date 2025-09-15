@@ -50,34 +50,33 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public PagedResponse<CompanyResponseDto> getAllCompanies(
-            Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public PagedResponse<CompanyResponseDto> getAllCompanies(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
 
-        // Use default values if null
-        pageNumber = pageNumber != null ? pageNumber : Integer.parseInt(AppConstant.PAGE_NUMBER);
-        pageSize = pageSize != null ? pageSize : Integer.parseInt(AppConstant.PAGE_SIZE);
-        sortBy = sortBy != null ? sortBy : AppConstant.SORT_CATEGORIES_BY;
-        sortOrder = sortOrder != null ? sortOrder : AppConstant.SORT_DIR;
-
-        Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
         Page<Company> companyPage = companyRepository.findAll(pageable);
 
-        List<CompanyResponseDto> content = companyPage.getContent().stream()
+        if (companyPage.isEmpty()) {
+            throw new APIException("No companies found");
+        }
+
+        List<CompanyResponseDto> content = companyPage
+                .getContent()
+                .stream()
                 .map(companyMapper::toResponseDto)
                 .toList();
 
         return new PagedResponse<>(
                 content,
-                companyPage.getNumber(),
-                companyPage.getSize(),
-                companyPage.getTotalElements(),
-                companyPage.getTotalPages(),
-                companyPage.isLast()
+                companyPage.getNumber(),        // current page number
+                companyPage.getSize(),          // page size
+                companyPage.getTotalElements(), // total elements
+                companyPage.getTotalPages(),    // total pages
+                companyPage.isLast()            // true if this is the last page
         );
     }
-
 
 
 
