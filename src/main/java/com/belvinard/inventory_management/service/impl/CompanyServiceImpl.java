@@ -6,6 +6,7 @@ import com.belvinard.inventory_management.dto.CompanyResponseDto;
 import com.belvinard.inventory_management.dto.PagedResponse;
 import com.belvinard.inventory_management.exception.APIException;
 import com.belvinard.inventory_management.exception.ResourceConflictException;
+import com.belvinard.inventory_management.exception.ResourceNotFoundException;
 import com.belvinard.inventory_management.mapper.CompanyMapper;
 import com.belvinard.inventory_management.model.Company;
 import com.belvinard.inventory_management.repository.CompanyRepository;
@@ -70,14 +71,55 @@ public class CompanyServiceImpl implements CompanyService {
 
         return new PagedResponse<>(
                 content,
-                companyPage.getNumber(),        // current page number
-                companyPage.getSize(),          // page size
-                companyPage.getTotalElements(), // total elements
-                companyPage.getTotalPages(),    // total pages
-                companyPage.isLast()            // true if this is the last page
+                companyPage.getNumber(),
+                companyPage.getSize(),
+                companyPage.getTotalElements(),
+                companyPage.getTotalPages(),
+                companyPage.isLast()
         );
     }
 
+    @Override
+    public CompanyResponseDto getCompanyById(Long id) {
+        // Fetch the company by ID or throw exception if not found
+        Company companyFromDb = companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
+
+        // Map entity to response DTO
+        return companyMapper.toResponseDto(companyFromDb);
+    }
+
+    @Override
+    public CompanyResponseDto updateCompany(Long id, CompanyRequestDto dto) {
+        // Fetch the company or throw if not found
+        Company companyFromDb = companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
+
+        // Check for name conflict only if name is changing
+        if (!companyFromDb.getName().equals(dto.name()) &&
+                companyRepository.existsByName(dto.name())) {
+            throw new ResourceConflictException("Another company with the same name already exists");
+        }
+
+        // Check for email conflict only if email is changing
+        if (!companyFromDb.getEmail().equals(dto.email()) &&
+                companyRepository.existsByEmail(dto.email())) {
+            throw new ResourceConflictException("Another company with the same email already exists");
+        }
+
+        // Update fields
+        companyFromDb.setName(dto.name());
+        companyFromDb.setDescription(dto.description());
+        companyFromDb.setAddress(dto.address());
+        companyFromDb.setFiscalCode(dto.fiscalCode());
+        companyFromDb.setImage(dto.image());
+        companyFromDb.setEmail(dto.email());
+        companyFromDb.setPhoneNumber(dto.phoneNumber());
+        companyFromDb.setWebsite(dto.website());
+
+        // Save and return
+        return companyMapper.toResponseDto(companyRepository.save(companyFromDb));
+    }
 
 
 }

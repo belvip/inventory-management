@@ -10,4 +10,8 @@ public interface CompanyService {
     CompanyResponseDto createCompany(CompanyRequestDto dto);
 
     PagedResponse getAllCompanies(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+
+    CompanyResponseDto getCompanyById(Long id);
+
+    CompanyResponseDto updateCompany(Long id, CompanyRequestDto dto);
 }

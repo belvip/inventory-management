@@ -71,9 +71,9 @@ public class CompanyController {
     }
 
     // ===========================================================
-    // GET COMPANY BY ID (Optional example)
+    // GET COMPANY BY ID
     // ===========================================================
-    /*@Operation(summary = "Get company by ID",
+    @Operation(summary = "Get company by ID",
                description = "Retrieve a company by its unique ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Company found"),
@@ -83,5 +83,43 @@ public class CompanyController {
     public ResponseEntity<CompanyResponseDto> getCompanyById(@PathVariable Long id) {
          CompanyResponseDto company = companyService.getCompanyById(id);
          return ResponseEntity.ok(company);
-    }*/
+    }
+
+    // ===========================================================
+    // UPDATE COMPANY
+    // ===========================================================
+    @Operation(
+            summary = "Update an existing company",
+            description = "Updates the details of a company based on the provided company ID. " +
+                    "Returns the updated company data if successful.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "JSON payload with updated company information",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CompanyRequestDto.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Company updated successfully",
+                            content = @Content(schema = @Schema(implementation = CompanyResponseDto.class))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Company not found"),
+                    @ApiResponse(responseCode = "409", description = "Conflict: Company name or email already exists"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            }
+    )
+    @PutMapping("/{id}")
+    public ResponseEntity<CompanyResponseDto> updateCompany(
+            @Parameter(description = "ID of the company to update", required = true)
+            @PathVariable Long id,
+
+            @Valid @RequestBody CompanyRequestDto dto
+    ) {
+        CompanyResponseDto updatedCompany = companyService.updateCompany(id, dto);
+        return ResponseEntity.ok(updatedCompany);
+    }
+
 }
