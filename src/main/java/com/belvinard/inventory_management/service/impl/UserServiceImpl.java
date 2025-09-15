@@ -84,6 +84,7 @@ public class UserServiceImpl implements UserService {
         User saved = userRepository.save(user);
         return createResponseDto(saved);
     }
+    
     @Override
     public void updateUserRole(Long userId, String roleName) {
         User user = userRepository.findById(userId)
