@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 public record CompanyRequestDto(
         @NotBlank(message = "The company name is required")
         @Size(min = 4, max = 100, message = "The name must contain between 4 and 100 characters")
@@ -31,5 +33,7 @@ public record CompanyRequestDto(
         String phoneNumber,
 
         @Size(max = 150, message = "The website must contain a maximum of 150 characters")
-        String website
+        String website,
+
+         List<CategoryRequestDto> categories
 ) {}

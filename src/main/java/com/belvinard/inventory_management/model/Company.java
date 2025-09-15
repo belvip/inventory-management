@@ -1,17 +1,20 @@
 package com.belvinard.inventory_management.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Company extends BaseEntity {
 
     @NotBlank(message = "The company name is required")
@@ -41,6 +44,14 @@ public class Company extends BaseEntity {
 
     @Size(max = 150, message = "The website must contain a maximum of 150 characters")
     private String website;
+
+    @OneToMany(
+            mappedBy = "company",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Category> categories = new ArrayList<>();
 
     @Schema(hidden = true)
     public String getCreatedAt() {

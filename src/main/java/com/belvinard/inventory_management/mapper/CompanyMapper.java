@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 // This annotation tells MapStruct to generate an implementation for this interface
 // and register it as a Spring Bean, so you can @Autowired it in your services.
-@Mapper(componentModel = "spring", uses = {AddressMapper.class})
+@Mapper(componentModel = "spring", uses = {AddressMapper.class, CategoryMapper.class})
 public interface CompanyMapper {
 
     /**
