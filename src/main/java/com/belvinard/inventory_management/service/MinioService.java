@@ -10,9 +10,5 @@ import java.util.List;
 public interface MinioService {
     String uploadImage(MultipartFile file) throws IOException, MinioOperationException;
     String getPreSignedUrl(String objectName, Integer expiryInMinutes) throws MinioOperationException;
-    void deleteFile(String objectName) throws MinioOperationException;
-    InputStream downloadFile(String objectName) throws MinioOperationException;
-    List<String> listFiles() throws MinioOperationException;
-    boolean fileExists(String objectName) throws MinioOperationException;
-    String getFileUrl(String objectName) throws MinioOperationException;
+
 }

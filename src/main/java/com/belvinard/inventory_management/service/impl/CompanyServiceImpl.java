@@ -1,6 +1,5 @@
 package com.belvinard.inventory_management.service.impl;
 
-import com.belvinard.inventory_management.config.AppConstant;
 import com.belvinard.inventory_management.dto.CompanyRequestDto;
 import com.belvinard.inventory_management.dto.CompanyResponseDto;
 import com.belvinard.inventory_management.dto.PagedResponse;
@@ -11,6 +10,9 @@ import com.belvinard.inventory_management.mapper.CompanyMapper;
 import com.belvinard.inventory_management.model.Company;
 import com.belvinard.inventory_management.repository.CompanyRepository;
 import com.belvinard.inventory_management.service.CompanyService;
+import com.belvinard.inventory_management.service.MinioService;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ import java.util.List;
 public class CompanyServiceImpl implements CompanyService {
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
+    private final MinioService minioService;
 
     @Override
     public CompanyResponseDto createCompany(CompanyRequestDto dto) {
@@ -120,6 +123,29 @@ public class CompanyServiceImpl implements CompanyService {
         // Save and return
         return companyMapper.toResponseDto(companyRepository.save(companyFromDb));
     }
+
+    @Override
+    public void deleteCompany(Long id) {
+        if (!companyRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Company not found with id: " + id);
+        }
+        companyRepository.deleteById(id);
+    }
+
+    @Override
+    public CompanyResponseDto updateCompanyImage(Long id, MultipartFile image) throws IOException {
+        // Fetch the company or throw if not found
+        Company companyFromDb = companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
+
+        String fileName = minioService.uploadImage(image);
+        companyFromDb.setImage(fileName);
+        String imageUrl = minioService.getPreSignedUrl(fileName, 15);
+        Company updatedCompany = companyRepository.save(companyFromDb);
+
+        return companyMapper.toResponseDto(updatedCompany);
+    }
+
 
 
 }
