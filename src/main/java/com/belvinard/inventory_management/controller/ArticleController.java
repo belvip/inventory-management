@@ -119,13 +119,13 @@ public class ArticleController {
     }
 
     @Operation(
-            summary = "Get all archived articles",
+            summary = "Get all archived articles - ADMIN MANAGER or SALES",
             description = "Retrieve a list of all articles with status ARCHIVED"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Archived articles retrieved successfully")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
     @GetMapping("/archived")
     public ResponseEntity<List<ArticleResponseDto>> getAllArchivedArticles() {
         List<ArticleResponseDto> archivedArticles = articleService.getAllArchivedArticles();
