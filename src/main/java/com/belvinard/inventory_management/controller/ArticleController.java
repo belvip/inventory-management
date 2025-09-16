@@ -4,6 +4,8 @@ import com.belvinard.inventory_management.dto.request.ArticleRequestDto;
 import com.belvinard.inventory_management.dto.response.ArticleResponseDto;
 import com.belvinard.inventory_management.service.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/articles")
@@ -40,5 +39,49 @@ public class ArticleController {
             @Valid @RequestBody ArticleRequestDto dto) {
         ArticleResponseDto createdArticle = articleService.createArticle(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdArticle);
+    }
+
+    @Operation(summary = "Get an article by ID - ADMIN MANAGER or SALES")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Article found",
+                    content = @Content(schema = @Schema(implementation = ArticleResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Article not found",
+                    content = @Content)
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/{id}")
+    public ResponseEntity<ArticleResponseDto> getArticleById(@PathVariable Long id) {
+        ArticleResponseDto article = articleService.getArticleById(id);
+        return ResponseEntity.ok(article);
+    }
+
+    @Operation(summary = "Get an article by code - ADMIN MANAGER or SALES")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Article found",
+                    content = @Content(schema = @Schema(implementation = ArticleResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Article not found",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid code supplied",
+                    content = @Content)
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/code/{code}")
+    public ResponseEntity<ArticleResponseDto> getArticleByCode(@PathVariable String code) {
+        ArticleResponseDto article = articleService.getArticleByCode(code);
+        return ResponseEntity.ok(article);
+    }
+
+    @Operation(summary = "Delete an article by ID Only ADMIN")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Article deleted",
+                    content = @Content(schema = @Schema(implementation = ArticleResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Article not found",
+                    content = @Content)
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ArticleResponseDto> deleteArticle(@PathVariable Long id) {
+        ArticleResponseDto deletedArticle = articleService.deleteArticle(id);
+        return ResponseEntity.ok(deletedArticle);
     }
 }

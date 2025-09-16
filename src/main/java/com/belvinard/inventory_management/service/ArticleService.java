@@ -6,4 +6,12 @@ import com.belvinard.inventory_management.dto.response.ArticleResponseDto;
 public interface ArticleService {
 
     ArticleResponseDto createArticle(ArticleRequestDto dto);
+
+    ArticleResponseDto getArticleById(Long id);
+    ArticleResponseDto deleteArticle(Long id);
+    ArticleResponseDto getArticleByCode(String code);
+    /*ArticleResponseDto restoreArticle(Long id);
+    ArticleResponseDto archiveArticle(Long id);
+    ArticleResponseDto updateArticle(Long id, ArticleRequestDto dto);
+    ArticleResponseDto updateArticleQuantity(Long id, Long quantity);*/
 }

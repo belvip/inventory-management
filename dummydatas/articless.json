@@ -18,7 +18,7 @@
     "image": "huile-palme.jpg"
   },
   {
-    "codeArticle": "ARTEFT003",
+    "codeArticle": "ART-003",
     "designation": "Café Arabica Wambo",
     "quantityInStock": 65,
     "unitPriceExclTax": 9800.75,
@@ -27,7 +27,7 @@
     "image": "cafe-arabica.jpg"
   },
   {
-    "codeArticle": "ARTEFT004",
+    "codeArticle": "ARTEFT",
     "designation": "Tissus Pagne Letouzey",
     "quantityInStock": 40,
     "unitPriceExclTax": 18000.00,

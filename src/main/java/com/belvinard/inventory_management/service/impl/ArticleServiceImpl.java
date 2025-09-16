@@ -10,6 +10,7 @@ import com.belvinard.inventory_management.model.Category;
 import com.belvinard.inventory_management.repository.ArticleRepository;
 import com.belvinard.inventory_management.repository.CategoryRepository;
 import com.belvinard.inventory_management.service.ArticleService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +46,37 @@ public class ArticleServiceImpl implements ArticleService {
 
         return articleMapper.toResponseDto(savedArticle);
     }
+
+    @Override
+    public ArticleResponseDto getArticleById(Long id) {
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+
+        return articleMapper.toResponseDto(article);
+    }
+
+
+    @Override
+    @Transactional
+    public ArticleResponseDto deleteArticle(Long id) {
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+
+        articleRepository.delete(article);
+        return articleMapper.toResponseDto(article);
+    }
+
+    @Override
+    public ArticleResponseDto getArticleByCode(String code) {
+        if (code == null || code.isBlank()) {
+            throw new IllegalArgumentException("Article code must not be null or empty");
+        }
+
+        Article article = articleRepository.findByCodeArticle(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with code: " + code));
+
+        return articleMapper.toResponseDto(article);
+    }
+
 
 }
