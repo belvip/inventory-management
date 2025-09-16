@@ -51,6 +51,18 @@ public class Article extends BaseEntity {
     @JoinColumn(name = "categoryId", nullable = false)
     private Category category;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ArticleStatus status = ArticleStatus.ACTIVE;
+
+    public void archive() {
+        this.status = ArticleStatus.ARCHIVED;
+    }
+
+    public void restore() {
+        this.status = ArticleStatus.ACTIVE;
+    }
+
     @Schema(hidden = true)
     public String getCreatedAt() {
         return getCreatedDate() != null ? getCreatedDate().toString() : null;

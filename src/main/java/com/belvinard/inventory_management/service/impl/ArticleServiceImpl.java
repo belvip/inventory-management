@@ -6,6 +6,7 @@ import com.belvinard.inventory_management.exception.ResourceConflictException;
 import com.belvinard.inventory_management.exception.ResourceNotFoundException;
 import com.belvinard.inventory_management.mapper.ArticleMapper;
 import com.belvinard.inventory_management.model.Article;
+import com.belvinard.inventory_management.model.ArticleStatus;
 import com.belvinard.inventory_management.model.Category;
 import com.belvinard.inventory_management.repository.ArticleRepository;
 import com.belvinard.inventory_management.repository.CategoryRepository;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -77,6 +79,34 @@ public class ArticleServiceImpl implements ArticleService {
 
         return articleMapper.toResponseDto(article);
     }
+
+    @Override
+    public ArticleResponseDto archiveArticle(Long id) {
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found"));
+        article.archive();
+        Article updated = articleRepository.save(article);
+        return articleMapper.toResponseDto(updated);
+    }
+
+    @Override
+    public List<ArticleResponseDto> getAllArchivedArticles() {
+        List<Article> archived = articleRepository.findByStatus(ArticleStatus.ARCHIVED);
+        return archived.stream()
+                .map(articleMapper::toResponseDto)
+                .toList();
+    }
+
+
+    @Override
+    public ArticleResponseDto restoreArticle(Long id) {
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found"));
+        article.restore();
+        Article updated = articleRepository.save(article);
+        return articleMapper.toResponseDto(updated);
+    }
+
 
 
 }

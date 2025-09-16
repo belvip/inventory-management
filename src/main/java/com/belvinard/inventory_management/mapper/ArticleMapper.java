@@ -17,7 +17,8 @@ public interface ArticleMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "updatedDate", ignore = true)
-    @Mapping(target = "category", ignore = true) // set manually in service
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "status", ignore = true)
     Article toEntity(ArticleRequestDto dto);
 }
 

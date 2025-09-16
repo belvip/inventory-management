@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/articles")
 @RequiredArgsConstructor
@@ -84,4 +86,50 @@ public class ArticleController {
         ArticleResponseDto deletedArticle = articleService.deleteArticle(id);
         return ResponseEntity.ok(deletedArticle);
     }
+
+
+    @Operation(
+            summary = "Archive an article",
+            description = "Sets the article status to ARCHIVED"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Article archived successfully"),
+            @ApiResponse(responseCode = "404", description = "Article not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/{id}/archive")
+    public ResponseEntity<ArticleResponseDto> archiveArticle(@PathVariable Long id) {
+        ArticleResponseDto archivedArticle = articleService.archiveArticle(id);
+        return new ResponseEntity<>(archivedArticle, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Restore an article",
+            description = "Restores an archived article to ACTIVE status"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Article restored successfully"),
+            @ApiResponse(responseCode = "404", description = "Article not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/{id}/restore")
+    public ResponseEntity<ArticleResponseDto> restoreArticle(@PathVariable Long id) {
+        ArticleResponseDto restoredArticle = articleService.restoreArticle(id);
+        return new ResponseEntity<>(restoredArticle, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Get all archived articles",
+            description = "Retrieve a list of all articles with status ARCHIVED"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Archived articles retrieved successfully")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/archived")
+    public ResponseEntity<List<ArticleResponseDto>> getAllArchivedArticles() {
+        List<ArticleResponseDto> archivedArticles = articleService.getAllArchivedArticles();
+        return new ResponseEntity<>(archivedArticles, HttpStatus.OK);
+    }
+
 }
