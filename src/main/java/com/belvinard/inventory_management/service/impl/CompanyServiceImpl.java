@@ -1,8 +1,8 @@
 package com.belvinard.inventory_management.service.impl;
 
-import com.belvinard.inventory_management.dto.CompanyRequestDto;
-import com.belvinard.inventory_management.dto.CompanyResponseDto;
-import com.belvinard.inventory_management.dto.PagedResponse;
+import com.belvinard.inventory_management.dto.request.CompanyRequestDto;
+import com.belvinard.inventory_management.dto.response.CompanyResponseDto;
+import com.belvinard.inventory_management.dto.response.PagedResponse;
 import com.belvinard.inventory_management.exception.APIException;
 import com.belvinard.inventory_management.exception.ResourceConflictException;
 import com.belvinard.inventory_management.exception.ResourceNotFoundException;

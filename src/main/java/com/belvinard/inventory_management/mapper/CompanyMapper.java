@@ -1,7 +1,7 @@
 package com.belvinard.inventory_management.mapper;
 
-import com.belvinard.inventory_management.dto.CompanyRequestDto;
-import com.belvinard.inventory_management.dto.CompanyResponseDto;
+import com.belvinard.inventory_management.dto.request.CompanyRequestDto;
+import com.belvinard.inventory_management.dto.response.CompanyResponseDto;
 import com.belvinard.inventory_management.model.Company;
 import org.mapstruct.Mapper;
 

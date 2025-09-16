@@ -1,6 +1,7 @@
-package com.belvinard.inventory_management.dto;
+package com.belvinard.inventory_management.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -16,5 +17,8 @@ public record CategoryRequestDto(
             regexp = "CAT-\\w{3}|CATEFT",
             message = "The code must be in the format CAT-XXX or CATEFT"
         )
-        String code
+        String code,
+
+        @NotNull(message = "The companyId is required")
+        Long companyId
 ) {}

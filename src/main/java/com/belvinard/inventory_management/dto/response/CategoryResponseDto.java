@@ -1,4 +1,4 @@
-package com.belvinard.inventory_management.dto;
+package com.belvinard.inventory_management.dto.response;
 
 import java.time.LocalDate;
 
@@ -6,6 +6,6 @@ public record CategoryResponseDto(
         Long id,
         String designation,
         String code,
-        LocalDate createdAt,
-        LocalDate updatedAt
+        LocalDate createdDate,
+        LocalDate updatedDate
 ) {}

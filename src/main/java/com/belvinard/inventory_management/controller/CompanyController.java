@@ -1,10 +1,9 @@
 package com.belvinard.inventory_management.controller;
 
 import com.belvinard.inventory_management.config.AppConstant;
-import com.belvinard.inventory_management.dto.CompanyRequestDto;
-import com.belvinard.inventory_management.dto.CompanyResponseDto;
-import com.belvinard.inventory_management.dto.PagedResponse;
-import com.belvinard.inventory_management.dto.UserResponseDto;
+import com.belvinard.inventory_management.dto.request.CompanyRequestDto;
+import com.belvinard.inventory_management.dto.response.CompanyResponseDto;
+import com.belvinard.inventory_management.dto.response.PagedResponse;
 import com.belvinard.inventory_management.service.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,7 +40,7 @@ public class CompanyController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-    @PostMapping("create")
+    @PostMapping("/create")
     public ResponseEntity<CompanyResponseDto> createCompany(
             @Valid @RequestBody CompanyRequestDto companyRequestDto
     ) {
@@ -63,11 +62,12 @@ public class CompanyController {
             @ApiResponse(responseCode = "400", description = "No companies found",
                     content = @Content(mediaType = "application/json"))
     })
-    @GetMapping("all")
+    @GetMapping("/all")
     public ResponseEntity<PagedResponse<CompanyResponseDto>> getAllCompanies(
             @RequestParam(defaultValue = AppConstant.PAGE_NUMBER) Integer pageNumber,
             @RequestParam(defaultValue = AppConstant.PAGE_SIZE) Integer pageSize,
-            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = AppConstant.SORT_CATEGORIES_BY) String sortBy,
+
             @RequestParam(defaultValue = "asc") String sortOrder
     ) {
         PagedResponse<CompanyResponseDto> response = companyService.getAllCompanies(pageNumber, pageSize, sortBy, sortOrder);

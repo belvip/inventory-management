@@ -1,9 +1,9 @@
 package com.belvinard.inventory_management.service.impl;
 
 import com.belvinard.inventory_management.dto.AddressDto;
-import com.belvinard.inventory_management.dto.ResetPasswordRequest;
-import com.belvinard.inventory_management.dto.UserRequestDto;
-import com.belvinard.inventory_management.dto.UserResponseDto;
+import com.belvinard.inventory_management.dto.request.ResetPasswordRequest;
+import com.belvinard.inventory_management.dto.request.UserRequestDto;
+import com.belvinard.inventory_management.dto.response.UserResponseDto;
 
 import com.belvinard.inventory_management.exception.APIException;
 import com.belvinard.inventory_management.exception.ResourceConflictException;
@@ -343,7 +343,9 @@ public class UserServiceImpl implements UserService {
             baseResponse.credentialsNonExpired(),
             baseResponse.roleName(),
             baseResponse.image(),
-            addressDto
+            addressDto,
+            baseResponse.createdDate(),
+            baseResponse.updatedDate()
         );
     }
 

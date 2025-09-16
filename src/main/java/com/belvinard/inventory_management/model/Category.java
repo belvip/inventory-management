@@ -1,5 +1,6 @@
 package com.belvinard.inventory_management.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -34,4 +35,14 @@ public class Category extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
+
+    @Schema(hidden = true)
+    public String getCreatedAt() {
+        return getCreatedDate() != null ? getCreatedDate().toString() : null;
+    }
+
+    @Schema(hidden = true)
+    public String getUpdatedAt() {
+        return getUpdatedDate() != null ? getUpdatedDate().toString() : null;
+    }
 }

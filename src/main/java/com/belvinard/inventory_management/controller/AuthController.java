@@ -1,8 +1,8 @@
 package com.belvinard.inventory_management.controller;
 
-import com.belvinard.inventory_management.dto.ForgotPasswordRequest;
-import com.belvinard.inventory_management.dto.ResetPasswordRequest;
-import com.belvinard.inventory_management.dto.UserResponseDto;
+import com.belvinard.inventory_management.dto.request.ForgotPasswordRequest;
+import com.belvinard.inventory_management.dto.request.ResetPasswordRequest;
+import com.belvinard.inventory_management.dto.response.UserResponseDto;
 import com.belvinard.inventory_management.model.AppRole;
 import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.model.User;
@@ -110,7 +110,7 @@ public class AuthController {
             description = "Register a new user account with default ROLE_USER. Username and email must be unique.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User registered successfully",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = "Username or email already exists",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Validation error", content = @Content)
@@ -161,9 +161,10 @@ public class AuthController {
         user.setAccountExpiryDate(LocalDate.now().plusYears(1)); // Compte expire en 1 an
         user.setTwoFactorEnabled(false);
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        UserResponseDto userResponse = userService.getUserById(savedUser.getId());
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        return ResponseEntity.ok(userResponse);
     }
 
     @Operation(

@@ -1,0 +1,156 @@
+[
+  {
+    "firstName": "Solange",
+    "lastName": "Bikoko",
+    "userName": "bikoko",
+    "email": "bikoko@example.com",
+    "password": "strong_password_4",
+    "image": "https://placehold.co/150x150/f1c40f/ffffff?text=SB",
+    "address": {
+      "address1": "Rue 104, Quartier Mfoundi",
+      "address2": "Près du Marché Central",
+      "city": "Yaoundé",
+      "postalCode": "10010",
+      "country": "Cameroon"
+    }
+  },
+  {
+    "firstName": "Jean",
+    "lastName": "Mbarga",
+    "userName": "jmbarga",
+    "email": "jmbarga@example.com",
+    "password": "secure_pass_123",
+    "image": "https://placehold.co/150x150/3498db/ffffff?text=JM",
+    "address": {
+      "address1": "Avenue Kennedy 45",
+      "address2": "Bonanjo",
+      "city": "Douala",
+      "postalCode": "20020",
+      "country": "Cameroon"
+    }
+  },
+  {
+    "firstName": "Amina",
+    "lastName": "Njoya",
+    "userName": "anjoya",
+    "email": "anjoya@example.com",
+    "password": "password_789",
+    "image": "https://placehold.co/150x150/e74c3c/ffffff?text=AN",
+    "address": {
+      "address1": "Rue des Sultan 78",
+      "address2": "Quartier Foumban",
+      "city": "Foumban",
+      "postalCode": "30030",
+      "country": "Cameroon"
+    }
+  },
+  {
+    "firstName": "Pachinco",
+    "lastName": "Pouadjeu",
+    "userName": "belvi",
+    "email": "pouadjeubelvi@gmail.com",
+    "password": "belvi123",
+    "image": "https://placehold.co/150x150/2ecc71/ffffff?text=PT.jpg",
+    "address": {
+      "address1": "Boulevard de la Liberté 12",
+      "address2": "Akwa",
+      "city": "Douala",
+      "postalCode": "20025",
+      "country": "Cameroon"
+    }
+  },
+  {
+    "firstName": "Marie",
+    "lastName": "Ngo",
+    "userName": "mngo",
+    "email": "mngo@example.com",
+    "password": "marie_secure",
+    "image": "https://placehold.co/150x150/9b59b6/ffffff?text=MN",
+    "address": {
+      "address1": "Rue 1.234",
+      "address2": "Bastos",
+      "city": "Yaoundé",
+      "postalCode": "10015",
+      "country": "Cameroon"
+    }
+  },
+  {
+    "firstName": "David",
+    "lastName": "Fotso",
+    "userName": "dfotso",
+    "email": "dfotso@example.com",
+    "password": "fotso_david",
+    "image": "https://placehold.co/150x150/f39c12/ffffff?text=DF",
+    "address": {
+      "address1": "Avenue Ngando 67",
+      "address2": "Makepe",
+      "city": "Douala",
+      "postalCode": "20030",
+      "country": "Cameroon"
+    }
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Mvondo",
+    "userName": "smvondo",
+    "email": "smvondo@example.com",
+    "password": "mvondo_sarah",
+    "image": "https://placehold.co/150x150/1abc9c/ffffff?text=SM",
+    "address": {
+      "address1": "Rue de la Paix 89",
+      "address2": "Nkolbisson",
+      "city": "Yaoundé",
+      "postalCode": "10020",
+      "country": "Cameroon"
+    }
+  },
+  {
+    "firstName": "Paul",
+    "lastName": "Zang",
+    "userName": "pzang",
+    "email": "pzang@example.com",
+    "password": "zang_paul",
+    "image": "https://placehold.co/150x150/34495e/ffffff?text=PZ",
+    "address": {
+      "address1": "Avenue des Banques 34",
+      "address2": "Bonapriso",
+      "city": "Douala",
+      "postalCode": "20035",
+      "country": "Cameroon"
+    }
+  },
+  {
+    "firstName": "Esther",
+    "lastName": "Kameni",
+    "userName": "ekameni",
+    "email": "ekameni@example.com",
+    "password": "kameni_esther",
+    "image": "https://placehold.co/150x150/e67e22/ffffff?text=EK",
+    "address": {
+      "address1": "Rue du Stade 56",
+      "address2": "Nsimeyong",
+      "city": "Yaoundé",
+      "postalCode": "10025",
+      "country": "Cameroon"
+    }
+  },
+  {
+    "firstName": "Marc",
+    "lastName": "Sih",
+    "userName": "msih",
+    "email": "msih@example.com",
+    "password": "sih_marc",
+    "image": "https://placehold.co/150x150/27ae60/ffffff?text=MS",
+    "address": {
+      "address1": "Boulevard de l'Indépendance 78",
+      "address2": "Deïdo",
+      "city": "Douala",
+      "postalCode": "20040",
+      "country": "Cameroon"
+    }
+  }
+]
+BelvinPO-2022
+
+
+http://localhost:8282/oauth2/authorization/github

@@ -1,4 +1,4 @@
-package com.belvinard.inventory_management.dto;
+package com.belvinard.inventory_management.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

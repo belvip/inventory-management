@@ -1,4 +1,4 @@
-package com.belvinard.inventory_management.dto;
+package com.belvinard.inventory_management.dto.response;
 
 import com.belvinard.inventory_management.model.Address;
 
