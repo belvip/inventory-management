@@ -1,0 +1,52 @@
+[
+  {
+    "designation": "Artisanat Bamiléké",
+    "code": "CAT-ART",
+    "companyId": 1
+  },
+  {
+    "designation": "Cacao Foumban",
+    "code": "CAT-CAC",
+    "companyId": 1
+  },
+  {
+    "designation": "Épices Douala",
+    "code": "CAT-EPI",
+    "companyId": 1
+  },
+  {
+    "designation": "Tissus Wouri",
+    "code": "CAT-TIS",
+    "companyId": 1
+  },
+  {
+    "designation": "Bois Sangmélima",
+    "code": "CAT-BOI",
+    "companyId": 1
+  },
+  {
+    "designation": "Poterie Bamoun",
+    "code": "CAT-POT",
+    "companyId": 1
+  },
+  {
+    "designation": "Miel Adamaoua",
+    "code": "CAT-MIE",
+    "companyId": 1
+  },
+  {
+    "designation": "Café Arabica",
+    "code": "CAT-CAF",
+    "companyId": 1
+  },
+  {
+    "designation": "Huile Palme",
+    "code": "CAT-HUI",
+    "companyId": 1
+  },
+  {
+    "designation": "Fruits Tropicaux",
+    "code": "CAT-FRU",
+    "companyId": 1
+  }
+]
