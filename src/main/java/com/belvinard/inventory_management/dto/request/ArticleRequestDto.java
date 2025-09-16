@@ -29,6 +29,9 @@ public record ArticleRequestDto(
                 message = "VAT rate cannot be negative")
         BigDecimal rateTva,
 
+        @NotNull(message = "Category ID is required")
+        Long categoryId,
+
         String image
 
 ) {

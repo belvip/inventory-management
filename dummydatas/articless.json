@@ -1,0 +1,137 @@
+[
+  {
+    "codeArticle": "ARTEFT",
+    "designation": "Sac de Cacao Mbounda",
+    "quantityInStock": 150,
+    "unitPriceExclTax": 12500.50,
+    "rateTva": 19.25,
+    "categoryId": 1,
+    "image": "cacao.jpg"
+  },
+  {
+    "codeArticle": "ART-002",
+    "designation": "Huile de Palme Ndzie",
+    "quantityInStock": 80,
+    "unitPriceExclTax": 3500.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "huile-palme.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT003",
+    "designation": "Café Arabica Wambo",
+    "quantityInStock": 65,
+    "unitPriceExclTax": 9800.75,
+    "rateTva": 19.25,
+    "categoryId": 1,
+    "image": "cafe-arabica.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT004",
+    "designation": "Tissus Pagne Letouzey",
+    "quantityInStock": 40,
+    "unitPriceExclTax": 18000.00,
+    "rateTva": 19.25,
+    "categoryId": 3,
+    "image": "pagne-letouzey.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT005",
+    "designation": "Plantains Mûrs Essomba",
+    "quantityInStock": 200,
+    "unitPriceExclTax": 500.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "plantains.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT006",
+    "designation": "Poisson Braisé Ndamè",
+    "quantityInStock": 30,
+    "unitPriceExclTax": 2500.00,
+    "rateTva": 19.25,
+    "categoryId": 4,
+    "image": "poisson-braise.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT007",
+    "designation": "Pommade Capillaire Dreadlock",
+    "quantityInStock": 55,
+    "unitPriceExclTax": 4500.00,
+    "rateTva": 19.25,
+    "categoryId": 5,
+    "image": "pommade-dread.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT008",
+    "designation": "Bâton de Manioc Ebolowa",
+    "quantityInStock": 120,
+    "unitPriceExclTax": 300.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "baton-manioc.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT009",
+    "designation": "Statuette Bamiléké",
+    "quantityInStock": 15,
+    "unitPriceExclTax": 25500.00,
+    "rateTva": 19.25,
+    "categoryId": 6,
+    "image": "statuette-bamileke.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT010",
+    "designation": "Noix de Kola Fraîche",
+    "quantityInStock": 90,
+    "unitPriceExclTax": 100.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "noix-kola.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT011",
+    "designation": "Sauce Gombo Ndongo",
+    "quantityInStock": 60,
+    "unitPriceExclTax": 2200.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "sauce-gombo.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT012",
+    "designation": "Panier Tressé de Foumban",
+    "quantityInStock": 25,
+    "unitPriceExclTax": 7500.00,
+    "rateTva": 19.25,
+    "categoryId": 6,
+    "image": "panier-foumban.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT013",
+    "designation": "Piment Blanc de Penja",
+    "quantityInStock": 45,
+    "unitPriceExclTax": 12000.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "piment-penja.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT014",
+    "designation": "CD Mix Makossa 2024",
+    "quantityInStock": 100,
+    "unitPriceExclTax": 5000.00,
+    "rateTva": 19.25,
+    "categoryId": 7,
+    "image": "cd-makossa.jpg"
+  },
+  {
+    "codeArticle": "ARTEFT015",
+    "designation": "Jus Naturel de Zom",
+    "quantityInStock": 75,
+    "unitPriceExclTax": 1500.00,
+    "rateTva": 19.25,
+    "categoryId": 8,
+    "image": "jus-zom.jpg"
+  }
+]

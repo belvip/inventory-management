@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/companies/create").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/api/v1/companies/{id}").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/api/v1/companies/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/articles/create").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())

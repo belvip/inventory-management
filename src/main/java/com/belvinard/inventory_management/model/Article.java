@@ -60,4 +60,15 @@ public class Article extends BaseEntity {
     public String getUpdatedAt() {
         return getUpdatedDate() != null ? getUpdatedDate().toString() : null;
     }
+
+    @PrePersist
+    @PreUpdate
+    public void calculateUnitPriceAllTax() {
+        if (unitPriceExclTax != null && rateTva != null) {
+            this.unitPriceAllTax = unitPriceExclTax.add(
+                    unitPriceExclTax.multiply(rateTva.divide(BigDecimal.valueOf(100)))
+            );
+        }
+    }
+
 }
