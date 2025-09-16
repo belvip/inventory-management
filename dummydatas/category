@@ -1,0 +1,52 @@
+[
+  {
+    "designation": "Artisanat Bamiléké",
+    "code": "ARTBAM",
+    "companyId": 1
+  },
+  {
+    "designation": "Cacao et Café Foumban",
+    "code": "CCFOUM",
+    "companyId": 2
+  },
+  {
+    "designation": "Épices et Condiments",
+    "code": "EPICES",
+    "companyId": 3
+  },
+  {
+    "designation": "Mode et Tissus Wouri",
+    "code": "MODWOU",
+    "companyId": 4
+  },
+  {
+    "designation": "Produits Forestiers",
+    "code": "PRODF",
+    "companyId": 5
+  },
+  {
+    "designation": "Poterie Traditionnelle",
+    "code": "POTRAD",
+    "companyId": 6
+  },
+  {
+    "designation": "Menuiserie Tikar",
+    "code": "MNTKAR",
+    "companyId": 7
+  },
+  {
+    "designation": "Huiles Essentielles",
+    "code": "HUIESS",
+    "companyId": 8
+  },
+  {
+    "designation": "Miel et Dérivés",
+    "code": "MIELDE",
+    "companyId": 9
+  },
+  {
+    "designation": "Ébénisterie Élite",
+    "code": "EBEELT",
+    "companyId": 10
+  }
+]

@@ -1,8 +1,9 @@
-package com.belvinard.inventory_management.dto;
+package com.belvinard.inventory_management.dto.response;
 
 import com.belvinard.inventory_management.model.Address;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record CompanyResponseDto(
         Long id,
@@ -15,6 +16,7 @@ public record CompanyResponseDto(
         String phoneNumber,
         String website,
         LocalDate createdAt,
-        LocalDate updatedAt
+        LocalDate updatedAt,
+        List<CategoryResponseDto> categories
 ) {
 }

@@ -1,9 +1,12 @@
-package com.belvinard.inventory_management.dto;
+package com.belvinard.inventory_management.dto.request;
 
 import com.belvinard.inventory_management.model.Address;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
+import java.util.List;
 
 public record CompanyRequestDto(
         @NotBlank(message = "The company name is required")
@@ -31,5 +34,7 @@ public record CompanyRequestDto(
         String phoneNumber,
 
         @Size(max = 150, message = "The website must contain a maximum of 150 characters")
-        String website
+        String website,
+        @Schema(hidden = true)
+         List<CategoryRequestDto> categories
 ) {}

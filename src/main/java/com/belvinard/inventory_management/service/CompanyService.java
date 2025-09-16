@@ -1,12 +1,9 @@
 package com.belvinard.inventory_management.service;
 
-import com.belvinard.inventory_management.dto.CompanyRequestDto;
-import com.belvinard.inventory_management.dto.CompanyResponseDto;
-import com.belvinard.inventory_management.dto.PagedResponse;
-import io.jsonwebtoken.io.IOException;
+import com.belvinard.inventory_management.dto.request.CompanyRequestDto;
+import com.belvinard.inventory_management.dto.response.CompanyResponseDto;
+import com.belvinard.inventory_management.dto.response.PagedResponse;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 public interface CompanyService {
     CompanyResponseDto createCompany(CompanyRequestDto dto);

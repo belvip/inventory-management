@@ -1,4 +1,4 @@
-package com.belvinard.inventory_management.dto;
+package com.belvinard.inventory_management.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

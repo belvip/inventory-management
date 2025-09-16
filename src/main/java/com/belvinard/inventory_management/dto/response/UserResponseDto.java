@@ -1,4 +1,7 @@
-package com.belvinard.inventory_management.dto;
+package com.belvinard.inventory_management.dto.response;
+
+import com.belvinard.inventory_management.dto.AddressDto;
+import java.time.LocalDate;
 
 public record UserResponseDto(
         Long userId,
@@ -12,5 +15,7 @@ public record UserResponseDto(
         boolean credentialsNonExpired,
         String roleName,
         String image,
-        AddressDto address
+        AddressDto address,
+        LocalDate createdDate,
+        LocalDate updatedDate
 ) {}

@@ -1,6 +1,6 @@
 package com.belvinard.inventory_management.controller;
 
-import com.belvinard.inventory_management.dto.UserResponseDto;
+import com.belvinard.inventory_management.dto.response.UserResponseDto;
 import com.belvinard.inventory_management.mapper.UserMapper;
 import com.belvinard.inventory_management.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;

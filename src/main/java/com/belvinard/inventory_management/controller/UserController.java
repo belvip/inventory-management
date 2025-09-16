@@ -1,6 +1,7 @@
 package com.belvinard.inventory_management.controller;
 
-import com.belvinard.inventory_management.dto.*;
+import com.belvinard.inventory_management.dto.request.*;
+import com.belvinard.inventory_management.dto.response.UserResponseDto;
 import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.repository.RoleRepository;
 import com.belvinard.inventory_management.service.UserService;
@@ -165,7 +166,7 @@ public class UserController {
             }
     )
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }

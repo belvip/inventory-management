@@ -1,4 +1,4 @@
-package com.belvinard.inventory_management.dto;
+package com.belvinard.inventory_management.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
