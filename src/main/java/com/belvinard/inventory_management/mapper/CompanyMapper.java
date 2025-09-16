@@ -4,10 +4,11 @@ import com.belvinard.inventory_management.dto.request.CompanyRequestDto;
 import com.belvinard.inventory_management.dto.response.CompanyResponseDto;
 import com.belvinard.inventory_management.model.Company;
 import org.mapstruct.Mapper;
+import org.mapstruct.NullValueMappingStrategy;
 
-// This annotation tells MapStruct to generate an implementation for this interface
-// and register it as a Spring Bean, so you can @Autowired it in your services.
-@Mapper(componentModel = "spring", uses = {AddressMapper.class, CategoryMapper.class})
+
+@Mapper(componentModel = "spring", uses = {AddressMapper.class, CategoryMapper.class},
+        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface CompanyMapper {
 
     /**
