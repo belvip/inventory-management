@@ -66,7 +66,7 @@ public class CompanyController {
     public ResponseEntity<PagedResponse<CompanyResponseDto>> getAllCompanies(
             @RequestParam(defaultValue = AppConstant.PAGE_NUMBER) Integer pageNumber,
             @RequestParam(defaultValue = AppConstant.PAGE_SIZE) Integer pageSize,
-            @RequestParam(defaultValue = AppConstant.SORT_CATEGORIES_BY) String sortBy,
+            @RequestParam(defaultValue = AppConstant.SORT_COMPANIES_BY) String sortBy,
 
             @RequestParam(defaultValue = "asc") String sortOrder
     ) {

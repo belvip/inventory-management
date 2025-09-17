@@ -2,6 +2,8 @@ package com.belvinard.inventory_management.service.impl;
 
 import com.belvinard.inventory_management.dto.request.ArticleRequestDto;
 import com.belvinard.inventory_management.dto.response.ArticleResponseDto;
+import com.belvinard.inventory_management.dto.response.PagedResponse;
+import com.belvinard.inventory_management.exception.APIException;
 import com.belvinard.inventory_management.exception.ResourceConflictException;
 import com.belvinard.inventory_management.exception.ResourceNotFoundException;
 import com.belvinard.inventory_management.mapper.ArticleMapper;
@@ -13,6 +15,10 @@ import com.belvinard.inventory_management.repository.CategoryRepository;
 import com.belvinard.inventory_management.service.ArticleService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -95,6 +101,68 @@ public class ArticleServiceImpl implements ArticleService {
         return archived.stream()
                 .map(articleMapper::toResponseDto)
                 .toList();
+    }
+
+    @Override
+    public ArticleResponseDto updateArticle(Long id, ArticleRequestDto dto) {
+        // 1️⃣ Check if the article exists
+        Article existingArticle = articleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+
+        articleRepository.findByCodeArticle(dto.codeArticle())
+                .filter(a -> !a.getId().equals(id))
+                .ifPresent(a -> {
+                    throw new ResourceConflictException("Another article with the same code already exists");
+                });
+
+        existingArticle.setCodeArticle(dto.codeArticle());
+        existingArticle.setDesignation(dto.designation());
+
+        existingArticle.setQuantityInStock(dto.quantityInStock() != null ? dto.quantityInStock() : 0L);
+
+        existingArticle.setUnitPriceExclTax(dto.unitPriceExclTax());
+
+        existingArticle.setRateTva(dto.rateTva() != null ? dto.rateTva() : BigDecimal.ZERO);
+
+        existingArticle.setImage(dto.image());
+
+        // 4️⃣ Recalculate the price with tax (Hibernate @PreUpdate will also do this before saving)
+        existingArticle.calculateUnitPriceAllTax();
+
+        Article updatedArticle = articleRepository.save(existingArticle);
+
+        return articleMapper.toResponseDto(updatedArticle);
+    }
+
+    @Override
+    public PagedResponse getAllArticle(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<Article> articlePage = articleRepository.findAll(pageable);
+
+        if(articlePage.isEmpty()){
+            throw new APIException("No articles found");
+        }
+
+        List<ArticleResponseDto> content = articlePage
+                .getContent()
+                .stream()
+                .map(articleMapper::toResponseDto)
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                articlePage.getNumber(),
+                articlePage.getSize(),
+                articlePage.getTotalElements(),
+                articlePage.getTotalPages(),
+                articlePage.isLast()
+        );
+
+
     }
 
 
