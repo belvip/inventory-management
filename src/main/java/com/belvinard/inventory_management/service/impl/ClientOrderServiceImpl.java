@@ -3,6 +3,7 @@ package com.belvinard.inventory_management.service.impl;
 import com.belvinard.inventory_management.dto.request.ClientOrderRequestDto;
 import com.belvinard.inventory_management.dto.response.ClientOrderResponseDto;
 import com.belvinard.inventory_management.exception.DuplicateResourceException;
+import com.belvinard.inventory_management.exception.ResourceConflictException;
 import com.belvinard.inventory_management.exception.ResourceNotFoundException;
 import com.belvinard.inventory_management.mapper.ClientOrderMapper;
 import com.belvinard.inventory_management.model.Client;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,36 +30,88 @@ public class ClientOrderServiceImpl implements ClientOrderService {
     @Override
     public ClientOrderResponseDto createOrder(ClientOrderRequestDto orderRequestDto) {
 
-        // 1️⃣ Validate client exists
         Client client = clientRepository.findById(orderRequestDto.clientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Client with ID " + orderRequestDto.clientId() + " not found"));
 
-        // 2️⃣ Check if order code is unique
         if (clientOrderRepository.existsByCode(orderRequestDto.code())) {
             throw new DuplicateResourceException("Order code " + orderRequestDto.code() + " already exists");
         }
 
-        // 3️⃣ Map DTO to entity
         ClientOrder order = clientOrderMapper.toEntity(orderRequestDto);
 
-        // 4️⃣ Set the client reference (important for @ManyToOne relationship)
         order.setClient(client);
 
-        // 5️⃣ Set order date (default: today if null)
         if (orderRequestDto.orderDate() == null) {
             order.setOrderDate(LocalDate.now());
         } else {
             order.setOrderDate(orderRequestDto.orderDate());
         }
 
-        // 6️⃣ Force default status
         order.setStateOrder(OrderStatus.IN_PREPARATION);
 
-        // 7️⃣ Save
         ClientOrder saved = clientOrderRepository.save(order);
 
-        // 8️⃣ Return response DTO
         return clientOrderMapper.toResponseDto(saved);
+    }
+
+    @Override
+    public ClientOrderResponseDto getOrderById(Long id) {
+        ClientOrder order = clientOrderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+
+        return clientOrderMapper.toResponseDto(order);
+    }
+
+    @Override
+    public ClientOrderResponseDto updateOrder(Long id, ClientOrderRequestDto dto) {
+        ClientOrder order = clientOrderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+
+        clientOrderRepository.findByCode(dto.code())
+                .filter(existing -> !existing.getId().equals(id))
+                .ifPresent(existing -> {
+                    throw new ResourceConflictException("Order code already exists: " + dto.code());
+                });
+
+        order.setCode(dto.code());
+        order.setComments(dto.comments());
+
+        if (dto.stateOrder() != null) {
+
+            if (order.getStateOrder() == OrderStatus.DELIVERED || order.getStateOrder() == OrderStatus.CANCELED) {
+                throw new IllegalStateException("Cannot update an order that is already " + order.getStateOrder());
+            }
+
+            order.setStateOrder(dto.stateOrder());
+        }
+
+        order.setOrderDate(dto.orderDate() != null ? dto.orderDate() : order.getOrderDate());
+
+        ClientOrder updated = clientOrderRepository.save(order);
+        return clientOrderMapper.toResponseDto(updated);
+    }
+
+
+    @Override
+    public List<ClientOrderResponseDto> getOrdersByClient(Long clientId) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + clientId));
+
+        return clientOrderRepository.findByClient(client).stream()
+                .map(clientOrderMapper::toResponseDto)
+                .toList();
+    }
+
+    @Override
+    public void deleteOrder(Long id) {
+        ClientOrder order = clientOrderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+
+        if (order.getStateOrder() == OrderStatus.DELIVERED) {
+            throw new IllegalStateException("Delivered orders cannot be deleted.");
+        }
+
+        clientOrderRepository.delete(order);
     }
 }
 
