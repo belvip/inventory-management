@@ -26,8 +26,8 @@ public class Category extends BaseEntity {
     @NotBlank(message = "The category code is required")
     @Size(min = 3, max = 10, message = "The code must contain between 3 and 10 characters")
     @Pattern(
-            regexp = "CAT-\\w{3}|CATEFT",
-            message = "The code must be in the format CAT-XXX or CATEFT"
+            regexp = "CAT-\\d{3}|CAT[A-Z]{3}",
+            message = "The code must be in the format CAT-XXX (digits) or CATXXX (3 letters)"
     )
     private String code;
 

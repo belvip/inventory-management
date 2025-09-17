@@ -21,7 +21,7 @@ public class Article extends BaseEntity {
     @NotBlank(message = "Article code is mandatory")
     @Size(min = 4, max = 50, message = "Article code must be between 4 and 50 characters")
     @Pattern(
-            regexp = "ART-\\w{3}|ARTEFT",
+            regexp = "ART-\\d{3}|ART[A-Z]{3}",
             message = "The code must be in the format ART-XXX or ARTEFT"
     )
     @Column(nullable = false, unique = true, length = 50)

@@ -135,7 +135,7 @@ public class CategoryController {
             @RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
             @Parameter(description = "Page size", example = "10")
             @RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
-            @Parameter(description = "Sort field", example = "companyId")
+            @Parameter(description = "Sort field", example = "designation")
             @RequestParam(value = "sortBy", defaultValue = AppConstant.SORT_CATEGORIES_BY, required = false) String sortBy,
             @Parameter(description = "Sort direction (asc/desc)", example = "asc")
             @RequestParam(value = "sortOrder", defaultValue = AppConstant.SORT_DIR, required = false) String sortOrder
