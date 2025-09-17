@@ -7,7 +7,7 @@ public record ClientOrderResponseDto(
         String code,
         LocalDate orderDate,
         String comments,
-        String stateOrder,
-        Long clientId
+        String stateOrder
+        //Long clientId
 ) {}
 

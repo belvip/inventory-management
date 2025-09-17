@@ -10,8 +10,9 @@ import org.mapstruct.NullValueMappingStrategy;
 @Mapper(componentModel = "spring", nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface ClientOrderMapper {
 
-    @Mapping(source = "createdDate", target = "orderDate", dateFormat = "yyyy-MM-dd")
+    @Mapping(source = "orderDate", target = "orderDate")
     @Mapping(source = "stateOrder", target = "stateOrder")
+    //@Mapping(source = "client.id", target = "clientId")
     ClientOrderResponseDto toResponseDto(ClientOrder clientOrder);
 
     @Mapping(target = "id", ignore = true)
