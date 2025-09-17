@@ -5,8 +5,10 @@ import com.belvinard.inventory_management.dto.response.CategoryResponseDto;
 import com.belvinard.inventory_management.model.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.NullValueMappingStrategy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = ArticleMapper.class,
+        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface CategoryMapper {
     @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "updatedDate", target = "updatedDate")

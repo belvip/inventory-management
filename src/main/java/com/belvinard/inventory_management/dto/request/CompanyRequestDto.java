@@ -4,6 +4,7 @@ import com.belvinard.inventory_management.model.Address;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
@@ -23,6 +24,10 @@ public record CompanyRequestDto(
         @Size(min = 5, max = 20, message = "The fiscal code must contain between 5 and 20 characters")
         String fiscalCode,
 
+        @Pattern(
+                regexp = "^[^\\s]+(?i)\\.(jpg|jpeg|png|gif|webp|bmp)$",
+                message = "The filename must end with a valid image extension (jpg, jpeg, png, gif, webp, bmp)."
+        )
         String image,
 
         @NotBlank(message = "The email is required")

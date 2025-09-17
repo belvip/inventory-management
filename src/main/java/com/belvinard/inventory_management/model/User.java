@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -53,6 +54,10 @@ public class User extends BaseEntity {
     @JsonIgnore
     private String password;
 
+    @Pattern(
+            regexp = "^[^\\s]+(?i)\\.(jpg|jpeg|png|gif|webp|bmp)$",
+            message = "The filename must end with a valid image extension (jpg, jpeg, png, gif, webp, bmp)."
+    )
     private String image;
 
     @Embedded

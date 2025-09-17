@@ -1,0 +1,77 @@
+[
+  {
+    "designation": "Produits Agricoles",
+    "code": "CAT-001",
+    "companyId": 1
+  },
+  {
+    "designation": "Poissons et Fruits de Mer",
+    "code": "CATSEA",
+    "companyId": 1
+  },
+  {
+    "designation": "Tissus et Pagne Traditionnel",
+    "code": "CAT-002",
+    "companyId": 1
+  },
+  {
+    "designation": "Boissons et Jus Naturels",
+    "code": "CATBEV",
+    "companyId": 1
+  },
+  {
+    "designation": "Artisanat Bamiléké",
+    "code": "CAT-003",
+    "companyId": 1
+  },
+  {
+    "designation": "Épicerie et Produits Alimentaires",
+    "code": "CATGRO",
+    "companyId": 1
+  },
+  {
+    "designation": "Électronique et Téléphonie",
+    "code": "CAT-004",
+    "companyId": 1
+  },
+  {
+    "designation": "Cafés et Cacaos de Qualité",
+    "code": "CATCOC",
+    "companyId": 1
+  },
+  {
+    "designation": "Santé et Beauté",
+    "code": "CAT-005",
+    "companyId": 1
+  },
+  {
+    "designation": "Vêtements et Accessoires",
+    "code": "CATFAS",
+    "companyId": 1
+  },
+  {
+    "designation": "Sculptures et Art Tribal",
+    "code": "CAT-006",
+    "companyId": 1
+  },
+  {
+    "designation": "Produits Laitiers",
+    "code": "CATDAI",
+    "companyId": 1
+  },
+  {
+    "designation": "Miel et Produits de la Ruche",
+    "code": "CAT-007",
+    "companyId": 1
+  },
+  {
+    "designation": "Sports et Loisirs",
+    "code": "CATSPO",
+    "companyId": 1
+  },
+  {
+    "designation": "Énergie et Piles",
+    "code": "CAT-008",
+    "companyId": 1
+  }
+]

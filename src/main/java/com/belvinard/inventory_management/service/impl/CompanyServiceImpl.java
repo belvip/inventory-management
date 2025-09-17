@@ -140,7 +140,7 @@ public class CompanyServiceImpl implements CompanyService {
 
         String fileName = minioService.uploadImage(image);
         companyFromDb.setImage(fileName);
-        String imageUrl = minioService.getPreSignedUrl(fileName, 15);
+        //String imageUrl = minioService.getPreSignedUrl(fileName, 15);
         Company updatedCompany = companyRepository.save(companyFromDb);
 
         return companyMapper.toResponseDto(updatedCompany);

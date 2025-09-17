@@ -1,0 +1,182 @@
+[
+  {
+    "codeArticle": "ART-001",
+    "designation": "Cacao Mbounda et fils",
+    "quantityInStock": 150,
+    "unitPriceExclTax": 12500.50,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "cacao-mbounda.jpg"
+  },
+  {
+    "codeArticle": "ARTFIS",
+    "designation": "Poisson Fumé Essomba et fils",
+    "quantityInStock": 45,
+    "unitPriceExclTax": 4200.00,
+    "rateTva": 19.25,
+    "categoryId": 4,
+    "image": "poisson-fume.jpg"
+  },
+  {
+    "codeArticle": "ART-002",
+    "designation": "Huile Rouge Ndzie et fils",
+    "quantityInStock": 30,
+    "unitPriceExclTax": 3800.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "huile-rouge.jpg"
+  },
+  {
+    "codeArticle": "ARTMAN",
+    "designation": "Bâton de Manioc Ebolowa et fils",
+    "quantityInStock": 200,
+    "unitPriceExclTax": 250.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "baton-manioc.jpg"
+  },
+  {
+    "codeArticle": "ART-003",
+    "designation": "Pagne Wax Letouzey et fils",
+    "quantityInStock": 25,
+    "unitPriceExclTax": 18500.00,
+    "rateTva": 19.25,
+    "categoryId": 3,
+    "image": "pagne-wax.jpg"
+  },
+  {
+    "codeArticle": "ARTCAF",
+    "designation": "Café Robusta Wambo et fils",
+    "quantityInStock": 80,
+    "unitPriceExclTax": 9500.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "cafe-robusta.jpg"
+  },
+  {
+    "codeArticle": "ART-004",
+    "designation": "Plantains Mûrs Mbappe et fils",
+    "quantityInStock": 120,
+    "unitPriceExclTax": 600.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "plantains-murs.jpg"
+  },
+  {
+    "codeArticle": "ARTTVA",
+    "designation": "Télévision LED Hisense et fils",
+    "quantityInStock": 15,
+    "unitPriceExclTax": 225000.00,
+    "rateTva": 19.25,
+    "categoryId": 5,
+    "image": "tv-led.jpg"
+  },
+  {
+    "codeArticle": "ART-005",
+    "designation": "Sucrerie Pimentée Mbango et fils",
+    "quantityInStock": 300,
+    "unitPriceExclTax": 100.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "sucrerie-pimentee.jpg"
+  },
+  {
+    "codeArticle": "ARTBAM",
+    "designation": "Statuette Bamiléké et fils",
+    "quantityInStock": 10,
+    "unitPriceExclTax": 32000.00,
+    "rateTva": 19.25,
+    "categoryId": 6,
+    "image": "statuette-bamileke.jpg"
+  },
+  {
+    "codeArticle": "ART-006",
+    "designation": "Noix de Kola Fraîche Njoya et fils",
+    "quantityInStock": 95,
+    "unitPriceExclTax": 50.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "noix-kola.jpg"
+  },
+  {
+    "codeArticle": "ARTGOM",
+    "designation": "Sauce Gombo Ndongo et fils",
+    "quantityInStock": 60,
+    "unitPriceExclTax": 1800.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "sauce-gombo.jpg"
+  },
+  {
+    "codeArticle": "ART-007",
+    "designation": "Panier Tressé Foumban et fils",
+    "quantityInStock": 40,
+    "unitPriceExclTax": 8500.00,
+    "rateTva": 19.25,
+    "categoryId": 6,
+    "image": "panier-tresse.jpg"
+  },
+  {
+    "codeArticle": "ARTPEN",
+    "designation": "Piment Blanc de Penja et fils",
+    "quantityInStock": 28,
+    "unitPriceExclTax": 13500.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "piment-penja.jpg"
+  },
+  {
+    "codeArticle": "ART-008",
+    "designation": "Smartphone Tecno et fils",
+    "quantityInStock": 35,
+    "unitPriceExclTax": 75000.00,
+    "rateTva": 19.25,
+    "categoryId": 5,
+    "image": "smartphone-tecno.jpg"
+  },
+  {
+    "codeArticle": "ARTMAK",
+    "designation": "Vin de Palme Mpondo et fils",
+    "quantityInStock": 50,
+    "unitPriceExclTax": 2800.00,
+    "rateTva": 19.25,
+    "categoryId": 8,
+    "image": "vin-palme.jpg"
+  },
+  {
+    "codeArticle": "ART-009",
+    "designation": "Savon Artisanal Douala et fils",
+    "quantityInStock": 150,
+    "unitPriceExclTax": 750.00,
+    "rateTva": 19.25,
+    "categoryId": 7,
+    "image": "savon-artisanal.jpg"
+  },
+  {
+    "codeArticle": "ARTFUT",
+    "designation": "Maillot de Football Lions et fils",
+    "quantityInStock": 65,
+    "unitPriceExclTax": 15000.00,
+    "rateTva": 19.25,
+    "categoryId": 9,
+    "image": "maillot-lions.jpg"
+  },
+  {
+    "codeArticle": "ART-010",
+    "designation": "Miel Pur de l'Ouest et fils",
+    "quantityInStock": 40,
+    "unitPriceExclTax": 5000.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "miel-ouest.jpg"
+  },
+  {
+    "codeArticle": "ARTBAN",
+    "designation": "Bananes Plantains Manga et fils",
+    "quantityInStock": 110,
+    "unitPriceExclTax": 400.00,
+    "rateTva": 19.25,
+    "categoryId": 2,
+    "image": "bananes-plantains.jpg"
+  }
+]
