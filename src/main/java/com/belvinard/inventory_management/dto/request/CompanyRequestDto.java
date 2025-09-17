@@ -35,7 +35,10 @@ public record CompanyRequestDto(
         String email,
 
         @NotBlank(message = "The phone number is required")
-        @Size(min = 9, max = 20, message = "The phone number must contain between 9 and 20 characters")
+        @Pattern(
+                regexp = "^(?:(?:\\+237|237)[-.\\s]?)?(?:(?:[67][25-9]\\d{7})|(?:2\\d{2}\\d{6}))$",
+                message = "The phone number must be a valid Cameroonian number (mobile or fixed). Examples: 671234567, 222123456, +237-233123456"
+        )
         String phoneNumber,
 
         @Size(max = 150, message = "The website must contain a maximum of 150 characters")
