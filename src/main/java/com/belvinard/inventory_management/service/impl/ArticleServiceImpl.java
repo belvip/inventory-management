@@ -13,6 +13,7 @@ import com.belvinard.inventory_management.model.Category;
 import com.belvinard.inventory_management.repository.ArticleRepository;
 import com.belvinard.inventory_management.repository.CategoryRepository;
 import com.belvinard.inventory_management.service.ArticleService;
+import com.belvinard.inventory_management.service.MinioService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -31,6 +34,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleRepository articleRepository;
     private final CategoryRepository categoryRepository;
     private final ArticleMapper articleMapper;
+    private final MinioService minioService;
 
     @Override
     public ArticleResponseDto createArticle(ArticleRequestDto dto) {
@@ -163,6 +167,18 @@ public class ArticleServiceImpl implements ArticleService {
         );
 
 
+    }
+
+    @Override
+    public ArticleResponseDto updateArticleImage(Long id, MultipartFile image) throws IOException {
+        Article articleFromDb = articleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+
+        String fileName = minioService.uploadImage(image);
+        articleFromDb.setImage(fileName);
+        Article updatedArticle = articleRepository.save(articleFromDb);
+
+        return articleMapper.toResponseDto(updatedArticle);
     }
 
 

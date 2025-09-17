@@ -128,7 +128,6 @@ public class CategoryController {
             description = "Fetch all categories with pagination and sorting (default sort by companyId)"
     )
     @ApiResponse(responseCode = "200", description = "Categories retrieved successfully")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     @GetMapping("/all")
     public ResponseEntity<PagedResponse<CategoryResponseDto>> getAllCategories(
             @Parameter(description = "Page number (0-based)", example = "0")

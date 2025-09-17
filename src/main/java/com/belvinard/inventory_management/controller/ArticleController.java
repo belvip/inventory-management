@@ -18,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -92,7 +94,7 @@ public class ArticleController {
 
 
     @Operation(
-            summary = "Archive an article",
+            summary = "Archive an article Only ADMIN",
             description = "Sets the article status to ARCHIVED"
     )
     @ApiResponses(value = {
@@ -107,7 +109,7 @@ public class ArticleController {
     }
 
     @Operation(
-            summary = "Restore an article",
+            summary = "Restore an article Only ADMIN",
             description = "Restores an archived article to ACTIVE status"
     )
     @ApiResponses(value = {
@@ -176,6 +178,11 @@ public class ArticleController {
         return ResponseEntity.ok(updatedArticle);
     }
 
+    @Operation(
+            summary = "Get all articles",
+            description = "Fetch all articles with pagination and sorting (default sort by designation)"
+    )
+    @ApiResponse(responseCode = "200", description = "Articles retrieved successfully")
     @GetMapping("/all")
     public ResponseEntity<PagedResponse<ArticleResponseDto>> getAllArticles(
             @Parameter(description = "Page number (0-based)", example = "0")
@@ -189,6 +196,31 @@ public class ArticleController {
     ) {
         PagedResponse<ArticleResponseDto> pagedResponse = articleService.getAllArticle(pageNumber, pageSize, sortBy, sortOrder);
         return ResponseEntity.ok(pagedResponse);
+    }
+
+    @Operation(
+            summary = "Update article image ADMIN or MANAGER",
+            description = "Updates the image of an article by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image updated successfully",
+                    content = @Content(schema = @Schema(implementation = ArticleResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request or image not provided",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Article not found",
+                    content = @Content)
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PutMapping(value = "/{id}/image")
+    public ResponseEntity<ArticleResponseDto> updateArticleImage(
+            @PathVariable Long id,
+            @RequestParam("image") MultipartFile image
+    ) throws IOException {
+        if (image.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        ArticleResponseDto updatedArticle = articleService.updateArticleImage(id, image);
+        return ResponseEntity.ok(updatedArticle);
     }
 
 }

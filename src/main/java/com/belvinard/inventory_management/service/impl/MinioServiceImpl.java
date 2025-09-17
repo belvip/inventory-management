@@ -14,10 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -111,18 +108,40 @@ public class MinioServiceImpl implements MinioService {
         }
     }
 
-    private void validateFile(MultipartFile file) {
+    private void validateFile(MultipartFile file) throws IOException {
+        // 1. Basic null and empty checks (you already had this logic)
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File cannot be null or empty");
         }
-        if (file.getOriginalFilename() == null) {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
             throw new IllegalArgumentException("File name cannot be null");
         }
-    }
 
+        // 2. Check for path traversal attacks and basic filename validity
+        if (originalFilename.contains("..") || originalFilename.trim().isEmpty()) {
+            throw new IllegalArgumentException("Invalid file name: " + originalFilename);
+        }
+
+        // 3. Validate File Extension using a robust regex
+        String extension = getFileExtension(originalFilename).toLowerCase();
+        List<String> allowedExtensions = Arrays.asList("jpg", "jpeg", "png", "gif", "bmp", "webp");
+        if (extension.isEmpty() || !allowedExtensions.contains(extension)) {
+            throw new IllegalArgumentException(
+                    "Invalid file type. Allowed formats: " + allowedExtensions + ". Received: '" + extension + "'"
+            );
+        }
+    }
     private void validateObjectName(String objectName) {
         if (objectName == null || objectName.trim().isEmpty()) {
             throw new IllegalArgumentException("Object name cannot be null or empty");
         }
+    }
+
+    private String getFileExtension(String filename) {
+        if (filename == null || !filename.contains(".")) {
+            return "";
+        }
+        return filename.substring(filename.lastIndexOf(".") + 1);
     }
 }

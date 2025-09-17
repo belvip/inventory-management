@@ -1,52 +1,77 @@
 [
   {
-    "designation": "Artisanat Bamiléké",
+    "designation": "Produits Agricoles",
     "code": "CAT-001",
     "companyId": 1
   },
   {
-    "designation": "Cacao et Café Foumban",
-    "code": "CATOUM",
-    "companyId": 2
+    "designation": "Poissons et Fruits de Mer",
+    "code": "CATSEA",
+    "companyId": 1
   },
   {
-    "designation": "Épices et Condiments",
+    "designation": "Tissus et Pagne Traditionnel",
+    "code": "CAT-002",
+    "companyId": 1
+  },
+  {
+    "designation": "Boissons et Jus Naturels",
+    "code": "CATBEV",
+    "companyId": 1
+  },
+  {
+    "designation": "Artisanat Bamiléké",
     "code": "CAT-003",
-    "companyId": 2
+    "companyId": 1
   },
   {
-    "designation": "Mode et Tissus Wouri",
-    "code": "MODWOU",
-    "companyId": 4
+    "designation": "Épicerie et Produits Alimentaires",
+    "code": "CATGRO",
+    "companyId": 1
   },
   {
-    "designation": "Produits Forestiers",
-    "code": "PRODF",
-    "companyId": 5
+    "designation": "Électronique et Téléphonie",
+    "code": "CAT-004",
+    "companyId": 1
   },
   {
-    "designation": "Poterie Traditionnelle",
-    "code": "POTRAD",
-    "companyId": 6
+    "designation": "Cafés et Cacaos de Qualité",
+    "code": "CATCOC",
+    "companyId": 1
   },
   {
-    "designation": "Menuiserie Tikar",
-    "code": "MNTKAR",
-    "companyId": 7
+    "designation": "Santé et Beauté",
+    "code": "CAT-005",
+    "companyId": 1
   },
   {
-    "designation": "Huiles Essentielles",
-    "code": "HUIESS",
-    "companyId": 8
+    "designation": "Vêtements et Accessoires",
+    "code": "CATFAS",
+    "companyId": 1
   },
   {
-    "designation": "Miel et Dérivés",
-    "code": "MIELDE",
-    "companyId": 9
+    "designation": "Sculptures et Art Tribal",
+    "code": "CAT-006",
+    "companyId": 1
   },
   {
-    "designation": "Ébénisterie Élite",
-    "code": "EBEELT",
-    "companyId": 10
+    "designation": "Produits Laitiers",
+    "code": "CATDAI",
+    "companyId": 1
+  },
+  {
+    "designation": "Miel et Produits de la Ruche",
+    "code": "CAT-007",
+    "companyId": 1
+  },
+  {
+    "designation": "Sports et Loisirs",
+    "code": "CATSPO",
+    "companyId": 1
+  },
+  {
+    "designation": "Énergie et Piles",
+    "code": "CAT-008",
+    "companyId": 1
   }
 ]
