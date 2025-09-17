@@ -71,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/articles/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/articles/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/articles/{id}/image").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/v1/clients/").hasAnyRole("ADMIN", "MANAGER", "SALES")
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())
