@@ -32,6 +32,10 @@ public record ArticleRequestDto(
         @NotNull(message = "Category ID is required")
         Long categoryId,
 
+        @Pattern(
+                regexp = "^[^\\s]+(?i)\\.(jpg|jpeg|png|gif|webp|bmp)$",
+                message = "The filename must end with a valid image extension (jpg, jpeg, png, gif, webp, bmp)."
+        )
         String image
 
 ) {

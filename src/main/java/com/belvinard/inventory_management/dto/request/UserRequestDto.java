@@ -4,6 +4,7 @@ import com.belvinard.inventory_management.dto.AddressDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UserRequestDto(
@@ -29,6 +30,10 @@ public record UserRequestDto(
         @Size(min = 6, max = 120, message = "Password must be between 6 and 120 characters")
         String password,
 
+        @Pattern(
+                regexp = "^[^\\s]+(?i)\\.(jpg|jpeg|png|gif|webp|bmp)$",
+                message = "The filename must end with a valid image extension (jpg, jpeg, png, gif, webp, bmp)."
+        )
         String image,
 
         @Valid

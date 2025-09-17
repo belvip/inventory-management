@@ -45,6 +45,10 @@ public class Article extends BaseEntity {
     @Schema(hidden = true)
     private BigDecimal unitPriceAllTax;
 
+    @Pattern(
+            regexp = "^[^\\s]+(?i)\\.(jpg|jpeg|png|gif|webp|bmp)$",
+            message = "The filename must end with a valid image extension (jpg, jpeg, png, gif, webp, bmp)."
+    )
     private String image;
 
     @ManyToOne(optional = false)
