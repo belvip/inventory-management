@@ -30,36 +30,41 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
     @Override
     @Transactional
     public OrderClientLineResponseDto addLineToOrder(OrderClientLineRequestDto dto) {
+        if (dto == null) {
+            throw new APIException("Order line request cannot be null");
+        }
+        if (dto.clientOrderId() == null) {
+            throw new APIException("Client order ID is required");
+        }
+        if (dto.articleId() == null) {
+            throw new APIException("Article ID is required");
+        }
 
         ClientOrder order = clientOrderRepository.findById(dto.clientOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + dto.clientOrderId()));
 
         if (order.getStateOrder() != OrderStatus.IN_PREPARATION) {
-            throw new IllegalStateException("Cannot add line to an order that is not in preparation");
+            throw new APIException("Cannot add line. Order is not in IN_PREPARATION state.");
         }
 
         Article article = articleRepository.findById(dto.articleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + dto.articleId()));
 
-        if (article.getStatus() != ArticleStatus.ACTIVE) {
-            throw new IllegalStateException("Article is not sellable");
-        }
-
-        BigDecimal reserved = orderClientLineRepository
-                .sumQuantityForArticle(article.getId())
-                .orElse(BigDecimal.ZERO);
-
-        if (dto.quantity().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
-        }
-
-        if (article.getQuantityInStock() - reserved.longValue() < dto.quantity().longValue()) {
-            throw new IllegalStateException("Not enough stock available for article: " + article.getCodeArticle());
+        if (article.getStatus() == ArticleStatus.ARCHIVED) {
+            throw new APIException("Cannot add an archived article to an order");
         }
 
         if (isArticleAlreadyInOrder(order.getId(), article.getId())) {
-            throw new IllegalStateException("Article already exists in this order");
+            throw new APIException("This article is already present in the order.");
         }
+
+        long stock = article.getQuantityInStock() != null ? article.getQuantityInStock() : 0L;
+        if (dto.quantity().longValue() > stock) {
+            throw new APIException("Not enough stock available for this article.");
+        }
+
+        article.setQuantityInStock(stock - dto.quantity().longValue());
+        articleRepository.save(article);
 
         OrderClientLine line = new OrderClientLine();
         line.setClientOrder(order);
@@ -68,13 +73,16 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
 
         OrderClientLine savedLine = orderClientLineRepository.save(line);
 
-        if (!order.getOrderClientLineList().isEmpty() || savedLine != null) {
+        // 8️⃣ ✅ FIX: Only update order status if currently IN_PREPARATION and this was the FIRST line
+        if (order.getStateOrder() == OrderStatus.IN_PREPARATION &&
+                order.getOrderClientLineList().isEmpty()) {
             order.setStateOrder(OrderStatus.VALIDATED);
             clientOrderRepository.save(order);
         }
 
         return orderClientLineMapper.toResponseDto(savedLine);
     }
+
 
     @Override
     public OrderClientLineResponseDto getLineById(Long id) {
@@ -128,21 +136,20 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
     @Transactional
     public void removeLineFromOrder(Long id) {
         OrderClientLine line = orderClientLineRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order line not found with id: " + id));
-
-        ClientOrder order = line.getClientOrder();
-
-        if (order.getStateOrder() == OrderStatus.DELIVERED) {
-            throw new IllegalStateException("Cannot remove line from delivered order");
-        }
+                .orElseThrow(() -> new ResourceNotFoundException("Order line not found"));
 
         Article article = line.getArticle();
-        article.setQuantityInStock(article.getQuantityInStock() + line.getQuantity().longValue());
-        articleRepository.save(article);
+        if (article != null) {
+            long currentStock = article.getQuantityInStock() != null ? article.getQuantityInStock() : 0L;
+            long lineQuantity = line.getQuantity() != null ? line.getQuantity().longValue() : 0L;
+
+            // ✅ Null-safe stock restoration
+            article.setQuantityInStock(currentStock + lineQuantity);
+            articleRepository.save(article);
+        }
 
         orderClientLineRepository.delete(line);
     }
-
     @Override
     public BigDecimal calculateOrderTotal(Long clientOrderId) {
         ClientOrder order = clientOrderRepository.findById(clientOrderId)
@@ -155,6 +162,9 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
 
     @Override
     public boolean isArticleAlreadyInOrder(Long clientOrderId, Long articleId) {
+        if (clientOrderId == null || articleId == null) {
+            throw new APIException("ClientOrderId and ArticleId cannot be null");
+        }
         return orderClientLineRepository.existsByClientOrderIdAndArticleId(clientOrderId, articleId);
     }
 }

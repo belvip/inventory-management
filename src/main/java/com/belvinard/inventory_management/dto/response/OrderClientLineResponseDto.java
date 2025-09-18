@@ -1,6 +1,7 @@
 package com.belvinard.inventory_management.dto.response;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public record OrderClientLineResponseDto(
         Long id,
@@ -11,5 +12,7 @@ public record OrderClientLineResponseDto(
         BigDecimal rateTva,
         BigDecimal unitPriceAllTax,
         BigDecimal quantity,
-        BigDecimal totalLinePrice
+        BigDecimal totalLinePrice,
+        LocalDate createdDate,
+        LocalDate updatedDate
 ) {}
