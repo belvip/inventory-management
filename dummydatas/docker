@@ -44,17 +44,17 @@ docker run -d --name inventory-8282 --env-file .env -p 8282:8282 belvinar/new-in
 
 
 
- netstat -aon | findstr "8282"
- taskkill /F /PID 6148
+netstat -aon | findstr "8282"
+taskkill /F /PID 6148
 
 
 
- image: belvinar/new-inventory
+image: belvinar/new-inventory
 
- # Development
- docker-compose up --build
+# Development
+docker-compose up --build
 
- # When ready for production
+# When ready for production
  docker build -t belvinar/new-inventory:v1.0.0 .
  docker tag belvinar/new-inventory:v1.0.0 belvinar/new-inventory:latest
  docker push belvinar/new-inventory:v1.0.0
@@ -68,4 +68,12 @@ docker pull belvinar/new-inventory:v1.0.0
 docker pull belvinar/new-inventory:latest
 # or simply
 docker pull belvinar/new-inventory
+
+# Run locally
+docker run -d --name inventory-app --env-file .env -p 8282:8282 belvinar/new-inventory:latest
+
+# Or on production server
+docker pull belvinar/new-inventory:latest
+docker run -d --name inventory-app --env-file .env -p 8282:8282 belvinar/new-inventory:latest
+
 

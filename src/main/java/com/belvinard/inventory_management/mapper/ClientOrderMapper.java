@@ -7,12 +7,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
 
-@Mapper(componentModel = "spring", nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
+@Mapper(componentModel = "spring", uses = {OrderClientLineMapper.class},
+        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface ClientOrderMapper {
 
     @Mapping(source = "orderDate", target = "orderDate")
     @Mapping(source = "stateOrder", target = "stateOrder")
-    //@Mapping(source = "client.id", target = "clientId")
     ClientOrderResponseDto toResponseDto(ClientOrder clientOrder);
 
     @Mapping(target = "id", ignore = true)

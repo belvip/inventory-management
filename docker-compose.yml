@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   inventory:
-    image: inventory
+    image: belvinar/new-inventory
     build: .
     env_file: .env
     environment:

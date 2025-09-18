@@ -40,7 +40,8 @@ public class Client extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ClientOrder> clientOrders = new ArrayList<>();
 
     @Schema(hidden = true)
