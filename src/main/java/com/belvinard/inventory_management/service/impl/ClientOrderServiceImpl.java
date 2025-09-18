@@ -94,8 +94,8 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
-        if (order.getStateOrder() == OrderStatus.DELIVERED) {
-            throw new IllegalStateException("Delivered orders cannot be deleted.");
+        if (order.getStateOrder() == OrderStatus.DELIVERED || order.getStateOrder() == OrderStatus.CANCELED) {
+            throw new IllegalStateException("Orders with status " + order.getStateOrder() + " cannot be deleted.");
         }
 
         clientOrderRepository.delete(order);

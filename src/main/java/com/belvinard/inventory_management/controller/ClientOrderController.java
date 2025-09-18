@@ -128,11 +128,11 @@ public class ClientOrderController {
 
     @Operation(
             summary = "Delete an order",
-            description = "Delete an order by its ID. Delivered orders cannot be deleted.",
+            description = "Delete an order by its ID. Orders with status DELIVERED or CANCELED cannot be deleted.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Order deleted successfully"),
                     @ApiResponse(responseCode = "404", description = "Order not found"),
-                    @ApiResponse(responseCode = "400", description = "Cannot delete delivered order")
+                    @ApiResponse(responseCode = "400", description = "Cannot delete delivered or canceled orders")
             }
     )
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
