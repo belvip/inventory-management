@@ -8,13 +8,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final OrderStatusConverter orderStatusConverter;
+    private final ArticleStatusConverter articleStatusConverter;
 
-    public WebConfig(OrderStatusConverter orderStatusConverter) {
+    public WebConfig(OrderStatusConverter orderStatusConverter, ArticleStatusConverter articleStatusConverter) {
         this.orderStatusConverter = orderStatusConverter;
+        this.articleStatusConverter = articleStatusConverter;
     }
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(orderStatusConverter);
+        registry.addConverter(articleStatusConverter);
     }
 }

@@ -128,6 +128,13 @@ public class ClientOrderServiceImpl implements ClientOrderService {
                 .toList();
     }
 
+    @Override
+    public List<ClientOrderResponseDto> getAllOrders() {
+        return clientOrderRepository.findAll().stream()
+                .map(clientOrderMapper::toResponseDto)
+                .toList();
+    }
+
 
     private void validateStatusTransition(OrderStatus current, OrderStatus next) {
 

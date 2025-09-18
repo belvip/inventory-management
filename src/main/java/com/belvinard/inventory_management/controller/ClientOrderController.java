@@ -180,5 +180,18 @@ public class ClientOrderController {
         return ResponseEntity.ok(clientOrderService.getOrdersByStatus(status));
     }
 
+    @Operation(
+            summary = "Get all orders",
+            description = "Retrieve all orders in the system.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Orders retrieved successfully",
+                            content = @Content(schema = @Schema(implementation = ClientOrderResponseDto.class)))
+            }
+    )
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/all")
+    public ResponseEntity<List<ClientOrderResponseDto>> getAllOrders() {
+        return ResponseEntity.ok(clientOrderService.getAllOrders());
+    }
 
 }

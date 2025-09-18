@@ -17,7 +17,7 @@ public interface ClientOrderService {
     // Specific business logic methods
     ClientOrderResponseDto updateOrderStatus(Long id, OrderStatus newStatus);
     List<ClientOrderResponseDto> getOrdersByStatus(OrderStatus status);
-    /*List<ClientOrderResponseDto> getAllOrders();
-   */
+    List<ClientOrderResponseDto> getAllOrders();
+
 
 }
