@@ -15,9 +15,9 @@ public interface ClientOrderService {
     List<ClientOrderResponseDto> getOrdersByClient(Long clientId);
     void deleteOrder(Long id);
     // Specific business logic methods
-    /*ClientOrderResponseDto updateOrderStatus(Long id, OrderStatus newStatus);
+    ClientOrderResponseDto updateOrderStatus(Long id, OrderStatus newStatus);
     List<ClientOrderResponseDto> getOrdersByStatus(OrderStatus status);
-    List<ClientOrderResponseDto> getAllOrders();
+    /*List<ClientOrderResponseDto> getAllOrders();
    */
 
 }

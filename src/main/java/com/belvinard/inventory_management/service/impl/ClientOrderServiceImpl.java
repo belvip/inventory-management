@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @Service
@@ -67,29 +66,17 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
-        clientOrderRepository.findByCode(dto.code())
-                .filter(existing -> !existing.getId().equals(id))
-                .ifPresent(existing -> {
-                    throw new ResourceConflictException("Order code already exists: " + dto.code());
-                });
-
+        // ✅ DO NOT update stateOrder here — business logic enforces dedicated endpoint
         order.setCode(dto.code());
         order.setComments(dto.comments());
-
-        if (dto.stateOrder() != null) {
-
-            if (order.getStateOrder() == OrderStatus.DELIVERED || order.getStateOrder() == OrderStatus.CANCELED) {
-                throw new IllegalStateException("Cannot update an order that is already " + order.getStateOrder());
-            }
-
-            order.setStateOrder(dto.stateOrder());
-        }
-
-        order.setOrderDate(dto.orderDate() != null ? dto.orderDate() : order.getOrderDate());
+        order.setOrderDate(dto.orderDate() != null
+                ? dto.orderDate()
+                : order.getOrderDate());
 
         ClientOrder updated = clientOrderRepository.save(order);
         return clientOrderMapper.toResponseDto(updated);
     }
+
 
 
     @Override
@@ -113,5 +100,50 @@ public class ClientOrderServiceImpl implements ClientOrderService {
 
         clientOrderRepository.delete(order);
     }
+
+    @Override
+    public ClientOrderResponseDto updateOrderStatus(Long id, OrderStatus newStatus) {
+        ClientOrder order = clientOrderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+
+        OrderStatus currentStatus = order.getStateOrder();
+
+        validateStatusTransition(currentStatus, newStatus);
+
+        order.setStateOrder(newStatus);
+        ClientOrder updatedOrder = clientOrderRepository.save(order);
+
+        return clientOrderMapper.toResponseDto(updatedOrder);
+    }
+
+
+    @Override
+    public List<ClientOrderResponseDto> getOrdersByStatus(OrderStatus status) {
+        List<ClientOrder> orders = clientOrderRepository.findByStateOrder(status);
+        if (orders.isEmpty()) {
+            throw new ResourceNotFoundException("No orders found with status: " + status);
+        }
+        return orders.stream()
+                .map(clientOrderMapper::toResponseDto)
+                .toList();
+    }
+
+
+    private void validateStatusTransition(OrderStatus current, OrderStatus next) {
+
+        if (current == OrderStatus.DELIVERED || current == OrderStatus.CANCELED) {
+            throw new IllegalStateException("Cannot change status of a delivered or canceled order.");
+        }
+
+        if (current == OrderStatus.IN_PREPARATION && next != OrderStatus.VALIDATED) {
+            throw new IllegalStateException("Order must first be VALIDATED before moving to " + next);
+        }
+
+        if (current == OrderStatus.VALIDATED &&
+                (next != OrderStatus.DELIVERED && next != OrderStatus.CANCELED)) {
+            throw new IllegalStateException("Order can only be DELIVERED or CANCELED after VALIDATION.");
+        }
+    }
+
 }
 

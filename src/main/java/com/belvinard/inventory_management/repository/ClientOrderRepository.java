@@ -2,6 +2,7 @@ package com.belvinard.inventory_management.repository;
 
 import com.belvinard.inventory_management.model.Client;
 import com.belvinard.inventory_management.model.ClientOrder;
+import com.belvinard.inventory_management.model.OrderStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -16,4 +17,6 @@ public interface ClientOrderRepository extends JpaRepository<ClientOrder, Long> 
     boolean existsByCode(String code);
     Optional<ClientOrder> findByCode(String code);
     List<ClientOrder> findByClient(Client client);
+
+    List<ClientOrder> findByStateOrder(OrderStatus status);
 }

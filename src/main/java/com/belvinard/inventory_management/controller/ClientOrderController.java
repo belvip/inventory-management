@@ -2,12 +2,15 @@ package com.belvinard.inventory_management.controller;
 
 import com.belvinard.inventory_management.dto.request.ClientOrderRequestDto;
 import com.belvinard.inventory_management.dto.response.ClientOrderResponseDto;
+import com.belvinard.inventory_management.exception.ErrorResponse;
+import com.belvinard.inventory_management.model.OrderStatus;
 import com.belvinard.inventory_management.service.ClientOrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/orders")
@@ -140,5 +144,41 @@ public class ClientOrderController {
         clientOrderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @Operation(summary = "Update order status", description = "Change the status of an order following allowed transitions")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Order status updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid status transition"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ClientOrderResponseDto> updateOrderStatus(
+            @PathVariable Long id,
+            @Parameter(
+                    description = "New status of the order. Allowed values: in_preparation, validated, delivered, canceled",
+                    required = true,
+                    schema = @Schema(implementation = OrderStatus.class)
+            )
+            @RequestParam OrderStatus status) {
+        return ResponseEntity.ok(clientOrderService.updateOrderStatus(id, status));
+    }
+
+
+    @Operation(
+            summary = "Get orders by status",
+            description = "Retrieve all orders with the specified status.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Orders found"),
+                    @ApiResponse(responseCode = "404", description = "No orders found for the given status")
+            }
+    )
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<ClientOrderResponseDto>> getOrdersByStatus(@PathVariable OrderStatus status) {
+        return ResponseEntity.ok(clientOrderService.getOrdersByStatus(status));
+    }
+
 
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -70,6 +71,19 @@ public class MyGlobalExceptionHandler {
 
     @ExceptionHandler(ResourceConflictException.class)
     public ResponseEntity<ErrorResponse> handleResourceConflict(ResourceConflictException ex) {
+        Map<String, String> errors = new HashMap<>();
+        if (ex.getMessage().contains("Email")) {
+            errors.put("email", ex.getMessage());
+        } else if (ex.getMessage().contains("Username")) {
+            errors.put("username", ex.getMessage());
+        } else {
+            errors.put("error", ex.getMessage());
+        }
+        return buildErrorResponse("Conflict", errors, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleResourceConflict(DuplicateResourceException ex) {
         Map<String, String> errors = new HashMap<>();
         if (ex.getMessage().contains("Email")) {
             errors.put("email", ex.getMessage());
@@ -146,6 +160,29 @@ public class MyGlobalExceptionHandler {
     private ResponseEntity<ErrorResponse> buildErrorResponse(String errorType, Map<String, String> errors, HttpStatus status) {
         return buildErrorResponse(status.getReasonPhrase(), errorType, errors, status);
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex) {
+        Map<String, String> errors = Map.of("details", ex.getMessage());
+        return buildErrorResponse("Invalid Status Transition", errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String message;
+        if (ex.getRequiredType() != null && ex.getRequiredType().isEnum()) {
+            String enumValues = Arrays.stream(ex.getRequiredType().getEnumConstants())
+                    .map(constant -> ((Enum<?>) constant).name().toLowerCase())
+                    .collect(Collectors.joining(", "));
+            message = String.format("Invalid value '%s' for parameter '%s'. Valid values are: %s", 
+                    ex.getValue(), ex.getName(), enumValues);
+        } else {
+            message = String.format("Invalid value '%s' for parameter '%s'", ex.getValue(), ex.getName());
+        }
+        Map<String, String> errors = Map.of(ex.getName(), message);
+        return buildErrorResponse("Invalid Parameter", errors, HttpStatus.BAD_REQUEST);
+    }
+
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(
         String message, 
