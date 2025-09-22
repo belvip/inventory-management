@@ -46,7 +46,7 @@ public class User extends BaseEntity {
     @NotBlank
     @Size(max = 50)
     @Email
-    @Column(name = "email")
+    @Column(name = "email",unique = true, nullable = false)
     private String email;
 
     @Size(max = 120)

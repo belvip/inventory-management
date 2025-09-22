@@ -1,0 +1,242 @@
+[
+  {
+    "name": "Jean Mbarga",
+    "address": {
+      "address1": "Carrefour Warda",
+      "address2": "Bastos",
+      "city": "Yaoundé",
+      "postalCode": "BP 1234",
+      "country": "Cameroon"
+    },
+    "email": "jean.mbarga@example.com",
+    "phoneNumber": "677890123"
+  },
+  {
+    "name": "Marie-Louise Ngo Nyobe",
+    "address": {
+      "address1": "Rue de la Paix",
+      "address2": "Akwa",
+      "city": "Douala",
+      "postalCode": "BP 5678",
+      "country": "Cameroon"
+    },
+    "email": "marie.nyobe@example.com",
+    "phoneNumber": "699123456"
+  },
+  {
+    "name": "Paul Biya",
+    "address": {
+      "address1": "Immeuble La Vallée",
+      "address2": "Bonapriso",
+      "city": "Douala",
+      "postalCode": "BP 9000",
+      "country": "Cameroon"
+    },
+    "email": "paul.biya@example.com",
+    "phoneNumber": "222112233"
+  },
+  {
+    "name": "Chantal Nguemo",
+    "address": {
+      "address1": "Quartier Fébé",
+      "address2": "Near Stade de Fébé",
+      "city": "Yaoundé",
+      "postalCode": "BP 4321",
+      "country": "Cameroon"
+    },
+    "email": "chantal.nguemo@example.com",
+    "phoneNumber": "675559988"
+  },
+  {
+    "name": "Samuel Eto'o",
+    "address": {
+      "address1": "Boulevard de la Liberté",
+      "address2": "Deïdo",
+      "city": "Douala",
+      "postalCode": "BP 3001",
+      "country": "Cameroon"
+    },
+    "email": "samuel.etoo@example.com",
+    "phoneNumber": "233445566"
+  },
+  {
+    "name": "Amina Aboubakar",
+    "address": {
+      "address1": "Marché Central",
+      "address2": "Nkongsamba",
+      "city": "Nkongsamba",
+      "postalCode": "BP 100",
+      "country": "Cameroon"
+    },
+    "email": "amina.aboubakar@example.com",
+    "phoneNumber": "677001122"
+  },
+  {
+    "name": "Patrice Ndedi",
+    "address": {
+      "address1": "Quartier administratif",
+      "address2": "Bafoussam",
+      "city": "Bafoussam",
+      "postalCode": "BP 200",
+      "country": "Cameroon"
+    },
+    "email": "patrice.ndedi@example.com",
+    "phoneNumber": "699778899"
+  },
+  {
+    "name": "Suzanne Njoya",
+    "address": {
+      "address1": "Palais des Rois Bamoun",
+      "address2": "Foumban",
+      "city": "Foumban",
+      "postalCode": "BP 50",
+      "country": "Cameroon"
+    },
+    "email": "suzanne.njoya@example.com",
+    "phoneNumber": "662334455"
+  },
+  {
+    "name": "Alain Ntep",
+    "address": {
+      "address1": "Cité Verte",
+      "address2": "Ngoa-Ekelle",
+      "city": "Yaoundé",
+      "postalCode": "BP 1100",
+      "country": "Cameroon"
+    },
+    "email": "alain.ntep@example.com",
+    "phoneNumber": "333556677"
+  },
+  {
+    "name": "Esther Ngo Ndom",
+    "address": {
+      "address1": "Camp SIC",
+      "address2": "Logbaba",
+      "city": "Douala",
+      "postalCode": "BP 2500",
+      "country": "Cameroon"
+    },
+    "email": "esther.ndom@example.com",
+    "phoneNumber": "678991122"
+  },
+  {
+    "name": "Roger Milla",
+    "address": {
+      "address1": "Rue des Stades",
+      "address2": "New-Bell",
+      "city": "Douala",
+      "postalCode": "BP 1972",
+      "country": "Cameroon"
+    },
+    "email": "roger.milla@example.com",
+    "phoneNumber": "233123456"
+  },
+  {
+    "name": "Béatrice Ngo Ndom",
+    "address": {
+      "address1": "Quartier Hippodrome",
+      "address2": "Garoua",
+      "city": "Garoua",
+      "postalCode": "BP 300",
+      "country": "Cameroon"
+    },
+    "email": "beatrice.ndom@example.com",
+    "phoneNumber": "699009988"
+  },
+  {
+    "name": "Fabrice Ondoa",
+    "address": {
+      "address1": "Carrefour Soboum",
+      "address2": "Bafoussam",
+      "city": "Bafoussam",
+      "postalCode": "BP 210",
+      "country": "Cameroon"
+    },
+    "email": "fabrice.ondoa@example.com",
+    "phoneNumber": "222998877"
+  },
+  {
+    "name": "Gisèle Nkotto",
+    "address": {
+      "address1": "Boulevard du 20 Mai",
+      "address2": "Ekoumdoum",
+      "city": "Yaoundé",
+      "postalCode": "BP 1500",
+      "country": "Cameroon"
+    },
+    "email": "gisele.nkotto@example.com",
+    "phoneNumber": "677443322"
+  },
+  {
+    "name": "André-Frank Zambo Anguissa",
+    "address": {
+      "address1": "Rue Joss",
+      "address2": "Logpom",
+      "city": "Douala",
+      "postalCode": "BP 2701",
+      "country": "Cameroon"
+    },
+    "email": "andre.zambo@example.com",
+    "phoneNumber": "655887766"
+  },
+  {
+    "name": "Cécile Tchoutou",
+    "address": {
+      "address1": "Quartier Grand-Mes",
+      "address2": "Limbe",
+      "city": "Limbe",
+      "postalCode": "BP 600",
+      "country": "Cameroon"
+    },
+    "email": "cecile.tchoutou@example.com",
+    "phoneNumber": "699112233"
+  },
+  {
+    "name": "Modeste M'bami",
+    "address": {
+      "address1": "Carrefour Agip",
+      "address2": "Bali",
+      "city": "Bali",
+      "postalCode": "BP 75",
+      "country": "Cameroon"
+    },
+    "email": "modeste.mbami@example.com",
+    "phoneNumber": "333223344"
+  },
+  {
+    "name": "Paulette Ngo Ndom",
+    "address": {
+      "address1": "Marché Sandaga",
+      "address2": "Akwa",
+      "city": "Douala",
+      "postalCode": "BP 1000",
+      "country": "Cameroon"
+    },
+    "email": "paulette.ndom@example.com",
+    "phoneNumber": "678554433"
+  },
+  {
+    "name": "Bernard Tchoutou",
+    "address": {
+      "address1": "Quartier Mvog-Ada",
+      "address2": "Yaoundé",
+      "city": "Yaoundé",
+      "postalCode": "BP 1300",
+      "country": "Cameroon"
+    },
+    "email": "bernard.tchoutou@example.com",
+    "phoneNumber": "222334455"
+  },
+  {
+    "name": "Thérèse Nguemo",
+    "address": {
+      "address1": "Rue des écoles",
+      "address2": "Dschang",
+      "city": "Dschang",
+      "postalCode": "BP 120",
+      "country": "Cameroon"
+    },
+    "email": "therese.nguemo@example.com",
+    "phoneNumber": "677665544"
+  }
+]
