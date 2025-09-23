@@ -62,10 +62,6 @@ public class ClientOrder extends BaseEntity {
 
     public void cancel() {
         this.stateOrder = OrderStatus.CANCELLED;
-        orderClientLineList.forEach(orderLine -> {
-            if (orderLine.getStatus() != null) {
-                orderLine.cancel();
-            }
-        });
+        orderClientLineList.forEach(OrderClientLine::releaseReservation);
     }
 }
