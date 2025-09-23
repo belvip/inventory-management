@@ -59,4 +59,13 @@ public class ClientOrder extends BaseEntity {
     public String getUpdatedAt() {
         return getUpdatedDate() != null ? getUpdatedDate().toString() : null;
     }
+
+    public void cancel() {
+        this.stateOrder = OrderStatus.CANCELLED;
+        orderClientLineList.forEach(orderLine -> {
+            if (orderLine.getStatus() != null) {
+                orderLine.cancel();
+            }
+        });
+    }
 }

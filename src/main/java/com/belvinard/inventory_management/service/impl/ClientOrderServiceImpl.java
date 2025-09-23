@@ -46,7 +46,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             order.setOrderDate(orderRequestDto.orderDate());
         }
 
-        order.setStateOrder(OrderStatus.IN_PREPARATION);
+        order.setStateOrder(OrderStatus.PENDING);
 
         ClientOrder saved = clientOrderRepository.save(order);
 
@@ -94,7 +94,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
-        if (order.getStateOrder() == OrderStatus.DELIVERED || order.getStateOrder() == OrderStatus.CANCELED) {
+        if (order.getStateOrder() == OrderStatus.COMPLETED || order.getStateOrder() == OrderStatus.CANCELLED) {
             throw new IllegalStateException("Orders with status " + order.getStateOrder() + " cannot be deleted.");
         }
 
@@ -138,17 +138,17 @@ public class ClientOrderServiceImpl implements ClientOrderService {
 
     private void validateStatusTransition(OrderStatus current, OrderStatus next) {
 
-        if (current == OrderStatus.DELIVERED || current == OrderStatus.CANCELED) {
-            throw new IllegalStateException("Cannot change status of a delivered or canceled order.");
+        if (current == OrderStatus.COMPLETED || current == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot change status of a completed or cancelled order.");
         }
 
-        if (current == OrderStatus.IN_PREPARATION && next != OrderStatus.VALIDATED) {
-            throw new IllegalStateException("Order must first be VALIDATED before moving to " + next);
+        if (current == OrderStatus.PENDING && next != OrderStatus.CONFIRMED && next != OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Order can only be CONFIRMED or CANCELLED from PENDING status.");
         }
 
-        if (current == OrderStatus.VALIDATED &&
-                (next != OrderStatus.DELIVERED && next != OrderStatus.CANCELED)) {
-            throw new IllegalStateException("Order can only be DELIVERED or CANCELED after VALIDATION.");
+        if (current == OrderStatus.CONFIRMED &&
+                (next != OrderStatus.COMPLETED && next != OrderStatus.CANCELLED)) {
+            throw new IllegalStateException("Order can only be COMPLETED or CANCELLED after CONFIRMATION.");
         }
     }
 

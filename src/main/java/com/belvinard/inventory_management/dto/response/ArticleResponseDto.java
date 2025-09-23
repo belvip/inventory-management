@@ -10,6 +10,8 @@ public record ArticleResponseDto(
         String codeArticle,
         String designation,
         Long quantityInStock,
+        Long reservedQuantity,
+        Long availableQuantity,
         BigDecimal unitPriceExclTax,
         BigDecimal rateTva,
         BigDecimal unitPriceAllTax,
