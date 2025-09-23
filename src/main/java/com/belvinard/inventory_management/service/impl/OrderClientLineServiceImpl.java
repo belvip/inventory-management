@@ -43,7 +43,7 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
         ClientOrder order = clientOrderRepository.findById(dto.clientOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + dto.clientOrderId()));
 
-        if (order.getStateOrder() != OrderStatus.IN_PREPARATION) {
+        if (order.getStateOrder() != OrderStatus.PENDING) {
             throw new APIException("Cannot add line. Order is not in IN_PREPARATION state.");
         }
 
@@ -58,12 +58,14 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
             throw new APIException("This article is already present in the order.");
         }
 
-        long stock = article.getQuantityInStock() != null ? article.getQuantityInStock() : 0L;
-        if (dto.quantity().longValue() > stock) {
-            throw new APIException("Not enough stock available for this article.");
+        // Vérifier la quantité disponible (stock - réservé)
+        Long availableQuantity = article.getAvailableQuantity();
+        if (dto.quantity().longValue() > availableQuantity) {
+            throw new APIException("Insufficient stock. Available: " + availableQuantity + ", Requested: " + dto.quantity());
         }
 
-        article.setQuantityInStock(stock - dto.quantity().longValue());
+        // Réserver la quantité au lieu de décrémenter le stock
+        article.reserveQuantity(dto.quantity().longValue());
         articleRepository.save(article);
 
         OrderClientLine line = new OrderClientLine();
@@ -73,12 +75,8 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
 
         OrderClientLine savedLine = orderClientLineRepository.save(line);
 
-        // 8️⃣ ✅ FIX: Only update order status if currently IN_PREPARATION and this was the FIRST line
-        if (order.getStateOrder() == OrderStatus.IN_PREPARATION &&
-                order.getOrderClientLineList().isEmpty()) {
-            order.setStateOrder(OrderStatus.VALIDATED);
-            clientOrderRepository.save(order);
-        }
+        // Pas de changement automatique de statut lors de l'ajout de ligne
+        // Le statut reste PENDING jusqu'à confirmation manuelle
 
         return orderClientLineMapper.toResponseDto(savedLine);
     }
@@ -106,7 +104,7 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order line not found"));
 
         ClientOrder order = line.getClientOrder();
-        if (order.getStateOrder() != OrderStatus.IN_PREPARATION) {
+        if (order.getStateOrder() != OrderStatus.PENDING) {
             throw new APIException("Cannot update order line. Order is not in IN_PREPARATION state.");
         }
 
@@ -115,15 +113,19 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
             throw new APIException("This order line does not have a valid article associated.");
         }
 
-        long totalStock = article.getQuantityInStock() != null ? article.getQuantityInStock() : 0L;
         BigDecimal currentlyReserved = line.getQuantity();
-        BigDecimal delta = newQuantity.subtract(currentlyReserved); // Change amount
+        BigDecimal delta = newQuantity.subtract(currentlyReserved);
 
-        if (delta.compareTo(BigDecimal.ZERO) > 0 && delta.longValue() > totalStock) {
-            throw new APIException("Not enough stock available. Requested additional quantity exceeds stock.");
+        if (delta.compareTo(BigDecimal.ZERO) > 0) {
+            // Augmentation : vérifier stock disponible
+            if (delta.longValue() > article.getAvailableQuantity()) {
+                throw new APIException("Insufficient stock. Available: " + article.getAvailableQuantity() + ", Additional requested: " + delta);
+            }
+            article.reserveQuantity(delta.longValue());
+        } else if (delta.compareTo(BigDecimal.ZERO) < 0) {
+            // Diminution : libérer la réservation
+            article.releaseReservedQuantity(Math.abs(delta.longValue()));
         }
-
-        article.setQuantityInStock(totalStock - delta.longValue());
         articleRepository.save(article);
 
         line.setQuantity(newQuantity);
@@ -138,15 +140,9 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
         OrderClientLine line = orderClientLineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order line not found"));
 
-        Article article = line.getArticle();
-        if (article != null) {
-            long currentStock = article.getQuantityInStock() != null ? article.getQuantityInStock() : 0L;
-            long lineQuantity = line.getQuantity() != null ? line.getQuantity().longValue() : 0L;
-
-            // ✅ Null-safe stock restoration
-            article.setQuantityInStock(currentStock + lineQuantity);
-            articleRepository.save(article);
-        }
+        // Libérer la réservation lors de la suppression de la ligne
+        line.releaseReservation();
+        articleRepository.save(line.getArticle());
 
         orderClientLineRepository.delete(line);
     }
