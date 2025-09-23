@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderClientLineServiceImpl implements OrderClientLineService {
 
+    private static final String ORDER_NOT_FOUND_MSG = "Order not found with id: ";
+    private static final String ORDER_LINE_NOT_FOUND_MSG = "Order line not found";
+    private static final String ARTICLE_NOT_FOUND_MSG = "Article not found with id: ";
+
     private final OrderClientLineRepository orderClientLineRepository;
     private final ClientOrderRepository clientOrderRepository;
     private final ArticleRepository articleRepository;
@@ -30,6 +34,19 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
     @Override
     @Transactional
     public OrderClientLineResponseDto addLineToOrder(OrderClientLineRequestDto dto) {
+        validateRequest(dto);
+        
+        ClientOrder order = findAndValidateOrder(dto.clientOrderId());
+        Article article = findAndValidateArticle(dto.articleId(), order.getId());
+        
+        reserveStock(article, dto.quantity().longValue());
+        
+        OrderClientLine savedLine = createAndSaveOrderLine(order, article, dto.quantity());
+        
+        return orderClientLineMapper.toResponseDto(savedLine);
+    }
+    
+    private void validateRequest(OrderClientLineRequestDto dto) {
         if (dto == null) {
             throw new APIException("Order line request cannot be null");
         }
@@ -39,46 +56,51 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
         if (dto.articleId() == null) {
             throw new APIException("Article ID is required");
         }
-
-        ClientOrder order = clientOrderRepository.findById(dto.clientOrderId())
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + dto.clientOrderId()));
-
+    }
+    
+    private ClientOrder findAndValidateOrder(Long clientOrderId) {
+        ClientOrder order = clientOrderRepository.findById(clientOrderId)
+                .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + clientOrderId));
+        
         if (order.getStateOrder() != OrderStatus.PENDING) {
-            throw new APIException("Cannot add line. Order is not in IN_PREPARATION state.");
+            throw new APIException("Cannot add line. Order is not in PENDING state.");
         }
-
-        Article article = articleRepository.findById(dto.articleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + dto.articleId()));
-
+        
+        return order;
+    }
+    
+    private Article findAndValidateArticle(Long articleId, Long orderId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException(ARTICLE_NOT_FOUND_MSG + articleId));
+        
         if (article.getStatus() == ArticleStatus.ARCHIVED) {
             throw new APIException("Cannot add an archived article to an order");
         }
-
-        if (isArticleAlreadyInOrder(order.getId(), article.getId())) {
+        
+        if (isArticleAlreadyInOrder(orderId, articleId)) {
             throw new APIException("This article is already present in the order.");
         }
-
-        // Vérifier la quantité disponible (stock - réservé)
+        
+        return article;
+    }
+    
+    private void reserveStock(Article article, Long requestedQuantity) {
         Long availableQuantity = article.getAvailableQuantity();
-        if (dto.quantity().longValue() > availableQuantity) {
-            throw new APIException("Insufficient stock. Available: " + availableQuantity + ", Requested: " + dto.quantity());
+        if (requestedQuantity > availableQuantity) {
+            throw new APIException("Insufficient stock. Available: " + availableQuantity + ", Requested: " + requestedQuantity);
         }
-
-        // Réserver la quantité au lieu de décrémenter le stock
-        article.reserveQuantity(dto.quantity().longValue());
+        
+        article.reserveQuantity(requestedQuantity);
         articleRepository.save(article);
-
+    }
+    
+    private OrderClientLine createAndSaveOrderLine(ClientOrder order, Article article, BigDecimal quantity) {
         OrderClientLine line = new OrderClientLine();
         line.setClientOrder(order);
         line.setArticle(article);
-        line.setQuantity(dto.quantity());
-
-        OrderClientLine savedLine = orderClientLineRepository.save(line);
-
-        // Pas de changement automatique de statut lors de l'ajout de ligne
-        // Le statut reste PENDING jusqu'à confirmation manuelle
-
-        return orderClientLineMapper.toResponseDto(savedLine);
+        line.setQuantity(quantity);
+        
+        return orderClientLineRepository.save(line);
     }
 
 
@@ -92,7 +114,7 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
     @Override
     public List<OrderClientLineResponseDto> getAllLinesForOrder(Long clientOrderId) {
         ClientOrder order = clientOrderRepository.findById(clientOrderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + clientOrderId));
+                .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + clientOrderId));
         return order.getOrderClientLineList().stream()
                 .map(orderClientLineMapper::toResponseDto)
                 .collect(Collectors.toList());
@@ -100,45 +122,72 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
 
     @Override
     public OrderClientLineResponseDto updateLineQuantity(Long id, BigDecimal newQuantity) {
+        OrderClientLine line = findAndValidateOrderLineForUpdate(id);
+        
+        BigDecimal delta = calculateQuantityDelta(line.getQuantity(), newQuantity);
+        updateReservation(line.getArticle(), delta);
+        
+        OrderClientLine updatedLine = updateAndSaveOrderLine(line, newQuantity);
+        
+        return orderClientLineMapper.toResponseDto(updatedLine);
+    }
+    
+    private OrderClientLine findAndValidateOrderLineForUpdate(Long id) {
         OrderClientLine line = orderClientLineRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order line not found"));
-
-        ClientOrder order = line.getClientOrder();
+                .orElseThrow(() -> new ResourceNotFoundException(ORDER_LINE_NOT_FOUND_MSG));
+        
+        validateOrderStateForUpdate(line.getClientOrder());
+        validateArticleForUpdate(line.getArticle());
+        
+        return line;
+    }
+    
+    private void validateOrderStateForUpdate(ClientOrder order) {
         if (order.getStateOrder() != OrderStatus.PENDING) {
-            throw new APIException("Cannot update order line. Order is not in IN_PREPARATION state.");
+            throw new APIException("Cannot update order line. Order is not in PENDING state.");
         }
-
-        Article article = line.getArticle();
+    }
+    
+    private void validateArticleForUpdate(Article article) {
         if (article == null) {
             throw new APIException("This order line does not have a valid article associated.");
         }
-
-        BigDecimal currentlyReserved = line.getQuantity();
-        BigDecimal delta = newQuantity.subtract(currentlyReserved);
-
+    }
+    
+    private BigDecimal calculateQuantityDelta(BigDecimal currentQuantity, BigDecimal newQuantity) {
+        return newQuantity.subtract(currentQuantity);
+    }
+    
+    private void updateReservation(Article article, BigDecimal delta) {
         if (delta.compareTo(BigDecimal.ZERO) > 0) {
-            // Augmentation : vérifier stock disponible
-            if (delta.longValue() > article.getAvailableQuantity()) {
-                throw new APIException("Insufficient stock. Available: " + article.getAvailableQuantity() + ", Additional requested: " + delta);
-            }
-            article.reserveQuantity(delta.longValue());
+            handleQuantityIncrease(article, delta);
         } else if (delta.compareTo(BigDecimal.ZERO) < 0) {
-            // Diminution : libérer la réservation
-            article.releaseReservedQuantity(Math.abs(delta.longValue()));
+            handleQuantityDecrease(article, delta);
         }
         articleRepository.save(article);
-
+    }
+    
+    private void handleQuantityIncrease(Article article, BigDecimal delta) {
+        if (delta.longValue() > article.getAvailableQuantity()) {
+            throw new APIException("Insufficient stock. Available: " + article.getAvailableQuantity() + ", Additional requested: " + delta);
+        }
+        article.reserveQuantity(delta.longValue());
+    }
+    
+    private void handleQuantityDecrease(Article article, BigDecimal delta) {
+        article.releaseReservedQuantity(Math.abs(delta.longValue()));
+    }
+    
+    private OrderClientLine updateAndSaveOrderLine(OrderClientLine line, BigDecimal newQuantity) {
         line.setQuantity(newQuantity);
-        OrderClientLine updatedLine = orderClientLineRepository.save(line);
-
-        return orderClientLineMapper.toResponseDto(updatedLine);
+        return orderClientLineRepository.save(line);
     }
 
     @Override
     @Transactional
     public void removeLineFromOrder(Long id) {
         OrderClientLine line = orderClientLineRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order line not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ORDER_LINE_NOT_FOUND_MSG));
 
         // Libérer la réservation lors de la suppression de la ligne
         line.releaseReservation();
@@ -149,7 +198,7 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
     @Override
     public BigDecimal calculateOrderTotal(Long clientOrderId) {
         ClientOrder order = clientOrderRepository.findById(clientOrderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + clientOrderId));
+                .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + clientOrderId));
 
         return order.getOrderClientLineList().stream()
                 .map(l -> l.getArticle().getUnitPriceAllTax().multiply(l.getQuantity()))
