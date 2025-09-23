@@ -3,6 +3,7 @@ package com.belvinard.inventory_management.dto.request;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import com.belvinard.inventory_management.model.OrderStatus;
+import com.belvinard.inventory_management.validation.FutureOrPresent;
 
 public record ClientOrderRequestDto(
         @NotBlank(message = "Order code is mandatory")
@@ -13,6 +14,7 @@ public record ClientOrderRequestDto(
         )
         String code,
 
+        @FutureOrPresent(message = "Order date cannot be in the past")
         LocalDate orderDate,
 
         @NotNull(message = "Client ID is mandatory")
