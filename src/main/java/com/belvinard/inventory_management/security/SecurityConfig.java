@@ -33,6 +33,12 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_MANAGER = "MANAGER";
+    private static final String ROLE_SALES = "SALES";
+    private static final String DEFAULT_PASSWORD = System.getenv().getOrDefault("DEFAULT_USER_PASSWORD", "ChangeMe123!");
+    private static final String EMAIL_SIGNUP_METHOD = "email";
+
     private final AuthEntryPointJwt unauthorizedHandler;
     private final AuthTokenFilter authTokenFilter;
     @Lazy
@@ -47,39 +53,39 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests((requests) ->
+        http.authorizeHttpRequests(requests ->
                 requests
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/demo/**").permitAll()
                         .requestMatchers("/api/v1/auth/oauth2/success").permitAll()
                         .requestMatchers("/api/v1/users/update-password").authenticated()
-                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/users/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/companies/all").permitAll()
                         .requestMatchers("/api/v1/categories/all").permitAll()
-                        .requestMatchers("/api/v1/categories/create").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/categories/update").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/categories/{id}").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1//by-company/{companyId}").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/companies/create").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/companies/{id}").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/companies/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/articles/create").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/articles/{id}").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/articles/update/{id}").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/articles/code/{code}").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/articles/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/articles/{id}/image").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/clients/**").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/orders/**").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/order-lines /**").hasAnyRole("ADMIN", "MANAGER", "SALES")
+                        .requestMatchers("/api/v1/categories/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/categories/update").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/categories/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1//by-company/{companyId}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/companies/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/companies/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/companies/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/v1/articles/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/articles/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/articles/update/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/articles/code/{code}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/articles/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/v1/articles/{id}/image").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/clients/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/orders/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/order-lines /**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/sales /**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())
-                        .oauth2Login(oauth ->{
-                            oauth.successHandler(oAuth2LoginSuccessHandler);
-
-                        });
+                        .oauth2Login(oauth ->
+                            oauth.successHandler(oAuth2LoginSuccessHandler)
+                        );
         http.exceptionHandling(exception
                 -> exception.authenticationEntryPoint(unauthorizedHandler));
         http.sessionManagement(session -> {
@@ -100,8 +106,6 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-
-
     @Bean
     public CommandLineRunner initData(RoleRepository roleRepository,
                                       UserRepository userRepository,
@@ -120,79 +124,29 @@ public class SecurityConfig {
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_SALES)));
 
 
-            if (!userRepository.existsByUserName("user")) {
-                User user1 = new User("user", "user@user.com",
-                        passwordEncoder.encode("password"));
-                user1.setFirstName("User");
-                user1.setLastName("Test");
-                user1.setAccountNonLocked(true);
-                user1.setAccountNonExpired(true);
-                user1.setCredentialsNonExpired(true);
-                user1.setEnabled(true);
-                user1.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
-                user1.setAccountExpiryDate(LocalDate.now().plusYears(1));
-                user1.setTwoFactorEnabled(false);
-                user1.setSignUpMethod("email");
-                user1.setRole(userRole);
-                userRepository.save(user1);
-            }
-
-            if (!userRepository.existsByUserName("admin")) {
-                User admin = new User("admin", "admin@admin.com",
-                        passwordEncoder.encode("password"));
-                admin.setFirstName("Admin");
-                admin.setLastName("User");
-                admin.setAccountNonLocked(true);
-                admin.setAccountNonExpired(true);
-                admin.setCredentialsNonExpired(true);
-                admin.setEnabled(true);
-                admin.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
-                admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
-                admin.setTwoFactorEnabled(false);
-                admin.setSignUpMethod("email");
-                admin.setRole(adminRole);
-                userRepository.save(admin);
-            }
-
-            if(!userRepository.existsByUserName("manager")) {
-                User manager = new User("manager", "manager@manager.com",
-                        passwordEncoder.encode("password"));
-                manager.setFirstName("Manager");
-                manager.setLastName("User");
-                manager.setAccountNonLocked(true);
-                manager.setAccountNonExpired(true);
-                manager.setCredentialsNonExpired(true);
-                manager.setEnabled(true);
-                manager.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
-                manager.setAccountExpiryDate(LocalDate.now().plusYears(1));
-                manager.setTwoFactorEnabled(false);
-                manager.setSignUpMethod("email");
-                manager.setRole(managerRole);
-                userRepository.save(manager);
-            }
-
-            if (!userRepository.existsByUserName("sales")) {
-                User sales = new User("sales", "sales@sales.com",
-                        passwordEncoder.encode("password"));
-                sales.setFirstName("Sales");
-                sales.setLastName("User");
-                sales.setAccountNonLocked(true);
-                sales.setAccountNonExpired(true);
-                sales.setCredentialsNonExpired(true);
-                sales.setEnabled(true);
-                sales.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
-                sales.setAccountExpiryDate(LocalDate.now().plusYears(1));
-                sales.setTwoFactorEnabled(false);
-                sales.setSignUpMethod("email");
-                sales.setRole(salesRole);
-                userRepository.save(sales);
-            }
+            createUserIfNotExists("user", "user@user.com", "User", "Test", userRole, userRepository, passwordEncoder);
+            createUserIfNotExists("admin", "admin@admin.com", "Admin", "User", adminRole, userRepository, passwordEncoder);
+            createUserIfNotExists("manager", "manager@manager.com", "Manager", "User", managerRole, userRepository, passwordEncoder);
+            createUserIfNotExists("sales", "sales@sales.com", "Sales", "User", salesRole, userRepository, passwordEncoder);
         };
     }
 
-
-
-
-
-
+    private void createUserIfNotExists(String username, String email, String firstName, String lastName, 
+                                     Role role, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        if (!userRepository.existsByUserName(username)) {
+            User user = new User(username, email, passwordEncoder.encode(DEFAULT_PASSWORD));
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setAccountNonLocked(true);
+            user.setAccountNonExpired(true);
+            user.setCredentialsNonExpired(true);
+            user.setEnabled(true);
+            user.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
+            user.setAccountExpiryDate(LocalDate.now().plusYears(1));
+            user.setTwoFactorEnabled(false);
+            user.setSignUpMethod(EMAIL_SIGNUP_METHOD);
+            user.setRole(role);
+            userRepository.save(user);
+        }
+    }
 }
