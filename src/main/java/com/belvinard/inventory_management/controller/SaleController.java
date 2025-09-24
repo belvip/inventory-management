@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("${api.prefix}/sales")
 @RequiredArgsConstructor
@@ -57,5 +59,128 @@ public class SaleController {
     ) {
         SaleResponseDto createdSale = saleService.createSale(saleRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSale);
+    }
+
+    @Operation(
+        summary = "Update a sale",
+        description = "Updates sale details (comments, date). Status is NOT updated - use updateSaleStatus endpoint. Only allowed for DRAFT sales."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Sale updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Cannot update CONFIRMED sale"),
+        @ApiResponse(responseCode = "404", description = "Sale not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<SaleResponseDto> updateSale(
+        @Parameter(description = "Sale ID", required = true) @PathVariable Long id,
+        @Parameter(description = "Sale update request", required = true) @Valid @RequestBody SaleRequestDto dto
+    ) {
+        SaleResponseDto updatedSale = saleService.updateSale(id, dto);
+        return ResponseEntity.ok(updatedSale);
+    }
+
+    @Operation(
+        summary = "Delete a sale",
+        description = "Deletes a sale. Only allowed for DRAFT sales."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Sale deleted successfully"),
+        @ApiResponse(responseCode = "400", description = "Cannot delete CONFIRMED sale"),
+        @ApiResponse(responseCode = "404", description = "Sale not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSale(
+        @Parameter(description = "Sale ID", required = true) @PathVariable Long id
+    ) {
+        saleService.deleteSale(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+        summary = "Update sale status",
+        description = "Updates the status of a sale with validation rules."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Sale status updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid status transition"),
+        @ApiResponse(responseCode = "404", description = "Sale not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<SaleResponseDto> updateSaleStatus(
+        @Parameter(description = "Sale ID", required = true) @PathVariable Long id,
+        @Parameter(description = "New status (DRAFT, CONFIRMED, CANCELLED)", required = true) @RequestParam String status
+    ) {
+        SaleResponseDto updatedSale = saleService.updateSaleStatus(id, status);
+        return ResponseEntity.ok(updatedSale);
+    }
+
+    @Operation(
+        summary = "Cancel a sale",
+        description = "Cancels a sale. Only allowed for DRAFT sales."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Sale cancelled successfully"),
+        @ApiResponse(responseCode = "400", description = "Cannot cancel CONFIRMED sale"),
+        @ApiResponse(responseCode = "404", description = "Sale not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<SaleResponseDto> cancelSale(
+        @Parameter(description = "Sale ID", required = true) @PathVariable Long id
+    ) {
+        SaleResponseDto cancelledSale = saleService.cancelSale(id);
+        return ResponseEntity.ok(cancelledSale);
+    }
+
+    @Operation(
+        summary = "Finalize a sale",
+        description = "Finalizes a sale by processing stock and generating final code. Only allowed for CONFIRMED sales."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Sale finalized successfully"),
+        @ApiResponse(responseCode = "400", description = "Sale must be CONFIRMED before finalization"),
+        @ApiResponse(responseCode = "404", description = "Sale not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PatchMapping("/{id}/finalize")
+    public ResponseEntity<SaleResponseDto> finalizeSale(
+        @Parameter(description = "Sale ID", required = true) @PathVariable Long id
+    ) {
+        SaleResponseDto finalizedSale = saleService.finalizeSale(id);
+        return ResponseEntity.ok(finalizedSale);
+    }
+
+    @Operation(
+        summary = "Get sale by ID",
+        description = "Retrieves a specific sale by its ID."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Sale found successfully"),
+        @ApiResponse(responseCode = "404", description = "Sale not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/{id}")
+    public ResponseEntity<SaleResponseDto> getSaleById(
+        @Parameter(description = "Sale ID", required = true) @PathVariable Long id
+    ) {
+        SaleResponseDto sale = saleService.getSaleById(id);
+        return ResponseEntity.ok(sale);
+    }
+
+    @Operation(
+        summary = "Get all sales",
+        description = "Retrieves all sales in the system."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Sales retrieved successfully")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping
+    public ResponseEntity<List<SaleResponseDto>> getAllSales() {
+        List<SaleResponseDto> sales = saleService.getAll();
+        return ResponseEntity.ok(sales);
     }
 }

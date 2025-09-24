@@ -39,7 +39,92 @@ public class SaleServiceImpl implements SaleService {
         
         return saleMapper.toResponseDto(savedSale);
     }
-    
+
+    @Override
+    @Transactional
+    public SaleResponseDto updateSale(Long id, SaleRequestDto dto) {
+        Sale sale = findSaleById(id);
+        validateSaleNotConfirmed(sale, "update");
+        
+        // Mise à jour uniquement des champs autorisés (pas le statut)
+        if (dto.comments() != null) {
+            sale.setComments(dto.comments());
+        }
+        if (dto.saleDate() != null) {
+            sale.setSaleDate(dto.saleDate());
+        }
+        // Le statut n'est PAS mis à jour ici - utiliser updateSaleStatus() à la place
+        
+        Sale updatedSale = saleRepository.save(sale);
+        return saleMapper.toResponseDto(updatedSale);
+    }
+
+    @Override
+    @Transactional
+    public void deleteSale(Long id) {
+        Sale sale = findSaleById(id);
+        validateSaleNotConfirmed(sale, "delete");
+        
+        saleRepository.delete(sale);
+    }
+
+    @Override
+    @Transactional
+    public SaleResponseDto updateSaleStatus(Long id, String status) {
+        Sale sale = findSaleById(id);
+        SaleStatus newStatus = SaleStatus.valueOf(status.toUpperCase());
+        
+        validateStatusTransition(sale.getSaleStatus(), newStatus);
+        
+        sale.setSaleStatus(newStatus);
+        Sale updatedSale = saleRepository.save(sale);
+        
+        return saleMapper.toResponseDto(updatedSale);
+    }
+
+    @Override
+    @Transactional
+    public SaleResponseDto cancelSale(Long id) {
+        Sale sale = findSaleById(id);
+        validateSaleNotConfirmed(sale, "cancel");
+        
+        sale.setSaleStatus(SaleStatus.CANCELLED);
+        Sale cancelledSale = saleRepository.save(sale);
+        
+        return saleMapper.toResponseDto(cancelledSale);
+    }
+
+    @Override
+    @Transactional
+    public SaleResponseDto finalizeSale(Long id) {
+        Sale sale = findSaleById(id);
+        
+        if (sale.getSaleStatus() != SaleStatus.CONFIRMED) {
+            throw new APIException("Sale must be CONFIRMED before finalization");
+        }
+        
+        // Finaliser la vente (décrémenter stock, etc.)
+        processSaleFinalization(sale);
+        
+        Sale finalizedSale = saleRepository.save(sale);
+        return saleMapper.toResponseDto(finalizedSale);
+    }
+
+    @Override
+    public SaleResponseDto getSaleById(Long id) {
+        Sale sale = findSaleById(id);
+        return saleMapper.toResponseDto(sale);
+    }
+
+    @Override
+    public List<SaleResponseDto> getAll() {
+        List<Sale> sales = saleRepository.findAll();
+        return sales.stream()
+                .map(saleMapper::toResponseDto)
+                .toList();
+    }
+
+
     private void validateSaleRequest(SaleRequestDto dto) {
         if (dto.status() != SaleStatus.DRAFT) {
             throw new APIException("Sale status must be DRAFT at creation");
@@ -77,5 +162,34 @@ public class SaleServiceImpl implements SaleService {
         }
         
         return sale;
+    }
+    
+    private Sale findSaleById(Long id) {
+        return saleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Sale not found with id: " + id));
+    }
+    
+    private void validateSaleNotConfirmed(Sale sale, String operation) {
+        if (sale.getSaleStatus() == SaleStatus.CONFIRMED) {
+            throw new APIException("Cannot " + operation + " a CONFIRMED sale");
+        }
+    }
+    
+    private void validateStatusTransition(SaleStatus current, SaleStatus next) {
+        if (current == SaleStatus.CONFIRMED && next != SaleStatus.CANCELLED) {
+            throw new APIException("CONFIRMED sales can only be CANCELLED");
+        }
+        
+        if (current == SaleStatus.CANCELLED) {
+            throw new APIException("Cannot change status of a CANCELLED sale");
+        }
+    }
+    
+    private void processSaleFinalization(Sale sale) {
+        // Logique de finalisation :
+        // - Décrémenter le stock des articles
+        // - Créer les lignes de vente définitives
+        // - Générer le code de vente
+        // TODO: Implémenter selon les besoins métier
     }
 }
