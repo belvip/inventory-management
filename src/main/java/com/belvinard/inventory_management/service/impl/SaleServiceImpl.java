@@ -74,7 +74,7 @@ public class SaleServiceImpl implements SaleService {
         Sale sale = findSaleById(id);
         SaleStatus newStatus = SaleStatus.valueOf(status.toUpperCase());
         
-        validateStatusTransition(sale.getSaleStatus(), newStatus);
+        validateStatusTransition(sale, newStatus);
         
         sale.setSaleStatus(newStatus);
         Sale updatedSale = saleRepository.save(sale);
@@ -175,13 +175,31 @@ public class SaleServiceImpl implements SaleService {
         }
     }
     
-    private void validateStatusTransition(SaleStatus current, SaleStatus next) {
+    private void validateStatusTransition(Sale sale, SaleStatus next) {
+        SaleStatus current = sale.getSaleStatus();
+        
         if (current == SaleStatus.CONFIRMED && next != SaleStatus.CANCELLED) {
             throw new APIException("CONFIRMED sales can only be CANCELLED");
         }
         
         if (current == SaleStatus.CANCELLED) {
             throw new APIException("Cannot change status of a CANCELLED sale");
+        }
+        
+        // Validation spéciale pour la confirmation de vente
+        if (current == SaleStatus.DRAFT && next == SaleStatus.CONFIRMED) {
+            validateClientOrdersCompleted(sale.getClient().getId());
+        }
+    }
+    
+    private void validateClientOrdersCompleted(Long clientId) {
+        List<ClientOrder> clientOrders = clientOrderRepository.findByClientId(clientId);
+        
+        boolean hasCompletedOrders = clientOrders.stream()
+                .anyMatch(order -> order.getStateOrder() == OrderStatus.COMPLETED);
+                
+        if (!hasCompletedOrders) {
+            throw new APIException("Sale cannot be CONFIRMED: Client must have at least one COMPLETED order");
         }
     }
     
