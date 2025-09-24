@@ -6,7 +6,7 @@ import com.belvinard.inventory_management.model.Sale;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {SaleLineMapper.class})
 public interface SaleMapper {
     
     @Mapping(source = "saleStatus", target = "status")
