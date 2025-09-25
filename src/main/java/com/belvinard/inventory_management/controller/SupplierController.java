@@ -1,5 +1,6 @@
 package com.belvinard.inventory_management.controller;
 
+import com.belvinard.inventory_management.dto.request.SupplierRequestDto;
 import com.belvinard.inventory_management.dto.response.SupplierResponseDto;
 import com.belvinard.inventory_management.service.SupplierService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("${api.prefix}/suppliers")
 @RequiredArgsConstructor
-@Tag(name = "Supplier", description = "Endpoints for managing suppliers")
+@Tag(name = "Supplier Controller", description = "Endpoints for managing suppliers")
 public class SupplierController {
     private final SupplierService supplierService;
 
@@ -33,8 +34,11 @@ public class SupplierController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<SupplierResponseDto> createSupplier(
-            @Valid @RequestBody SupplierResponseDto dto) {
-        SupplierResponseDto createdSupplier = supplierService.createSupplier(dto);
+            @Valid @RequestBody SupplierRequestDto dto) {
+        if (dto.companyId() == null) {
+            throw new IllegalArgumentException("Company ID is required");
+        }
+        SupplierResponseDto createdSupplier = supplierService.createSupplier(dto, dto.companyId());
         return new ResponseEntity<>(createdSupplier, HttpStatus.CREATED);
     }
 }
