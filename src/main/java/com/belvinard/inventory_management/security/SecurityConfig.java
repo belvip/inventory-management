@@ -88,6 +88,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/sales/{id}/generate-lines").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/api/v1/sales").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
                         .requestMatchers("/api/v1/sales/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/v1/suppliers/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())
