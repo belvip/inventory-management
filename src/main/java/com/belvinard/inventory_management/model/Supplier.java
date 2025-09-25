@@ -29,6 +29,8 @@ public class Supplier extends BaseEntity{
     @Column(nullable = false, length = 20)
     private String phoneNumber;
 
+    private String address;
+
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
