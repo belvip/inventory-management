@@ -13,6 +13,7 @@ public interface SaleMapper {
     @Mapping(source = "client.name", target = "clientName")
     @Mapping(source = "clientOrder.id", target = "clientOrderId")
     @Mapping(source = "clientOrder.code", target = "clientOrderCode")
+    @Mapping(source = "saleLines", target = "saleLines")
     SaleResponseDto toResponseDto(Sale sale);
     
     @Mapping(source = "status", target = "saleStatus")

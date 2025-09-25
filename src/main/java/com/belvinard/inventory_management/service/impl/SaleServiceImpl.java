@@ -145,8 +145,15 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
+    @Transactional
     public SaleResponseDto generateSaleLinesFromOrders(Long saleId) {
-        return null;
+        Sale sale = findSaleById(saleId);
+        if (sale.getSaleStatus() == SaleStatus.CANCELLED) {
+            throw new APIException("Cannot generate lines for CANCELLED sales");
+        }
+        
+        saleLineService.generateFromOrder(sale, sale.getClientOrder());
+        return saleMapper.toResponseDto(saleRepository.save(sale));
     }
 
     private Sale findSaleById(Long id) {

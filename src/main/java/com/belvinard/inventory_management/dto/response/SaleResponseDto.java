@@ -3,6 +3,7 @@ package com.belvinard.inventory_management.dto.response;
 import com.belvinard.inventory_management.model.SaleStatus;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record SaleResponseDto(
         Long id,
@@ -12,6 +13,7 @@ public record SaleResponseDto(
         SaleStatus status,
         String clientName,
         Long clientOrderId,
-        String clientOrderCode
+        String clientOrderCode,
+        List<SaleLineResponseDto> saleLines
 ) {
 }
