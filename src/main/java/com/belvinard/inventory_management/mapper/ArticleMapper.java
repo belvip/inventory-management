@@ -12,6 +12,7 @@ public interface ArticleMapper {
     @Mapping(source = "updatedDate", target = "updatedDate")
     @Mapping(source = "category.id", target = "categoryId")
     @Mapping(source = "category.designation", target = "categoryDesignation")
+    @Mapping(source = "availableQuantity", target = "availableQuantity")
     ArticleResponseDto toResponseDto(Article article);
 
     @Mapping(target = "id", ignore = true)
@@ -19,6 +20,7 @@ public interface ArticleMapper {
     @Mapping(target = "updatedDate", ignore = true)
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "reservedQuantity", ignore = true)
     Article toEntity(ArticleRequestDto dto);
 }
 

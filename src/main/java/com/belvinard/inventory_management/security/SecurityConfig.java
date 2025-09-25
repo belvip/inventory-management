@@ -9,6 +9,7 @@ import com.belvinard.inventory_management.repository.UserRepository;
 import com.belvinard.inventory_management.security.jwt.AuthEntryPointJwt;
 import com.belvinard.inventory_management.security.jwt.AuthTokenFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,11 +34,17 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_MANAGER = "MANAGER";
+    private static final String ROLE_SALES = "SALES";
+    //@Value("${DEFAULT_USER_PASSWORD:password}")
+    //private String defaultPassword;
+    private static final String EMAIL_SIGNUP_METHOD = "email";
+
     private final AuthEntryPointJwt unauthorizedHandler;
     private final AuthTokenFilter authTokenFilter;
     @Lazy
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -47,39 +54,46 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests((requests) ->
+        http.authorizeHttpRequests(requests ->
                 requests
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/demo/**").permitAll()
                         .requestMatchers("/api/v1/auth/oauth2/success").permitAll()
                         .requestMatchers("/api/v1/users/update-password").authenticated()
-                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/users/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/companies/all").permitAll()
                         .requestMatchers("/api/v1/categories/all").permitAll()
-                        .requestMatchers("/api/v1/categories/create").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/categories/update").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/categories/{id}").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1//by-company/{companyId}").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/companies/create").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/companies/{id}").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/companies/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/articles/create").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/articles/{id}").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/articles/update/{id}").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/articles/code/{code}").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/articles/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/articles/{id}/image").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/clients/**").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/orders/**").hasAnyRole("ADMIN", "MANAGER", "SALES")
-                        .requestMatchers("/api/v1/order-lines /**").hasAnyRole("ADMIN", "MANAGER", "SALES")
+                        .requestMatchers("/api/v1/categories/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/categories/update").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/categories/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1//by-company/{companyId}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/companies/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/companies/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/companies/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/v1/articles/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/articles/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/articles/update/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/articles/code/{code}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/articles/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/v1/articles/{id}/image").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/clients/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/orders/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/order-lines /**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/sales/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/sales/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/sales/{id}/status").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/sales/{id}/cancel").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/sales/{id}/finalize").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/v1/sales/{id}/generate-lines").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/sales").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/sales/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())
-                        .oauth2Login(oauth ->{
-                            oauth.successHandler(oAuth2LoginSuccessHandler);
-
-                        });
+                        .oauth2Login(oauth ->
+                            oauth.successHandler(oAuth2LoginSuccessHandler)
+                        );
         http.exceptionHandling(exception
                 -> exception.authenticationEntryPoint(unauthorizedHandler));
         http.sessionManagement(session -> {
@@ -99,8 +113,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
-
 
     @Bean
     public CommandLineRunner initData(RoleRepository roleRepository,
@@ -189,10 +201,5 @@ public class SecurityConfig {
             }
         };
     }
-
-
-
-
-
 
 }

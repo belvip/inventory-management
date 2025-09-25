@@ -33,6 +33,9 @@ public class Article extends BaseEntity {
 
     private Long quantityInStock;
 
+    @Column(nullable = false)
+    private Long reservedQuantity = 0L;
+
     @NotNull(message = "Unit price excluding tax is mandatory")
     @DecimalMin(value = "0.0", inclusive = false,
             message = "Unit price excluding tax must be positive")
@@ -65,6 +68,23 @@ public class Article extends BaseEntity {
 
     public void restore() {
         this.status = ArticleStatus.ACTIVE;
+    }
+
+    public Long getAvailableQuantity() {
+        return quantityInStock - reservedQuantity;
+    }
+
+    public void reserveQuantity(Long quantity) {
+        this.reservedQuantity += quantity;
+    }
+
+    public void releaseReservedQuantity(Long quantity) {
+        this.reservedQuantity = Math.max(0, this.reservedQuantity - quantity);
+    }
+
+    public void finalizeStock(Long quantity) {
+        this.quantityInStock -= quantity;
+        this.reservedQuantity -= quantity;
     }
 
     @Schema(hidden = true)

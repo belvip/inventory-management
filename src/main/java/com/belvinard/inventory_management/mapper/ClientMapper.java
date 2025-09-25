@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
 
-@Mapper(componentModel = "spring", uses = {ClientOrderMapper.class},
+@Mapper(componentModel = "spring", uses = {ClientOrderMapper.class, SaleMapper.class},
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface ClientMapper {
 

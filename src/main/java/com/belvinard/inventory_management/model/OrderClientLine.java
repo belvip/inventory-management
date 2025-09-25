@@ -28,4 +28,8 @@ public class OrderClientLine extends BaseEntity{
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id", nullable = false)
     private Article article;
+
+    public void releaseReservation() {
+        article.releaseReservedQuantity(quantity.longValue());
+    }
 }
