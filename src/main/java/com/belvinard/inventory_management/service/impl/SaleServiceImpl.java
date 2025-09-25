@@ -33,6 +33,7 @@ public class SaleServiceImpl implements SaleService {
         
         Client client = findAndValidateClient(dto.clientId());
         validateClientHasOrders(client.getId());
+        validateClientOrder(dto.clientOrderId(), client.getId());
         
         Sale sale = createSaleEntity(dto, client);
         Sale savedSale = saleRepository.save(sale);
@@ -137,12 +138,20 @@ public class SaleServiceImpl implements SaleService {
     }
     
     private void validateClientHasOrders(Long clientId) {
-        List<ClientOrder> confirmedOrders = clientOrderRepository.findByClientIdAndStateOrder(clientId, OrderStatus.CONFIRMED);
-        if (confirmedOrders.isEmpty()) {
-            throw new APIException("Client must have at least one CONFIRMED order before creating a sale");
+        validateNoExistingDraftSale(clientId);
+    }
+    
+    private void validateClientOrder(Long clientOrderId, Long clientId) {
+        ClientOrder clientOrder = clientOrderRepository.findById(clientOrderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client Order not found with id: " + clientOrderId));
+        
+        if (clientOrder.getStateOrder() != OrderStatus.CONFIRMED) {
+            throw new APIException("Only CONFIRMED orders can be converted to sales");
         }
         
-        validateNoExistingDraftSale(clientId);
+        if (!clientOrder.getClient().getId().equals(clientId)) {
+            throw new APIException("Client Order does not belong to the specified client");
+        }
     }
     
     private void validateNoExistingDraftSale(Long clientId) {
@@ -155,6 +164,17 @@ public class SaleServiceImpl implements SaleService {
     private Sale createSaleEntity(SaleRequestDto dto, Client client) {
         Sale sale = saleMapper.toEntity(dto);
         sale.setClient(client);
+        
+        // Récupérer et assigner la commande client
+        ClientOrder clientOrder = clientOrderRepository.findById(dto.clientOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Client Order not found with id: " + dto.clientOrderId()));
+        
+        // Vérifier que la commande appartient au client
+        if (!clientOrder.getClient().getId().equals(client.getId())) {
+            throw new APIException("Client Order does not belong to the specified client");
+        }
+        
+        sale.setClientOrder(clientOrder);
         sale.setSaleStatus(SaleStatus.DRAFT);
         
         if (dto.saleDate() == null) {
