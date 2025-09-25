@@ -14,6 +14,7 @@ public interface SaleService {
     SaleResponseDto finalizeSale(Long id);
     SaleResponseDto getSaleById(Long id);
     List<SaleResponseDto> getAll();
+    SaleResponseDto generateSaleLinesFromOrders(Long saleId);
 
 
 }

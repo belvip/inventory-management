@@ -210,4 +210,49 @@ public class SaleServiceImpl implements SaleService {
         // - Générer le code de vente
         // TODO: Implémenter selon les besoins métier
     }
+    
+    @Override
+    @Transactional
+    public SaleResponseDto generateSaleLinesFromOrders(Long saleId) {
+        Sale sale = findSaleById(saleId);
+        
+        if (sale.getSaleStatus() == SaleStatus.CANCELLED) {
+            throw new APIException("Cannot generate lines for CANCELLED sales");
+        }
+        
+        // Vider les lignes existantes si elles existent
+        sale.getSaleLines().clear();
+        
+        // Récupérer les commandes COMPLETED du client
+        List<ClientOrder> completedOrders = clientOrderRepository
+                .findByClientIdAndStateOrder(sale.getClient().getId(), OrderStatus.COMPLETED);
+        
+        // Générer les lignes de vente automatiquement
+        completedOrders.forEach(order -> 
+            order.getOrderClientLineList().forEach(orderLine -> 
+                createSaleLineFromOrderLine(sale, orderLine)
+            )
+        );
+        
+        Sale updatedSale = saleRepository.save(sale);
+        return saleMapper.toResponseDto(updatedSale);
+    }
+    
+    private void createSaleLineFromOrderLine(Sale sale, OrderClientLine orderLine) {
+        SaleLine saleLine = new SaleLine();
+        Article article = orderLine.getArticle();
+        
+        saleLine.setSale(sale);
+        saleLine.setArticle(article);
+        saleLine.setQuantity(orderLine.getQuantity());
+        
+        // Récupérer les prix de l'article (prix figés au moment de la vente)
+        saleLine.setUnitPriceExclTax(article.getUnitPriceExclTax());
+        saleLine.setRateTva(article.getRateTva());
+        saleLine.setUnitPriceAllTax(article.getUnitPriceAllTax());
+        
+        // Le prix total sera calculé automatiquement par @PrePersist
+        
+        sale.getSaleLines().add(saleLine);
+    }
 }

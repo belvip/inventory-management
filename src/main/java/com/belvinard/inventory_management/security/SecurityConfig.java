@@ -9,6 +9,7 @@ import com.belvinard.inventory_management.repository.UserRepository;
 import com.belvinard.inventory_management.security.jwt.AuthEntryPointJwt;
 import com.belvinard.inventory_management.security.jwt.AuthTokenFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,14 +37,14 @@ public class SecurityConfig {
     private static final String ROLE_ADMIN = "ADMIN";
     private static final String ROLE_MANAGER = "MANAGER";
     private static final String ROLE_SALES = "SALES";
-    private static final String DEFAULT_PASSWORD = System.getenv().getOrDefault("DEFAULT_USER_PASSWORD", "ChangeMe123!");
+    //@Value("${DEFAULT_USER_PASSWORD:password}")
+    //private String defaultPassword;
     private static final String EMAIL_SIGNUP_METHOD = "email";
 
     private final AuthEntryPointJwt unauthorizedHandler;
     private final AuthTokenFilter authTokenFilter;
     @Lazy
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -124,29 +125,74 @@ public class SecurityConfig {
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_SALES)));
 
 
-            createUserIfNotExists("user", "user@user.com", "User", "Test", userRole, userRepository, passwordEncoder);
-            createUserIfNotExists("admin", "admin@admin.com", "Admin", "User", adminRole, userRepository, passwordEncoder);
-            createUserIfNotExists("manager", "manager@manager.com", "Manager", "User", managerRole, userRepository, passwordEncoder);
-            createUserIfNotExists("sales", "sales@sales.com", "Sales", "User", salesRole, userRepository, passwordEncoder);
+            if (!userRepository.existsByUserName("user")) {
+                User user1 = new User("user", "user@user.com",
+                        passwordEncoder.encode("password"));
+                user1.setFirstName("User");
+                user1.setLastName("Test");
+                user1.setAccountNonLocked(true);
+                user1.setAccountNonExpired(true);
+                user1.setCredentialsNonExpired(true);
+                user1.setEnabled(true);
+                user1.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
+                user1.setAccountExpiryDate(LocalDate.now().plusYears(1));
+                user1.setTwoFactorEnabled(false);
+                user1.setSignUpMethod("email");
+                user1.setRole(userRole);
+                userRepository.save(user1);
+            }
+
+            if (!userRepository.existsByUserName("admin")) {
+                User admin = new User("admin", "admin@admin.com",
+                        passwordEncoder.encode("password"));
+                admin.setFirstName("Admin");
+                admin.setLastName("User");
+                admin.setAccountNonLocked(true);
+                admin.setAccountNonExpired(true);
+                admin.setCredentialsNonExpired(true);
+                admin.setEnabled(true);
+                admin.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
+                admin.setAccountExpiryDate(LocalDate.now().plusYears(1));
+                admin.setTwoFactorEnabled(false);
+                admin.setSignUpMethod("email");
+                admin.setRole(adminRole);
+                userRepository.save(admin);
+            }
+
+            if(!userRepository.existsByUserName("manager")) {
+                User manager = new User("manager", "manager@manager.com",
+                        passwordEncoder.encode("password"));
+                manager.setFirstName("Manager");
+                manager.setLastName("User");
+                manager.setAccountNonLocked(true);
+                manager.setAccountNonExpired(true);
+                manager.setCredentialsNonExpired(true);
+                manager.setEnabled(true);
+                manager.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
+                manager.setAccountExpiryDate(LocalDate.now().plusYears(1));
+                manager.setTwoFactorEnabled(false);
+                manager.setSignUpMethod("email");
+                manager.setRole(managerRole);
+                userRepository.save(manager);
+            }
+
+            if (!userRepository.existsByUserName("sales")) {
+                User sales = new User("sales", "sales@sales.com",
+                        passwordEncoder.encode("password"));
+                sales.setFirstName("Sales");
+                sales.setLastName("User");
+                sales.setAccountNonLocked(true);
+                sales.setAccountNonExpired(true);
+                sales.setCredentialsNonExpired(true);
+                sales.setEnabled(true);
+                sales.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
+                sales.setAccountExpiryDate(LocalDate.now().plusYears(1));
+                sales.setTwoFactorEnabled(false);
+                sales.setSignUpMethod("email");
+                sales.setRole(salesRole);
+                userRepository.save(sales);
+            }
         };
     }
 
-    private void createUserIfNotExists(String username, String email, String firstName, String lastName, 
-                                     Role role, UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        if (!userRepository.existsByUserName(username)) {
-            User user = new User(username, email, passwordEncoder.encode(DEFAULT_PASSWORD));
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setAccountNonLocked(true);
-            user.setAccountNonExpired(true);
-            user.setCredentialsNonExpired(true);
-            user.setEnabled(true);
-            user.setCredentialsExpiryDate(LocalDate.now().plusDays(90));
-            user.setAccountExpiryDate(LocalDate.now().plusYears(1));
-            user.setTwoFactorEnabled(false);
-            user.setSignUpMethod(EMAIL_SIGNUP_METHOD);
-            user.setRole(role);
-            userRepository.save(user);
-        }
-    }
 }

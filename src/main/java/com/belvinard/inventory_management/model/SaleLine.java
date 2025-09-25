@@ -19,6 +19,14 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 public class SaleLine extends BaseEntity {
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "sale_id", nullable = false)
+    private Sale sale;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id", nullable = false)
+    private Article article;
+
     @NotNull(message = "Quantity is mandatory")
     @DecimalMin(value = "0.01", message = "Quantity must be greater than 0")
     private BigDecimal quantity;
@@ -35,14 +43,6 @@ public class SaleLine extends BaseEntity {
 
     @NotNull(message = "Total line price is mandatory")
     private BigDecimal totalLinePrice;
-
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "sale_id", nullable = false)
-    private Sale sale;
-
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "article_id", nullable = false)
-    private Article article;
 
     @Schema(hidden = true)
     public String getCreatedAt() {

@@ -183,4 +183,22 @@ public class SaleController {
         List<SaleResponseDto> sales = saleService.getAll();
         return ResponseEntity.ok(sales);
     }
+
+    @Operation(
+        summary = "Generate sale lines from completed orders",
+        description = "Automatically generates sale lines from client's completed orders. Not allowed for CANCELLED sales."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Sale lines generated successfully"),
+        @ApiResponse(responseCode = "400", description = "Cannot generate lines for CANCELLED sales"),
+        @ApiResponse(responseCode = "404", description = "Sale not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PostMapping("/{id}/generate-lines")
+    public ResponseEntity<SaleResponseDto> generateSaleLines(
+        @Parameter(description = "Sale ID", required = true) @PathVariable("id") Long saleId
+    ) {
+        SaleResponseDto updatedSale = saleService.generateSaleLinesFromOrders(saleId);
+        return ResponseEntity.ok(updatedSale);
+    }
 }

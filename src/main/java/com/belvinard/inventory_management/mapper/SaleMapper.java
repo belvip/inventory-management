@@ -11,10 +11,13 @@ public interface SaleMapper {
     
     @Mapping(source = "saleStatus", target = "status")
     @Mapping(source = "client.name", target = "clientName")
+    @Mapping(source = "clientOrder.id", target = "clientOrderId")
+    @Mapping(source = "clientOrder.code", target = "clientOrderCode")
     SaleResponseDto toResponseDto(Sale sale);
     
     @Mapping(source = "status", target = "saleStatus")
     @Mapping(target = "client", ignore = true)
+    @Mapping(target = "clientOrder", ignore = true)
     @Mapping(target = "code", ignore = true)
     Sale toEntity(SaleRequestDto dto);
 }

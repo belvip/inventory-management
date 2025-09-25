@@ -41,6 +41,10 @@ public class Sale extends BaseEntity{
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_order_id", nullable = false)
+    private ClientOrder clientOrder;
+
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SaleLine> saleLines = new ArrayList<>();
 

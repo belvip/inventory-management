@@ -19,7 +19,10 @@ public record SaleRequestDto(
         SaleStatus status,
 
         @NotNull(message = "Client ID is required")
-        Long clientId
+        Long clientId,
+        
+        @NotNull(message = "Client Order ID is required")
+        Long clientOrderId
 ) {
 }
 

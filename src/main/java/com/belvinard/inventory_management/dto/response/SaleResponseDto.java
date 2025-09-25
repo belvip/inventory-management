@@ -10,6 +10,8 @@ public record SaleResponseDto(
         String comments,
         LocalDate saleDate,
         SaleStatus status,
-        String clientName
+        String clientName,
+        Long clientOrderId,
+        String clientOrderCode
 ) {
 }
