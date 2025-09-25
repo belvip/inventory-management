@@ -53,7 +53,9 @@ public class SaleServiceImpl implements SaleService {
     @Transactional
     public SaleResponseDto updateSale(Long id, SaleRequestDto dto) {
         Sale sale = findSaleById(id);
-        validateSaleNotConfirmed(sale, "update");
+        if (sale.getSaleStatus() == SaleStatus.CONFIRMED) {
+            throw new APIException("Cannot update a CONFIRMED sale");
+        }
 
         // Mise à jour uniquement des champs autorisés (pas le statut)
         if (dto.comments() != null) {
@@ -73,7 +75,9 @@ public class SaleServiceImpl implements SaleService {
     @Transactional
     public void deleteSale(Long id) {
         Sale sale = findSaleById(id);
-        validateSaleNotConfirmed(sale, "delete");
+        if (sale.getSaleStatus() == SaleStatus.CONFIRMED) {
+            throw new APIException("Cannot delete a CONFIRMED sale");
+        }
 
         saleRepository.delete(sale);
     }
@@ -83,6 +87,9 @@ public class SaleServiceImpl implements SaleService {
     @Transactional
     public SaleResponseDto updateSaleStatus(Long id, String status) {
         Sale sale = findSaleById(id);
+        if (sale.getSaleStatus() == SaleStatus.CONFIRMED) {
+            throw new APIException("Cannot delete a CONFIRMED sale");
+        }
         SaleStatus newStatus = SaleStatus.valueOf(status.toUpperCase());
 
         validateStatusTransition(sale, newStatus);
@@ -98,15 +105,15 @@ public class SaleServiceImpl implements SaleService {
     @Transactional
     public SaleResponseDto cancelSale(Long id) {
         Sale sale = findSaleById(id);
-        validateSaleNotConfirmed(sale, "cancel");
+        if (sale.getSaleStatus() == SaleStatus.CONFIRMED) {
+            throw new APIException("Cannot cancel a CONFIRMED sale");
+        }
 
         sale.setSaleStatus(SaleStatus.CANCELLED);
         Sale cancelledSale = saleRepository.save(sale);
 
         return saleMapper.toResponseDto(cancelledSale);
     }
-
-
 
 
     @Override
