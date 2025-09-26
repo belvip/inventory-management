@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -57,6 +59,9 @@ public class Article extends BaseEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "categoryId", nullable = false)
     private Category category;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<StockMovement> stockMovements = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

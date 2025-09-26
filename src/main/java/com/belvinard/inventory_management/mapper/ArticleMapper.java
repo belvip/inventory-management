@@ -21,6 +21,7 @@ public interface ArticleMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "reservedQuantity", ignore = true)
+    @Mapping(target = "stockMovements", ignore = true)
     Article toEntity(ArticleRequestDto dto);
 }
 
