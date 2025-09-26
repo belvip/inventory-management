@@ -1,9 +1,13 @@
 package com.belvinard.inventory_management.controller;
 
+import com.belvinard.inventory_management.dto.request.CreateClientOrderMovementDto;
+import com.belvinard.inventory_management.dto.request.CreateManualAdjustmentDto;
+import com.belvinard.inventory_management.dto.request.CreateSupplierOrderMovementDto;
 import com.belvinard.inventory_management.dto.response.PagedResponse;
 import com.belvinard.inventory_management.dto.response.StockMovementResponseDto;
 import com.belvinard.inventory_management.model.StockMovementType;
 import com.belvinard.inventory_management.service.StockMovementService;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -92,11 +96,9 @@ public class StockMovementController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     @PostMapping("/create/supplier-order")
     public ResponseEntity<StockMovementResponseDto> createMovementForSupplierOrder(
-            @RequestParam Long articleId,
-            @RequestParam Long quantity,
-            @RequestParam Long supplierOrderId,
-            @RequestParam String description) {
-        StockMovementResponseDto movement = stockMovementService.createMovementForSupplierOrder(articleId, quantity, supplierOrderId, description);
+            @Valid @RequestBody CreateSupplierOrderMovementDto dto) {
+        StockMovementResponseDto movement = stockMovementService.createMovementForSupplierOrder(
+                dto.articleId(), dto.quantity(), dto.supplierOrderId(), dto.description());
         return ResponseEntity.status(201).body(movement);
     }
 
@@ -108,11 +110,9 @@ public class StockMovementController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     @PostMapping("/create/client-order")
     public ResponseEntity<StockMovementResponseDto> createMovementForClientOrder(
-            @RequestParam Long articleId,
-            @RequestParam Long quantity,
-            @RequestParam Long clientOrderId,
-            @RequestParam String description) {
-        StockMovementResponseDto movement = stockMovementService.createMovementForClientOrder(articleId, quantity, clientOrderId, description);
+            @Valid @RequestBody CreateClientOrderMovementDto dto) {
+        StockMovementResponseDto movement = stockMovementService.createMovementForClientOrder(
+                dto.articleId(), dto.quantity(), dto.clientOrderId(), dto.description());
         return ResponseEntity.status(201).body(movement);
     }
 
@@ -124,11 +124,61 @@ public class StockMovementController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     @PostMapping("/create/manual-adjustment")
     public ResponseEntity<StockMovementResponseDto> createManualAdjustment(
-            @RequestParam Long articleId,
-            @RequestParam Long quantity,
-            @RequestParam StockMovementType type,
-            @RequestParam String description) {
-        StockMovementResponseDto movement = stockMovementService.createManualAdjustment(articleId, quantity, type, description);
+            @Valid @RequestBody CreateManualAdjustmentDto dto) {
+        StockMovementResponseDto movement = stockMovementService.createManualAdjustment(
+                dto.articleId(), dto.quantity(), dto.type(), dto.description());
         return ResponseEntity.status(201).body(movement);
+    }
+
+    @Operation(summary = "Get all IN movements", description = "Retrieves all stock IN movements with pagination")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "IN movements retrieved successfully")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/in")
+    public ResponseEntity<PagedResponse<StockMovementResponseDto>> getAllInMovements(
+            @RequestParam(defaultValue = "0") Integer pageNumber,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "createdDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortOrder) {
+        PagedResponse<StockMovementResponseDto> movements = stockMovementService.getAllInMovements(pageNumber, pageSize, sortBy, sortOrder);
+        return ResponseEntity.ok(movements);
+    }
+
+    @Operation(summary = "Get all OUT movements", description = "Retrieves all stock OUT movements with pagination")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "OUT movements retrieved successfully")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/out")
+    public ResponseEntity<PagedResponse<StockMovementResponseDto>> getAllOutMovements(
+            @RequestParam(defaultValue = "0") Integer pageNumber,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "createdDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortOrder) {
+        PagedResponse<StockMovementResponseDto> movements = stockMovementService.getAllOutMovements(pageNumber, pageSize, sortBy, sortOrder);
+        return ResponseEntity.ok(movements);
+    }
+
+    @Operation(summary = "Get IN movements by article", description = "Retrieves all IN movements for a specific article")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Article IN movements retrieved successfully")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/article/{articleId}/in")
+    public ResponseEntity<java.util.List<StockMovementResponseDto>> getInMovementsByArticle(@PathVariable Long articleId) {
+        java.util.List<StockMovementResponseDto> movements = stockMovementService.getInMovementsByArticle(articleId);
+        return ResponseEntity.ok(movements);
+    }
+
+    @Operation(summary = "Get OUT movements by article", description = "Retrieves all OUT movements for a specific article")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Article OUT movements retrieved successfully")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/article/{articleId}/out")
+    public ResponseEntity<java.util.List<StockMovementResponseDto>> getOutMovementsByArticle(@PathVariable Long articleId) {
+        java.util.List<StockMovementResponseDto> movements = stockMovementService.getOutMovementsByArticle(articleId);
+        return ResponseEntity.ok(movements);
     }
 }

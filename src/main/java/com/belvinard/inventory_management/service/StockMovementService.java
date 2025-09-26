@@ -22,6 +22,10 @@ public interface StockMovementService {
     StockMovementResponseDto createManualAdjustment(Long articleId, Long quantity, StockMovementType type,
                                                     String description);
 
-
+    // Méthodes de consultation spécialisées
+    PagedResponse<StockMovementResponseDto> getAllInMovements(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+    PagedResponse<StockMovementResponseDto> getAllOutMovements(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+    java.util.List<StockMovementResponseDto> getInMovementsByArticle(Long articleId);
+    java.util.List<StockMovementResponseDto> getOutMovementsByArticle(Long articleId);
 
 }

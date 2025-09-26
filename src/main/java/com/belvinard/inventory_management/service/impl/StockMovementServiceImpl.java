@@ -168,4 +168,68 @@ public class StockMovementServiceImpl implements StockMovementService {
         StockMovement savedMovement = stockMovementRepository.save(movement);
         return stockMovementMapper.toResponseDto(savedMovement);
     }
+
+    @Override
+    public PagedResponse<StockMovementResponseDto> getAllInMovements(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sort = sortOrder.equalsIgnoreCase("desc") 
+                ? Sort.by(sortBy).descending() 
+                : Sort.by(sortBy).ascending();
+        
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<StockMovement> movementPage = stockMovementRepository.findByMovementType(StockMovementType.IN, pageable);
+        
+        List<StockMovementResponseDto> movements = movementPage.getContent()
+                .stream()
+                .map(stockMovementMapper::toResponseDto)
+                .toList();
+        
+        return PagedResponse.<StockMovementResponseDto>builder()
+                .content(movements)
+                .pageNumber(movementPage.getNumber())
+                .pageSize(movementPage.getSize())
+                .totalElements(movementPage.getTotalElements())
+                .totalPages(movementPage.getTotalPages())
+                .last(movementPage.isLast())
+                .build();
+    }
+
+    @Override
+    public PagedResponse<StockMovementResponseDto> getAllOutMovements(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sort = sortOrder.equalsIgnoreCase("desc") 
+                ? Sort.by(sortBy).descending() 
+                : Sort.by(sortBy).ascending();
+        
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<StockMovement> movementPage = stockMovementRepository.findByMovementType(StockMovementType.OUT, pageable);
+        
+        List<StockMovementResponseDto> movements = movementPage.getContent()
+                .stream()
+                .map(stockMovementMapper::toResponseDto)
+                .toList();
+        
+        return PagedResponse.<StockMovementResponseDto>builder()
+                .content(movements)
+                .pageNumber(movementPage.getNumber())
+                .pageSize(movementPage.getSize())
+                .totalElements(movementPage.getTotalElements())
+                .totalPages(movementPage.getTotalPages())
+                .last(movementPage.isLast())
+                .build();
+    }
+
+    @Override
+    public List<StockMovementResponseDto> getInMovementsByArticle(Long articleId) {
+        return stockMovementRepository.findByArticleIdAndMovementType(articleId, StockMovementType.IN)
+                .stream()
+                .map(stockMovementMapper::toResponseDto)
+                .toList();
+    }
+
+    @Override
+    public List<StockMovementResponseDto> getOutMovementsByArticle(Long articleId) {
+        return stockMovementRepository.findByArticleIdAndMovementType(articleId, StockMovementType.OUT)
+                .stream()
+                .map(stockMovementMapper::toResponseDto)
+                .toList();
+    }
 }
