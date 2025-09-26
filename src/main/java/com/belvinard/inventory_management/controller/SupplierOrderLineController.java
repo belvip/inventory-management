@@ -52,6 +52,20 @@ public class SupplierOrderLineController {
         return ResponseEntity.ok(line);
     }
 
+    @Operation(summary = "Update supplier order line", description = "Updates a supplier order line (article and quantity)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Line updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Cannot update - order not in PENDING status"),
+        @ApiResponse(responseCode = "404", description = "Line not found")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<SupplierOrderLineResponseDto> updateLine(
+            @PathVariable Long id, @Valid @RequestBody SupplierOrderLineRequestDto dto) {
+        SupplierOrderLineResponseDto updatedLine = supplierOrderLineService.update(id, dto);
+        return ResponseEntity.ok(updatedLine);
+    }
+
     @Operation(summary = "Get all lines for supplier order", description = "Retrieves all lines for a specific supplier order")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lines retrieved successfully"),
@@ -102,5 +116,16 @@ public class SupplierOrderLineController {
     public ResponseEntity<Map<String, BigDecimal>> calculateOrderTotal(@PathVariable Long supplierOrderId) {
         BigDecimal total = supplierOrderLineService.calculateOrderTotal(supplierOrderId);
         return ResponseEntity.ok(Map.of("total", total));
+    }
+
+    @Operation(summary = "Get all supplier order lines", description = "Retrieves all supplier order lines in the system")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Supplier order lines retrieved successfully")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/all")
+    public ResponseEntity<List<SupplierOrderLineResponseDto>> getAllSupplierOrderLines() {
+        List<SupplierOrderLineResponseDto> lines = supplierOrderLineService.getAll();
+        return ResponseEntity.ok(lines);
     }
 }

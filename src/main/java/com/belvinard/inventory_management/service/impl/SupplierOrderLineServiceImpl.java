@@ -59,6 +59,26 @@ public class SupplierOrderLineServiceImpl implements SupplierOrderLineService {
 
     @Override
     @Transactional
+    public SupplierOrderLineResponseDto update(Long id, SupplierOrderLineRequestDto dto) {
+        SupplierOrderLine line = supplierOrderLineRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier order line not found with id: " + id));
+        
+        validateOrderStateForUpdate(line.getSupplierOrder());
+        
+        // Valider le nouvel article si différent
+        if (!line.getArticle().getId().equals(dto.articleId())) {
+            Article newArticle = findAndValidateArticleForUpdate(dto.articleId(), line.getSupplierOrder().getId(), id);
+            line.setArticle(newArticle);
+        }
+        
+        line.setQuantity(dto.quantity());
+        
+        SupplierOrderLine updatedLine = supplierOrderLineRepository.save(line);
+        return supplierOrderLineMapper.toResponseDto(updatedLine);
+    }
+
+    @Override
+    @Transactional
     public SupplierOrderLineResponseDto updateLineQuantity(Long id, BigDecimal newQuantity) {
         SupplierOrderLine line = supplierOrderLineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier order line not found with id: " + id));
@@ -94,13 +114,21 @@ public class SupplierOrderLineServiceImpl implements SupplierOrderLineService {
     public boolean isArticleAlreadyInOrder(Long supplierOrderId, Long articleId) {
         return supplierOrderLineRepository.existsBySupplierOrderIdAndArticleId(supplierOrderId, articleId);
     }
+
+    @Override
+    public List<SupplierOrderLineResponseDto> getAll() {
+        return supplierOrderLineRepository.findAll()
+                .stream()
+                .map(supplierOrderLineMapper::toResponseDto)
+                .toList();
+    }
     
     private SupplierOrder findAndValidateOrder(Long supplierOrderId) {
         SupplierOrder order = supplierOrderRepository.findById(supplierOrderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier order not found with id: " + supplierOrderId));
         
-        if (order.getStateOrder() == OrderStatus.CONFIRMED) {
-            throw new APIException("Cannot modify lines of a CONFIRMED supplier order");
+        if (order.getStateOrder() != OrderStatus.PENDING) {
+            throw new APIException("Cannot modify lines - order must be in PENDING status");
         }
         
         return order;
@@ -122,8 +150,29 @@ public class SupplierOrderLineServiceImpl implements SupplierOrderLineService {
     }
     
     private void validateOrderStateForUpdate(SupplierOrder order) {
-        if (order.getStateOrder() == OrderStatus.CONFIRMED) {
-            throw new APIException("Cannot modify lines of a CONFIRMED supplier order");
+        if (order.getStateOrder() != OrderStatus.PENDING) {
+            throw new APIException("Cannot modify lines - order must be in PENDING status");
         }
+    }
+    
+    private Article findAndValidateArticleForUpdate(Long articleId, Long orderId, Long currentLineId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + articleId));
+        
+        if (article.getStatus() == ArticleStatus.ARCHIVED) {
+            throw new APIException("Cannot use an archived article");
+        }
+        
+        // Vérifier si l'article existe déjà dans une autre ligne de cette commande
+        boolean articleExistsInOtherLine = supplierOrderLineRepository.findAll().stream()
+                .anyMatch(line -> line.getSupplierOrder().getId().equals(orderId) 
+                        && line.getArticle().getId().equals(articleId)
+                        && !line.getId().equals(currentLineId));
+        
+        if (articleExistsInOtherLine) {
+            throw new APIException("This article is already present in another line of this supplier order");
+        }
+        
+        return article;
     }
 }

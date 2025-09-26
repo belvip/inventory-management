@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("${api.prefix}/supplier-orders")
 @RequiredArgsConstructor
@@ -111,5 +113,16 @@ public class SupplierOrderController {
     public ResponseEntity<SupplierOrderResponseDto> getSupplierOrderByCode(@PathVariable String code) {
         SupplierOrderResponseDto order = supplierOrderService.findByCode(code);
         return ResponseEntity.ok(order);
+    }
+
+    @Operation(summary = "Get all supplier orders", description = "Retrieves all supplier orders in the system")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Supplier orders retrieved successfully")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/all")
+    public ResponseEntity<List<SupplierOrderResponseDto>> getAllSupplierOrders() {
+        List<SupplierOrderResponseDto> orders = supplierOrderService.getAll();
+        return ResponseEntity.ok(orders);
     }
 }
