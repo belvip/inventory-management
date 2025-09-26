@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("${api.prefix}/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Authentication endpoints for user login")
+@Tag(name = "Authentication", description = "Authentication endpoints. Public access for login/signup. Authenticated users for profile operations.")
 public class AuthController {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
@@ -61,7 +61,7 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     @Operation(
-            summary = "User login",
+            summary = "User login [PUBLIC ACCESS]",
             description = "Authenticate user with username/password and return JWT token",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Login successful",
@@ -106,8 +106,8 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "User registration",
-            description = "Register a new user account with default ROLE_USER. Username and email must be unique.",
+            summary = "User registration [PUBLIC ACCESS]",
+            description = "Register a new user account with default ROLE_USER. Username and email must be unique",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User registered successfully",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
@@ -168,7 +168,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Get current user details",
+            summary = "Get current user details [AUTHENTICATED USERS]",
             description = "Get detailed information about the currently authenticated user",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User details retrieved successfully",
@@ -211,7 +211,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Get current username",
+            summary = "Get current username [AUTHENTICATED USERS]",
             description = "Get the username of the currently authenticated user",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Username retrieved successfully",
@@ -225,7 +225,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Refresh JWT token",
+            summary = "Refresh JWT token [PUBLIC - REQUIRES REFRESH TOKEN]",
             description = "Generate new JWT token using refresh token",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Token refreshed successfully",
@@ -248,7 +248,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "User logout",
+            summary = "User logout [AUTHENTICATED USERS]",
             description = "Logout user and invalidate refresh token",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User logged out successfully",
@@ -263,7 +263,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Forgot password",
+            summary = "Forgot password [PUBLIC ACCESS]",
             description = "Send password reset email to the specified email address",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Password reset email sent successfully",
@@ -285,7 +285,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Reset password",
+            summary = "Reset password [PUBLIC - REQUIRES RESET TOKEN]",
             description = "Reset user password using a valid reset token",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Password reset successfully",

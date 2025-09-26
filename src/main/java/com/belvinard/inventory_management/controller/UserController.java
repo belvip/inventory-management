@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/users")
-@Tag(name = "User Management", description = "Endpoints for managing users")
+@Tag(name = "User Management controller", description = "User management operations. ADMIN: Full access to all user operations. MANAGER/SALES: No access to user management endpoints.")
 public class UserController {
 
     private final UserService userService;

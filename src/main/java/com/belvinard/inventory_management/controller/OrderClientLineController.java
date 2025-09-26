@@ -23,14 +23,14 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/order-lines")
 @RequiredArgsConstructor
-@Tag(name = "Order Client Lines", description = "Manage lines of a Client Order by ADMIN, MANAGER or SALES")
+@Tag(name = "Order Client Lines", description = "Client order line management operations. ADMIN: Full access. MANAGER: Full access. SALES: Full access to manage client orders.")
 public class OrderClientLineController {
 
     private final OrderClientLineService orderClientLineService;
 
     @Operation(
-            summary = "Add a new line to an order",
-            description = "Adds an article to a given order (must be IN_PREPARATION). Snapshots article prices and updates order status to VALIDATED if needed.",
+            summary = "Add a new line to an order [ADMIN, MANAGER, SALES]",
+            description = "Adds an article to a given order (must be IN_PREPARATION). Snapshots article prices and updates order status to VALIDATED if needed",
             responses = {
                     @ApiResponse(responseCode = "201", description = "Line created successfully",
                             content = @Content(schema = @Schema(implementation = OrderClientLineResponseDto.class))),
@@ -46,7 +46,8 @@ public class OrderClientLineController {
     }
 
     @Operation(
-            summary = "Get a single order line by its ID",
+            summary = "Get a single order line by its ID [ADMIN, MANAGER, SALES]",
+            description = "Retrieves a client order line by its ID",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Line found",
                             content = @Content(schema = @Schema(implementation = OrderClientLineResponseDto.class))),
@@ -62,7 +63,8 @@ public class OrderClientLineController {
     }
 
     @Operation(
-            summary = "Get all lines for a given order",
+            summary = "Get all lines for a given order [ADMIN, MANAGER, SALES]",
+            description = "Retrieves all lines for a specific client order",
             responses = {
                     @ApiResponse(responseCode = "200", description = "List of lines",
                             content = @Content(schema = @Schema(implementation = OrderClientLineResponseDto.class)))
@@ -77,7 +79,8 @@ public class OrderClientLineController {
     }
 
     @Operation(
-            summary = "Update the quantity of a line",
+            summary = "Update the quantity of a line [ADMIN, MANAGER, SALES]",
+            description = "Updates the quantity of a client order line",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Line updated successfully",
                             content = @Content(schema = @Schema(implementation = OrderClientLineResponseDto.class))),
@@ -96,8 +99,8 @@ public class OrderClientLineController {
 
 
     @Operation(
-            summary = "Remove a line from an order",
-            description = "Removes an article from the order and returns the quantity to stock (if order not delivered).",
+            summary = "Remove a line from an order [ADMIN, MANAGER, SALES]",
+            description = "Removes an article from the order and returns the quantity to stock (if order not delivered)",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Line removed successfully"),
                     @ApiResponse(responseCode = "400", description = "Cannot remove line from a delivered order"),
@@ -114,7 +117,8 @@ public class OrderClientLineController {
     }
 
     @Operation(
-            summary = "Calculate total of an order",
+            summary = "Calculate total of an order [ADMIN, MANAGER, SALES]",
+            description = "Calculates the total amount for a client order",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Total calculated",
                             content = @Content(schema = @Schema(implementation = BigDecimal.class))),

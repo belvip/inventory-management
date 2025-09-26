@@ -25,13 +25,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("${api.prefix}/orders")
 @RequiredArgsConstructor
-@Tag(name = "Client Orders", description = "Endpoints for managing client orders - ADMIN and manager or SALES")
+@Tag(name = "Client Orders", description = "Client order management operations. ADMIN, MANAGER, SALES: Full access. ADMIN, MANAGER: Can cancel orders.")
 public class ClientOrderController {
 
     private final ClientOrderService clientOrderService;
 
     @Operation(
-            summary = "Create a new client order",
+            summary = "Create a new client order [ADMIN, MANAGER, SALES]",
             description = "Creates a new order for a specific client. " +
                           "The order status will always be set to IN_PREPARATION on creation."
     )
@@ -62,7 +62,7 @@ public class ClientOrderController {
 
 
     @Operation(
-            summary = "Get order by ID",
+            summary = "Get order by ID [ADMIN, MANAGER, SALES]",
             description = "Retrieve an order by its unique identifier.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Order found",
@@ -81,7 +81,7 @@ public class ClientOrderController {
 
 
     @Operation(
-            summary = "Update an order",
+            summary = "Update an order [ADMIN, MANAGER, SALES]",
             description = "Modify an existing order. You can update its code, comments, orderDate, and stateOrder.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Order updated",
@@ -108,7 +108,7 @@ public class ClientOrderController {
 
 
     @Operation(
-            summary = "Get orders by client",
+            summary = "Get orders by client [ADMIN, MANAGER, SALES]",
             description = "Retrieve all orders that belong to a specific client.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Orders retrieved",
@@ -127,7 +127,7 @@ public class ClientOrderController {
 
 
     @Operation(
-            summary = "Delete an order",
+            summary = "Delete an order [ADMIN, MANAGER, SALES]",
             description = "Delete an order by its ID. Orders with status DELIVERED or CANCELED cannot be deleted.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Order deleted successfully"),
@@ -146,7 +146,7 @@ public class ClientOrderController {
     }
 
 
-    @Operation(summary = "Update order status", description = "Change the status of an order following allowed transitions")
+    @Operation(summary = "Update order status [ADMIN, MANAGER, SALES]", description = "Change the status of an order following allowed transitions")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Order status updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid status transition"),
@@ -167,7 +167,7 @@ public class ClientOrderController {
 
 
     @Operation(
-            summary = "Get orders by status",
+            summary = "Get orders by status [ADMIN, MANAGER, SALES]",
             description = "Retrieve all orders with the specified status.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Orders found"),
@@ -181,7 +181,7 @@ public class ClientOrderController {
     }
 
     @Operation(
-            summary = "Get all orders",
+            summary = "Get all orders [ADMIN, MANAGER, SALES]",
             description = "Retrieve all orders in the system.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Orders retrieved successfully",
@@ -195,7 +195,7 @@ public class ClientOrderController {
     }
 
     @Operation(
-            summary = "Cancel client order",
+            summary = "Cancel client order [ADMIN, MANAGER]",
             description = "Cancels a client order and releases stock reservations (not allowed for CONFIRMED orders)",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Order cancelled successfully"),

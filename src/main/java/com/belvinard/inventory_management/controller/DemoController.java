@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/demo")
-@Tag(name = "Demo Users", description = "Endpoints to retrieve demo user information for testing")
+@Tag(name = "Demo Users", description = "Demo endpoints for testing. PUBLIC ACCESS - No authentication required.")
 public class DemoController {
 
     @Autowired
@@ -26,7 +26,7 @@ public class DemoController {
     private UserMapper userMapper;
 
     @GetMapping("/users")
-    @Operation(summary = "Get all demo users", description = "Returns information about all demo users available for testing")
+    @Operation(summary = "Get all demo users [PUBLIC ACCESS]", description = "Returns information about all demo users available for testing")
     public ResponseEntity<List<UserResponseDto>> getAllDemoUsers() {
         List<UserResponseDto> users = userRepository.findAll()
                 .stream()

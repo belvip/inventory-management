@@ -25,12 +25,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("${api.prefix}/stock-movements")
 @RequiredArgsConstructor
-@Tag(name = "Stock Movements", description = "Stock movement management operations")
+@Tag(name = "Stock Movements", description = "Stock movement management operations. ADMIN: Full access. MANAGER: Create movements, read all. SALES: Read-only access.")
 public class StockMovementController {
     
     private final StockMovementService stockMovementService;
 
-    @Operation(summary = "Create stock movements for supplier order", description = "Creates stock movements when supplier order is completed")
+    @Operation(summary = "Create stock movements for supplier order [ADMIN, MANAGER]", description = "Creates stock movements when supplier order is completed")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Stock movements created successfully"),
         @ApiResponse(responseCode = "404", description = "Supplier order not found")
@@ -42,7 +42,7 @@ public class StockMovementController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Create stock movements for client order", description = "Creates stock movements when client order is completed")
+    @Operation(summary = "Create stock movements for client order [ADMIN, MANAGER]", description = "Creates stock movements when client order is completed")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Stock movements created successfully"),
         @ApiResponse(responseCode = "404", description = "Client order not found")
@@ -54,7 +54,7 @@ public class StockMovementController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Create stock movements for sale", description = "Creates stock movements when sale is finalized")
+    @Operation(summary = "Create stock movements for sale [ADMIN, MANAGER]", description = "Creates stock movements when sale is finalized")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Stock movements created successfully"),
         @ApiResponse(responseCode = "404", description = "Sale not found")
@@ -66,7 +66,7 @@ public class StockMovementController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Get stock movement by ID", description = "Retrieves a stock movement by its ID")
+    @Operation(summary = "Get stock movement by ID [ADMIN, MANAGER, SALES]", description = "Retrieves a stock movement by its ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Stock movement found"),
         @ApiResponse(responseCode = "404", description = "Stock movement not found")
@@ -78,7 +78,7 @@ public class StockMovementController {
         return ResponseEntity.ok(movement);
     }
 
-    @Operation(summary = "Get all stock movements", description = "Retrieves all stock movements with pagination")
+    @Operation(summary = "Get all stock movements [ADMIN, MANAGER, SALES]", description = "Retrieves all stock movements with pagination")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Stock movements retrieved successfully")
     })
@@ -93,7 +93,7 @@ public class StockMovementController {
         return ResponseEntity.ok(movements);
     }
 
-    @Operation(summary = "Create movement for supplier order", description = "Creates a specific stock movement for supplier order")
+    @Operation(summary = "Create movement for supplier order [ADMIN, MANAGER]", description = "Creates a specific stock movement for supplier order")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Movement created successfully"),
         @ApiResponse(responseCode = "404", description = "Article not found")
@@ -107,7 +107,7 @@ public class StockMovementController {
         return ResponseEntity.status(201).body(movement);
     }
 
-    @Operation(summary = "Create movement for client order", description = "Creates a specific stock movement for client order")
+    @Operation(summary = "Create movement for client order [ADMIN, MANAGER]", description = "Creates a specific stock movement for client order")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Movement created successfully"),
         @ApiResponse(responseCode = "404", description = "Article not found")
@@ -121,7 +121,7 @@ public class StockMovementController {
         return ResponseEntity.status(201).body(movement);
     }
 
-    @Operation(summary = "Create manual adjustment", description = "Creates a manual stock adjustment")
+    @Operation(summary = "Create manual adjustment [ADMIN, MANAGER]", description = "Creates a manual stock adjustment")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Adjustment created successfully"),
         @ApiResponse(responseCode = "404", description = "Article not found")
@@ -135,7 +135,7 @@ public class StockMovementController {
         return ResponseEntity.status(201).body(movement);
     }
 
-    @Operation(summary = "Get all IN movements", description = "Retrieves all stock IN movements with pagination")
+    @Operation(summary = "Get all IN movements [ADMIN, MANAGER, SALES]", description = "Retrieves all stock IN movements with pagination")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "IN movements retrieved successfully")
     })
@@ -150,7 +150,7 @@ public class StockMovementController {
         return ResponseEntity.ok(movements);
     }
 
-    @Operation(summary = "Get all OUT movements", description = "Retrieves all stock OUT movements with pagination")
+    @Operation(summary = "Get all OUT movements [ADMIN, MANAGER, SALES]", description = "Retrieves all stock OUT movements with pagination")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "OUT movements retrieved successfully")
     })
@@ -165,7 +165,7 @@ public class StockMovementController {
         return ResponseEntity.ok(movements);
     }
 
-    @Operation(summary = "Get IN movements by article", description = "Retrieves all IN movements for a specific article")
+    @Operation(summary = "Get IN movements by article [ADMIN, MANAGER, SALES]", description = "Retrieves all IN movements for a specific article")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Article IN movements retrieved successfully")
     })
@@ -176,7 +176,7 @@ public class StockMovementController {
         return ResponseEntity.ok(movements);
     }
 
-    @Operation(summary = "Get OUT movements by article", description = "Retrieves all OUT movements for a specific article")
+    @Operation(summary = "Get OUT movements by article [ADMIN, MANAGER, SALES]", description = "Retrieves all OUT movements for a specific article")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Article OUT movements retrieved successfully")
     })
@@ -187,7 +187,7 @@ public class StockMovementController {
         return ResponseEntity.ok(movements);
     }
 
-    @Operation(summary = "Get all movements by article", description = "Retrieves all movements (IN and OUT) for a specific article")
+    @Operation(summary = "Get all movements by article [ADMIN, MANAGER, SALES]", description = "Retrieves all movements (IN and OUT) for a specific article")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Article movements retrieved successfully")
     })
@@ -198,7 +198,7 @@ public class StockMovementController {
         return ResponseEntity.ok(movements);
     }
 
-    @Operation(summary = "Get movements by type", description = "Retrieves movements filtered by type (IN/OUT) with pagination")
+    @Operation(summary = "Get movements by type [ADMIN, MANAGER, SALES]", description = "Retrieves movements filtered by type (IN/OUT) with pagination")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Movements by type retrieved successfully")
     })
@@ -218,7 +218,7 @@ public class StockMovementController {
         return ResponseEntity.ok(movements);
     }
 
-    @Operation(summary = "Get movements by origin", description = "Retrieves movements filtered by origin with pagination")
+    @Operation(summary = "Get movements by origin [ADMIN, MANAGER, SALES]", description = "Retrieves movements filtered by origin with pagination")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Movements by origin retrieved successfully")
     })
@@ -238,7 +238,7 @@ public class StockMovementController {
         return ResponseEntity.ok(movements);
     }
 
-    @Operation(summary = "Get total IN movements for article", description = "Returns the total quantity of IN movements for a specific article")
+    @Operation(summary = "Get total IN movements for article [ADMIN, MANAGER, SALES]", description = "Returns the total quantity of IN movements for a specific article")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Total IN movements retrieved successfully")
     })
@@ -249,7 +249,7 @@ public class StockMovementController {
         return ResponseEntity.ok(total);
     }
 
-    @Operation(summary = "Get total OUT movements for article", description = "Returns the total quantity of OUT movements for a specific article")
+    @Operation(summary = "Get total OUT movements for article [ADMIN, MANAGER, SALES]", description = "Returns the total quantity of OUT movements for a specific article")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Total OUT movements retrieved successfully")
     })
@@ -260,7 +260,7 @@ public class StockMovementController {
         return ResponseEntity.ok(total);
     }
 
-    @Operation(summary = "Get recent movements", description = "Returns the most recent stock movements")
+    @Operation(summary = "Get recent movements [ADMIN, MANAGER, SALES]", description = "Returns the most recent stock movements")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Recent movements retrieved successfully")
     })

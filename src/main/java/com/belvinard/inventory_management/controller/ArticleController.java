@@ -26,13 +26,13 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/articles")
 @RequiredArgsConstructor
-@Tag(name = "Articles", description = "Endpoints for managing articles")
+@Tag(name = "Articles controller", description = "Article management operations. ADMIN: Full access. MANAGER: Create, update, read. SALES: Read-only access.")
 public class ArticleController {
 
     private final ArticleService articleService;
 
     @Operation(
-        summary = "Create a new article - Only ADMIN and MANAGER",
+        summary = "Create a new article [ADMIN, MANAGER]",
         description = "Creates an article and associates it with a category based on the categoryId provided in the request body."
     )
     @ApiResponses(value = {
@@ -48,7 +48,7 @@ public class ArticleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdArticle);
     }
 
-    @Operation(summary = "Get an article by ID - ADMIN MANAGER or SALES")
+    @Operation(summary = "Get an article by ID [ADMIN, MANAGER, SALES]")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Article found",
                     content = @Content(schema = @Schema(implementation = ArticleResponseDto.class))),
@@ -62,7 +62,7 @@ public class ArticleController {
         return ResponseEntity.ok(article);
     }
 
-    @Operation(summary = "Get an article by code - ADMIN MANAGER or SALES")
+    @Operation(summary = "Get an article by code [ADMIN, MANAGER, SALES]")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Article found",
                     content = @Content(schema = @Schema(implementation = ArticleResponseDto.class))),
@@ -78,7 +78,7 @@ public class ArticleController {
         return ResponseEntity.ok(article);
     }
 
-    @Operation(summary = "Delete an article by ID Only ADMIN")
+    @Operation(summary = "Delete an article by ID [ADMIN ONLY]")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Article deleted",
                     content = @Content(schema = @Schema(implementation = ArticleResponseDto.class))),
@@ -94,7 +94,7 @@ public class ArticleController {
 
 
     @Operation(
-            summary = "Archive an article Only ADMIN",
+            summary = "Archive an article [ADMIN ONLY]",
             description = "Sets the article status to ARCHIVED"
     )
     @ApiResponses(value = {
@@ -109,7 +109,7 @@ public class ArticleController {
     }
 
     @Operation(
-            summary = "Restore an article Only ADMIN",
+            summary = "Restore an article [ADMIN ONLY]",
             description = "Restores an archived article to ACTIVE status"
     )
     @ApiResponses(value = {
@@ -124,7 +124,7 @@ public class ArticleController {
     }
 
     @Operation(
-            summary = "Get all archived articles - ADMIN MANAGER or SALES",
+            summary = "Get all archived articles [ADMIN, MANAGER, SALES]",
             description = "Retrieve a list of all articles with status ARCHIVED"
     )
     @ApiResponses(value = {
@@ -138,7 +138,7 @@ public class ArticleController {
     }
 
     @Operation(
-            summary = "Update an existing article - Only ADMIN and MANAGER",
+            summary = "Update an existing article [ADMIN, MANAGER]",
             description = "Updates an article's details. " +
                     "Validates uniqueness of article code and defaults quantity to 0 if not provided."
     )
@@ -179,7 +179,7 @@ public class ArticleController {
     }
 
     @Operation(
-            summary = "Get all articles",
+            summary = "Get all articles [ADMIN ONLY]",
             description = "Fetch all articles with pagination and sorting (default sort by designation)"
     )
     @ApiResponse(responseCode = "200", description = "Articles retrieved successfully")
@@ -199,7 +199,7 @@ public class ArticleController {
     }
 
     @Operation(
-            summary = "Update article image ADMIN or MANAGER",
+            summary = "Update article image [ADMIN, MANAGER]",
             description = "Updates the image of an article by its ID"
     )
     @ApiResponses(value = {

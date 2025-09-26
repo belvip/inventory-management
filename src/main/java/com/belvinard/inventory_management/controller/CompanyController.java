@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("${api.prefix}/companies")
 @RequiredArgsConstructor
-@Tag(name = "Companies", description = "Endpoints for managing companies")
+@Tag(name = "Companies", description = "Company management operations. ADMIN: Full access. MANAGER: Create, read. Public: Read all companies.")
 public class CompanyController {
 
     private final CompanyService companyService;
@@ -32,7 +32,7 @@ public class CompanyController {
     // ===========================================================
     // CREATE COMPANY
     // ===========================================================
-    @Operation(summary = "Create a new company - ADMIN or MANAGER",
+    @Operation(summary = "Create a new company [ADMIN, MANAGER]",
                description = "Creates a company with name, email, address, and other details.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Company created successfully"),
@@ -52,7 +52,7 @@ public class CompanyController {
     // GET ALL COMPANIES
     // ===========================================================
     @Operation(
-            summary = "Get all companies (paginated) - public",
+            summary = "Get all companies (paginated) [PUBLIC ACCESS]",
             description = "Retrieve a paginated and sortable list of companies. Default pageNumber=0, pageSize=50, sortBy=id, sortOrder=asc"
     )
     @ApiResponses({
@@ -77,7 +77,7 @@ public class CompanyController {
     // ===========================================================
     // GET COMPANY BY ID
     // ===========================================================
-    @Operation(summary = "Get company by ID - ADMIN or MANAGER",
+    @Operation(summary = "Get company by ID [ADMIN, MANAGER]",
                description = "Retrieve a company by its unique ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Company found"),
@@ -94,7 +94,7 @@ public class CompanyController {
     // UPDATE COMPANY
     // ===========================================================
     @Operation(
-            summary = "Update an existing company - only admin",
+            summary = "Update an existing company [ADMIN ONLY]",
             description = "Updates the details of a company based on the provided company ID. " +
                     "Returns the updated company data if successful.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -132,7 +132,7 @@ public class CompanyController {
     // DELETE COMPANY
     // ===========================================================
     @Operation(
-            summary = "Delete a company - only ADMIN",
+            summary = "Delete a company [ADMIN ONLY]",
             description = "Deletes a company by its ID"
     )
     @ApiResponses({
@@ -149,7 +149,7 @@ public class CompanyController {
     // ===========================================================
     // UPDATE COMPANY IMAGE
     // ===========================================================
-    @Operation(summary = "Update company image - Only admin")
+    @Operation(summary = "Update company image [ADMIN ONLY]")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Image update succesfully",
                     content = @Content(schema = @Schema(implementation = CompanyController.class))),

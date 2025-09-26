@@ -22,13 +22,13 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/sales")
 @RequiredArgsConstructor
-@Tag(name = "Sales", description = "Sales management operations")
+@Tag(name = "Sales", description = "Sales management operations. ADMIN: Full access. MANAGER: Create, update, status changes. SALES: Read-only access.")
 public class SaleController {
 
     private final SaleService saleService;
 
     @Operation(
-        summary = "Create a new sale",
+        summary = "Create a new sale [ADMIN, MANAGER]",
         description = "Creates a new sale in DRAFT status. Client must have at least one existing order."
     )
     @ApiResponses(value = {
@@ -62,7 +62,7 @@ public class SaleController {
     }
 
     @Operation(
-        summary = "Update a sale",
+        summary = "Update a sale [ADMIN, MANAGER]",
         description = "Updates sale details (comments, date). Status is NOT updated - use updateSaleStatus endpoint. Only allowed for DRAFT sales."
     )
     @ApiResponses(value = {
@@ -81,7 +81,7 @@ public class SaleController {
     }
 
     @Operation(
-        summary = "Delete a sale",
+        summary = "Delete a sale [ADMIN ONLY]",
         description = "Deletes a sale. Only allowed for DRAFT sales."
     )
     @ApiResponses(value = {
@@ -99,7 +99,7 @@ public class SaleController {
     }
 
     @Operation(
-        summary = "Update sale status",
+        summary = "Update sale status [ADMIN, MANAGER]",
         description = "Updates the status of a sale with validation rules."
     )
     @ApiResponses(value = {
@@ -118,7 +118,7 @@ public class SaleController {
     }
 
     @Operation(
-        summary = "Cancel a sale",
+        summary = "Cancel a sale [ADMIN, MANAGER]",
         description = "Cancels a sale. Only allowed for DRAFT sales."
     )
     @ApiResponses(value = {
@@ -136,7 +136,7 @@ public class SaleController {
     }
 
     @Operation(
-        summary = "Finalize a sale",
+        summary = "Finalize a sale [ADMIN ONLY]",
         description = "Finalizes a sale by processing stock and generating final code. Only allowed for CONFIRMED sales."
     )
     @ApiResponses(value = {
@@ -154,7 +154,7 @@ public class SaleController {
     }
 
     @Operation(
-        summary = "Get sale by ID",
+        summary = "Get sale by ID [ADMIN, MANAGER, SALES]",
         description = "Retrieves a specific sale by its ID."
     )
     @ApiResponses(value = {
@@ -171,7 +171,7 @@ public class SaleController {
     }
 
     @Operation(
-        summary = "Get all sales",
+        summary = "Get all sales [ADMIN, MANAGER, SALES]",
         description = "Retrieves all sales in the system."
     )
     @ApiResponses(value = {
@@ -185,7 +185,7 @@ public class SaleController {
     }
 
     @Operation(
-        summary = "Generate sale lines from completed orders",
+        summary = "Generate sale lines from completed orders [ADMIN, MANAGER]",
         description = "Automatically generates sale lines from client's completed orders. Not allowed for CANCELLED sales."
     )
     @ApiResponses(value = {

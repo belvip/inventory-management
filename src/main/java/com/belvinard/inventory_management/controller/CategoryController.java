@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("${api.prefix}/categories")
 @RequiredArgsConstructor
-@Tag(name = "Categories", description = "Manage categories for companies")
+@Tag(name = "Categories controller", description = "Category management operations. ADMIN: Full access. MANAGER: Create, update, read. SALES: Read-only access.")
 public class CategoryController {
 
     private final CategoryService categoryService;
 
     @Operation(
-        summary = "Create a new category - ADMIN and MANAGER",
+        summary = "Create a new category [ADMIN, MANAGER]",
         description = "Creates a new category and associates it with the company specified in the request body.",
         responses = {
             @ApiResponse(responseCode = "201", description = "Category created successfully",
@@ -52,7 +52,7 @@ public class CategoryController {
     }
 
     @Operation(
-            summary = "Get Category by ID - Only ADMIN, MANAGER, SALES",
+            summary = "Get Category by ID [ADMIN, MANAGER, SALES]",
             description = "Fetch a single category using its unique identifier"
     )
     @ApiResponse(responseCode = "200", description = "Category found")
@@ -70,7 +70,7 @@ public class CategoryController {
      * Update an existing category.
      */
     @Operation(
-            summary = "Update Category - ADMIN and MANAGER",
+            summary = "Update Category [ADMIN, MANAGER]",
             description = "Update the details of an existing category"
     )
     @ApiResponse(responseCode = "200", description = "Category updated successfully")
@@ -90,7 +90,7 @@ public class CategoryController {
      * Delete a category by ID.
      */
     @Operation(
-            summary = "Delete Category - ONLY ADMIN",
+            summary = "Delete Category [ADMIN ONLY]",
             description = "Delete an existing category by its ID"
     )
     @ApiResponse(responseCode = "204", description = "Category deleted successfully")
@@ -109,7 +109,7 @@ public class CategoryController {
      * Get category by Company ID.
      */
     @Operation(
-            summary = "Get Category by Company ID - ADMIN, MANAGER - SALES",
+            summary = "Get Category by Company ID [ADMIN, MANAGER, SALES]",
             description = "Fetch a category that belongs to a specific company"
     )
     @ApiResponse(responseCode = "200", description = "Category found for company")
@@ -124,7 +124,7 @@ public class CategoryController {
     }
 
     @Operation(
-            summary = "Get All Categories",
+            summary = "Get All Categories [PUBLIC ACCESS]",
             description = "Fetch all categories with pagination and sorting (default sort by companyId)"
     )
     @ApiResponse(responseCode = "200", description = "Categories retrieved successfully")

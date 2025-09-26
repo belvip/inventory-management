@@ -19,11 +19,11 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/supplier-orders")
 @RequiredArgsConstructor
-@Tag(name = "Supplier Orders Controller", description = "Supplier order management operations")
+@Tag(name = "Supplier Orders Controller", description = "Supplier order management operations. ADMIN: Full access. MANAGER: Create, update, status changes. SALES: Read-only access.")
 public class SupplierOrderController {
     private final SupplierOrderService supplierOrderService;
     
-    @Operation(summary = "Create a new supplier order", description = "Creates a new supplier order")
+    @Operation(summary = "Create a new supplier order [ADMIN, MANAGER]", description = "Creates a new supplier order")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Supplier order created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input"),
@@ -37,7 +37,7 @@ public class SupplierOrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
-    @Operation(summary = "Get supplier order by ID", description = "Retrieves a supplier order by its ID")
+    @Operation(summary = "Get supplier order by ID [ADMIN, MANAGER, SALES]", description = "Retrieves a supplier order by its ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Supplier order found"),
         @ApiResponse(responseCode = "404", description = "Supplier order not found")
@@ -49,7 +49,7 @@ public class SupplierOrderController {
         return ResponseEntity.ok(order);
     }
 
-    @Operation(summary = "Update supplier order", description = "Updates supplier order details (not status)")
+    @Operation(summary = "Update supplier order [ADMIN, MANAGER]", description = "Updates supplier order details (not status)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Supplier order updated successfully"),
         @ApiResponse(responseCode = "400", description = "Cannot update CONFIRMED order"),
@@ -63,7 +63,7 @@ public class SupplierOrderController {
         return ResponseEntity.ok(updatedOrder);
     }
 
-    @Operation(summary = "Delete supplier order", description = "Deletes a supplier order (not allowed for CONFIRMED orders)")
+    @Operation(summary = "Delete supplier order [ADMIN ONLY]", description = "Deletes a supplier order (not allowed for CONFIRMED orders)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Supplier order deleted successfully"),
         @ApiResponse(responseCode = "400", description = "Cannot delete CONFIRMED order"),
@@ -76,7 +76,7 @@ public class SupplierOrderController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Update supplier order status", description = "Updates the status of a supplier order")
+    @Operation(summary = "Update supplier order status [ADMIN, MANAGER]", description = "Updates the status of a supplier order")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Status updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid status"),
@@ -90,7 +90,7 @@ public class SupplierOrderController {
         return ResponseEntity.ok(updatedOrder);
     }
 
-    @Operation(summary = "Cancel supplier order", description = "Cancels a supplier order (not allowed for CONFIRMED orders)")
+    @Operation(summary = "Cancel supplier order [ADMIN, MANAGER]", description = "Cancels a supplier order (not allowed for CONFIRMED orders)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Supplier order cancelled successfully"),
         @ApiResponse(responseCode = "400", description = "Cannot cancel CONFIRMED order"),
@@ -103,7 +103,7 @@ public class SupplierOrderController {
         return ResponseEntity.ok(cancelledOrder);
     }
 
-    @Operation(summary = "Find supplier order by code", description = "Retrieves a supplier order by its code")
+    @Operation(summary = "Find supplier order by code [ADMIN, MANAGER, SALES]", description = "Retrieves a supplier order by its code")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Supplier order found"),
         @ApiResponse(responseCode = "404", description = "Supplier order not found")
@@ -115,7 +115,7 @@ public class SupplierOrderController {
         return ResponseEntity.ok(order);
     }
 
-    @Operation(summary = "Get all supplier orders", description = "Retrieves all supplier orders in the system")
+    @Operation(summary = "Get all supplier orders [ADMIN, MANAGER, SALES]", description = "Retrieves all supplier orders in the system")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Supplier orders retrieved successfully")
     })

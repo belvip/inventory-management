@@ -22,12 +22,12 @@ import java.net.URI;
 @RestController
 @RequestMapping("${api.prefix}/clients")
 @RequiredArgsConstructor
-@Tag(name = "Clients", description = "CRUD operations for managing clients")
+@Tag(name = "Clients", description = "Client management operations. ADMIN, MANAGER, SALES: Full access to client operations.")
 public class ClientController {
 
     private final ClientService clientService;
 
-    @Operation(summary = "Create a new client - ADMIN or MANAGER or SALES", description = "Creates a new client and returns the created client details")
+    @Operation(summary = "Create a new client [ADMIN, MANAGER, SALES]", description = "Creates a new client and returns the created client details")
     @ApiResponse(responseCode = "201", description = "Client created successfully",
             content = @Content(schema = @Schema(implementation = ClientResponseDto.class)))
     @ApiResponse(responseCode = "400", description = "Validation error")
@@ -38,7 +38,7 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdClient);
     }
 
-    @Operation(summary = "Get client by ID - ADMIN or MANAGER or SALES", description = "Fetches a single client by its unique ID")
+    @Operation(summary = "Get client by ID [ADMIN, MANAGER, SALES]", description = "Fetches a single client by its unique ID")
     @ApiResponse(responseCode = "200", description = "Client found",
             content = @Content(schema = @Schema(implementation = ClientResponseDto.class)))
     @ApiResponse(responseCode = "404", description = "Client not found")
@@ -50,7 +50,7 @@ public class ClientController {
         return ResponseEntity.ok(clientService.getClientById(id));
     }
 
-    @Operation(summary = "Get all clients with pagination - ADMIN or MANAGER or SALES", description = "Fetches all clients with optional pagination and sorting")
+    @Operation(summary = "Get all clients with pagination [ADMIN, MANAGER, SALES]", description = "Fetches all clients with optional pagination and sorting")
     @ApiResponse(responseCode = "200", description = "Clients fetched successfully",
             content = @Content(schema = @Schema(implementation = PagedResponse.class)))
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
@@ -64,7 +64,7 @@ public class ClientController {
         return ResponseEntity.ok(clientService.getAllClients(pageNumber, pageSize, sortBy, sortOrder));
     }
 
-    @Operation(summary = "Update client by ID - ADMIN or MANAGER or SALES", description = "Updates an existing client's information")
+    @Operation(summary = "Update client by ID [ADMIN, MANAGER, SALES]", description = "Updates an existing client's information")
     @ApiResponse(responseCode = "200", description = "Client updated successfully",
             content = @Content(schema = @Schema(implementation = ClientResponseDto.class)))
     @ApiResponse(responseCode = "404", description = "Client not found")
@@ -77,7 +77,7 @@ public class ClientController {
         return ResponseEntity.ok(clientService.updateClient(id, dto));
     }
 
-    @Operation(summary = "Delete client by ID - ADMIN or MANAGER or SALES", description = "Deletes an existing client from the system")
+    @Operation(summary = "Delete client by ID [ADMIN, MANAGER, SALES]", description = "Deletes an existing client from the system")
     @ApiResponse(responseCode = "204", description = "Client deleted successfully")
     @ApiResponse(responseCode = "404", description = "Client not found")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")

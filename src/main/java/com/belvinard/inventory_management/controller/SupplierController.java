@@ -22,11 +22,11 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/suppliers")
 @RequiredArgsConstructor
-@Tag(name = "Supplier Controller", description = "Endpoints for managing suppliers. Access by ADMIN, MANAGER and SALES")
+@Tag(name = "Supplier Controller", description = "Supplier management operations. ADMIN, MANAGER, SALES: Full access to supplier operations.")
 public class SupplierController {
     private final SupplierService supplierService;
 
-    @Operation(summary = "Create a new supplier",
+    @Operation(summary = "Create a new supplier [ADMIN, MANAGER, SALES]",
             description = "Creates a new supplier and returns the created supplier data.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Supplier created successfully"),
@@ -45,7 +45,7 @@ public class SupplierController {
     }
 
     @Operation(
-            summary = "Get supplier bi ID"
+            summary = "Get supplier by ID [ADMIN, MANAGER, SALES]"
     )
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_MANAGER')")
     @GetMapping("/{id}")
@@ -58,7 +58,7 @@ public class SupplierController {
 
 
     @Operation(
-            summary = "Update supplier",
+            summary = "Update supplier [ADMIN, MANAGER, SALES]",
             description = "Update the details of an existing supplier"
     )
     @ApiResponses(value = {
@@ -77,7 +77,7 @@ public class SupplierController {
     }
 
     @Operation(
-            summary = "Get all suppliers",
+            summary = "Get all suppliers [ADMIN, MANAGER, SALES]",
             description = "Retrieve all suppliers in the system",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Suppliers retrieved successfully",
@@ -91,7 +91,7 @@ public class SupplierController {
     }
 
     @Operation(
-            summary = "Delete supplier",
+            summary = "Delete supplier [ADMIN, MANAGER, SALES]",
             description = "Delete an existing supplier by its ID"
     )
     @ApiResponses(value = {
