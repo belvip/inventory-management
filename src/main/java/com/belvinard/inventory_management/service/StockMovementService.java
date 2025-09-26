@@ -3,7 +3,12 @@ package com.belvinard.inventory_management.service;
 
 import com.belvinard.inventory_management.dto.response.PagedResponse;
 import com.belvinard.inventory_management.dto.response.StockMovementResponseDto;
+import com.belvinard.inventory_management.model.MvtOrigin;
 import com.belvinard.inventory_management.model.StockMovementType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface StockMovementService {
 
@@ -27,5 +32,13 @@ public interface StockMovementService {
     PagedResponse<StockMovementResponseDto> getAllOutMovements(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
     java.util.List<StockMovementResponseDto> getInMovementsByArticle(Long articleId);
     java.util.List<StockMovementResponseDto> getOutMovementsByArticle(Long articleId);
+
+    List<StockMovementResponseDto> getMovementsByArticle(Long articleId);
+    Page<StockMovementResponseDto> getMovementsByType(StockMovementType type, Pageable pageable);
+    Page<StockMovementResponseDto> getMovementsByOrigin(MvtOrigin origin, Pageable pageable);
+
+    Long getTotalInMovements(Long articleId);
+    Long getTotalOutMovements(Long articleId);
+    List<StockMovementResponseDto> getRecentMovements(int limit);
 
 }

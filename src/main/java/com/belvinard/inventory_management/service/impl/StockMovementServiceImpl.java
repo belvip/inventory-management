@@ -232,4 +232,45 @@ public class StockMovementServiceImpl implements StockMovementService {
                 .map(stockMovementMapper::toResponseDto)
                 .toList();
     }
+
+    @Override
+    public List<StockMovementResponseDto> getMovementsByArticle(Long articleId) {
+        return stockMovementRepository.findByArticleId(articleId)
+                .stream()
+                .map(stockMovementMapper::toResponseDto)
+                .toList();
+    }
+
+    @Override
+    public Page<StockMovementResponseDto> getMovementsByType(StockMovementType type, Pageable pageable) {
+        Page<StockMovement> movementPage = stockMovementRepository.findByMovementType(type, pageable);
+        return stockMovementMapper.toResponseDtoPage(movementPage);
+    }
+
+    @Override
+    public Page<StockMovementResponseDto> getMovementsByOrigin(MvtOrigin origin, Pageable pageable) {
+        Page<StockMovement> movementPage = stockMovementRepository.findByMvtOrigin(origin, pageable);
+        return stockMovementMapper.toResponseDtoPage(movementPage);
+    }
+
+    @Override
+    public Long getTotalInMovements(Long articleId) {
+        Long total = stockMovementRepository.sumQuantityByArticleIdAndMovementType(articleId, StockMovementType.IN);
+        return total != null ? total : 0L;
+    }
+
+    @Override
+    public Long getTotalOutMovements(Long articleId) {
+        Long total = stockMovementRepository.sumQuantityByArticleIdAndMovementType(articleId, StockMovementType.OUT);
+        return total != null ? total : 0L;
+    }
+
+    @Override
+    public List<StockMovementResponseDto> getRecentMovements(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return stockMovementRepository.findTopByOrderByCreatedDateDesc(pageable)
+                .stream()
+                .map(stockMovementMapper::toResponseDto)
+                .toList();
+    }
 }
