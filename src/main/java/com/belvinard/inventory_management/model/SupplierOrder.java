@@ -11,6 +11,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "supplier_order")
@@ -41,6 +43,10 @@ public class SupplierOrder extends BaseEntity{
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id", nullable = false)
     private Supplier supplier;
+
+    @OneToMany(mappedBy = "supplierOrder", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    List<SupplierOrderLine> supplierOrderLineList = new ArrayList<>();
 
     @Schema(hidden = true)
     public String getCreatedAt() {
