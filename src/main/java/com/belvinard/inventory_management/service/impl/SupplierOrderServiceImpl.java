@@ -107,8 +107,9 @@ public class SupplierOrderServiceImpl implements SupplierOrderService {
     }
     
     private SupplierOrder findOrderById(Long id) {
-        return supplierOrderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Supplier order not found with id: " + id));
+        return supplierOrderRepository.findByIdWithLines(id)
+                .orElse(supplierOrderRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Supplier order not found with id: " + id)));
     }
     
     private void validateNotConfirmed(SupplierOrder order, String operation) {

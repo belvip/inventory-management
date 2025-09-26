@@ -43,14 +43,14 @@ public class SupplierOrderLineServiceImpl implements SupplierOrderLineService {
 
     @Override
     public SupplierOrderLineResponseDto getLineById(Long id) {
-        SupplierOrderLine line = supplierOrderLineRepository.findById(id)
+        SupplierOrderLine line = supplierOrderLineRepository.findByIdWithArticle(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier order line not found with id: " + id));
         return supplierOrderLineMapper.toResponseDto(line);
     }
 
     @Override
     public List<SupplierOrderLineResponseDto> getAllLinesForOrder(Long supplierOrderId) {
-        SupplierOrder order = supplierOrderRepository.findById(supplierOrderId)
+        SupplierOrder order = supplierOrderRepository.findByIdWithLines(supplierOrderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier order not found with id: " + supplierOrderId));
         return order.getSupplierOrderLineList().stream()
                 .map(supplierOrderLineMapper::toResponseDto)
