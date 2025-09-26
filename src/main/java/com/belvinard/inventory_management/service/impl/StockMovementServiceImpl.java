@@ -1,12 +1,21 @@
 package com.belvinard.inventory_management.service.impl;
 
+import com.belvinard.inventory_management.dto.response.PagedResponse;
+import com.belvinard.inventory_management.dto.response.StockMovementResponseDto;
 import com.belvinard.inventory_management.exception.ResourceNotFoundException;
 import com.belvinard.inventory_management.model.*;
 import com.belvinard.inventory_management.repository.*;
 import com.belvinard.inventory_management.service.StockMovementService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import com.belvinard.inventory_management.mapper.StockMovementMapper;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +25,8 @@ public class StockMovementServiceImpl implements StockMovementService {
     private final SupplierOrderRepository supplierOrderRepository;
     private final ClientOrderRepository clientOrderRepository;
     private final SaleRepository saleRepository;
+    private final ArticleRepository articleRepository;
+    private final StockMovementMapper stockMovementMapper;
     @Override
     @Transactional
     public void createStockMovementForOrder(Long supplierOrderId) {
@@ -71,5 +82,90 @@ public class StockMovementServiceImpl implements StockMovementService {
             
             stockMovementRepository.save(movement);
         });
+    }
+
+    @Override
+    public StockMovementResponseDto getById(Long id) {
+        StockMovement movement = stockMovementRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Stock movement not found with id: " + id));
+        return stockMovementMapper.toResponseDto(movement);
+    }
+
+    @Override
+    public PagedResponse<StockMovementResponseDto> getAll(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sort = sortOrder.equalsIgnoreCase("desc") 
+                ? Sort.by(sortBy).descending() 
+                : Sort.by(sortBy).ascending();
+        
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<StockMovement> movementPage = stockMovementRepository.findAll(pageable);
+        
+        List<StockMovementResponseDto> movements = movementPage.getContent()
+                .stream()
+                .map(stockMovementMapper::toResponseDto)
+                .toList();
+        
+        return PagedResponse.<StockMovementResponseDto>builder()
+                .content(movements)
+                .pageNumber(movementPage.getNumber())
+                .pageSize(movementPage.getSize())
+                .totalElements(movementPage.getTotalElements())
+                .totalPages(movementPage.getTotalPages())
+                .last(movementPage.isLast())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public StockMovementResponseDto createMovementForSupplierOrder(Long articleId, Long quantity, Long supplierOrderId, String description) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + articleId));
+        
+        StockMovement movement = new StockMovement();
+        movement.setQuantity(quantity);
+        movement.setDescription(description);
+        movement.setMovementType(StockMovementType.IN);
+        movement.setMvtOrigin(MvtOrigin.SUPPLIER_ORDER);
+        movement.setArticle(article);
+        movement.setSourceId(supplierOrderId);
+        
+        StockMovement savedMovement = stockMovementRepository.save(movement);
+        return stockMovementMapper.toResponseDto(savedMovement);
+    }
+
+    @Override
+    @Transactional
+    public StockMovementResponseDto createMovementForClientOrder(Long articleId, Long quantity, Long clientOrderId, String description) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + articleId));
+        
+        StockMovement movement = new StockMovement();
+        movement.setQuantity(quantity);
+        movement.setDescription(description);
+        movement.setMovementType(StockMovementType.OUT);
+        movement.setMvtOrigin(MvtOrigin.CLIENT_ORDER);
+        movement.setArticle(article);
+        movement.setSourceId(clientOrderId);
+        
+        StockMovement savedMovement = stockMovementRepository.save(movement);
+        return stockMovementMapper.toResponseDto(savedMovement);
+    }
+
+    @Override
+    @Transactional
+    public StockMovementResponseDto createManualAdjustment(Long articleId, Long quantity, StockMovementType type, String description) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + articleId));
+        
+        StockMovement movement = new StockMovement();
+        movement.setQuantity(quantity);
+        movement.setDescription(description);
+        movement.setMovementType(type);
+        movement.setMvtOrigin(MvtOrigin.MANUAL_ADJUSTMENT);
+        movement.setArticle(article);
+        movement.setSourceId(null);
+        
+        StockMovement savedMovement = stockMovementRepository.save(movement);
+        return stockMovementMapper.toResponseDto(savedMovement);
     }
 }
