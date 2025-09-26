@@ -11,8 +11,6 @@ import org.mapstruct.NullValueMappingStrategy;
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface ClientOrderMapper {
 
-    @Mapping(source = "orderDate", target = "orderDate")
-    @Mapping(source = "stateOrder", target = "stateOrder")
     @Mapping(source = "client.id", target = "clientId")
     @Mapping(source = "orderClientLineList", target = "orderClientLineList")
     ClientOrderResponseDto toResponseDto(ClientOrder clientOrder);

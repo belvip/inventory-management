@@ -12,21 +12,21 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "order_client_lines")
+@Table(name = "supplier_order_lines")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OrderClientLine extends BaseEntity{
+public class SupplierOrderLine extends BaseEntity{
     @NotNull(message = "The quantity is mandatory")
     @DecimalMin(value = "0.01", message = "The quantity must be greater than 0")
     private BigDecimal quantity;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_order_id", nullable = false)
-    private ClientOrder clientOrder;
+    @JoinColumn(name = "supplier_order_id", nullable = false)
+    private SupplierOrder supplierOrder;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "article_id", nullable = false)
     private Article article;
 

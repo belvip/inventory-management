@@ -11,6 +11,7 @@ import com.belvinard.inventory_management.model.OrderStatus;
 import com.belvinard.inventory_management.repository.ClientOrderRepository;
 import com.belvinard.inventory_management.repository.ClientRepository;
 import com.belvinard.inventory_management.service.ClientOrderService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -135,6 +136,35 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         return orders.stream()
                 .map(clientOrderMapper::toResponseDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public ClientOrderResponseDto cancelOrder(Long id) {
+        ClientOrder order = clientOrderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + id));
+        
+        if (order.getStateOrder() == OrderStatus.CONFIRMED) {
+            throw new IllegalStateException("Cannot cancel a CONFIRMED order");
+        }
+        
+        if (order.getStateOrder() == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Order is already CANCELLED");
+        }
+        
+        // Libérer les réservations de stock
+        if (order.getOrderClientLineList() != null) {
+            order.getOrderClientLineList().forEach(orderLine -> {
+                if (orderLine.getArticle() != null) {
+                    orderLine.releaseReservation();
+                }
+            });
+        }
+        
+        order.setStateOrder(OrderStatus.CANCELLED);
+        ClientOrder cancelledOrder = clientOrderRepository.save(order);
+        
+        return clientOrderMapper.toResponseDto(cancelledOrder);
     }
 
     @Override

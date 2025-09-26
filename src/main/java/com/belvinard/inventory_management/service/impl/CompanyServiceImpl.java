@@ -35,7 +35,7 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyResponseDto createCompany(CompanyRequestDto dto) {
         // Check if a company with the same name already exists
         if (companyRepository.existsByName(dto.name())) {
-            throw new ResourceConflictException("Company with the same name already exists");
+            throw new ResourceConflictException("Company with the same name already exists" + dto.name());
         }
 
         // Check if a company with the same email already exists

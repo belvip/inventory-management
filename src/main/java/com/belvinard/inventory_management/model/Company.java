@@ -61,6 +61,10 @@ public class Company extends BaseEntity {
     )
     private List<Category> categories = new ArrayList<>();
 
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Supplier> suppliers = new ArrayList<>();
+
     @Schema(hidden = true)
     public String getCreatedAt() {
         return getCreatedDate() != null ? getCreatedDate().toString() : null;

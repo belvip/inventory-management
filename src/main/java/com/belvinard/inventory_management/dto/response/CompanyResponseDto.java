@@ -17,6 +17,7 @@ public record CompanyResponseDto(
         String website,
         LocalDate createdAt,
         LocalDate updatedAt,
-        List<CategoryResponseDto> categories
+        List<CategoryResponseDto> categories,
+        List<SupplierResponseDto> suppliers
 ) {
 }

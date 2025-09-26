@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;
 
 
-@Mapper(componentModel = "spring", uses = {AddressMapper.class, CategoryMapper.class},
+@Mapper(componentModel = "spring", uses = {AddressMapper.class, CategoryMapper.class, SupplierMapper.class},
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface CompanyMapper {
 
