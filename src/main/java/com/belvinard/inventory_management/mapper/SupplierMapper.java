@@ -11,5 +11,6 @@ public interface SupplierMapper {
     SupplierResponseDto toResponseDto(Supplier supplier);
     
     @Mapping(target = "company", ignore = true)
+    @Mapping(target = "supplierOrders", ignore = true)
     Supplier toEntity(SupplierRequestDto dto);
 }

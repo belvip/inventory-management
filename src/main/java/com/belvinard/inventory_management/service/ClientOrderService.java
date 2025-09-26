@@ -17,6 +17,7 @@ public interface ClientOrderService {
     ClientOrderResponseDto updateOrderStatus(Long id, OrderStatus newStatus);
     List<ClientOrderResponseDto> getOrdersByStatus(OrderStatus status);
     List<ClientOrderResponseDto> getAllOrders();
+    ClientOrderResponseDto cancelOrder(Long id);
 
 
 }

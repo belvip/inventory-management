@@ -10,6 +10,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -31,10 +34,12 @@ public class Supplier extends BaseEntity{
 
     private String address;
 
-
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
+
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SupplierOrder> supplierOrders = new ArrayList<>();
 
     @Schema(hidden = true)
     public String getCreatedAt() {

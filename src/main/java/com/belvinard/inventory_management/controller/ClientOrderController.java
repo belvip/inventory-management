@@ -194,4 +194,22 @@ public class ClientOrderController {
         return ResponseEntity.ok(clientOrderService.getAllOrders());
     }
 
+    @Operation(
+            summary = "Cancel client order",
+            description = "Cancels a client order and releases stock reservations (not allowed for CONFIRMED orders)",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Order cancelled successfully"),
+                    @ApiResponse(responseCode = "400", description = "Cannot cancel CONFIRMED order"),
+                    @ApiResponse(responseCode = "404", description = "Order not found")
+            }
+    )
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<ClientOrderResponseDto> cancelOrder(
+            @Parameter(description = "ID of the order to cancel", required = true)
+            @PathVariable Long id) {
+        ClientOrderResponseDto cancelledOrder = clientOrderService.cancelOrder(id);
+        return ResponseEntity.ok(cancelledOrder);
+    }
+
 }
