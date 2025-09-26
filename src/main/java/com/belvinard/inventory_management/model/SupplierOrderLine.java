@@ -26,7 +26,7 @@ public class SupplierOrderLine extends BaseEntity{
     @JoinColumn(name = "supplier_order_id", nullable = false)
     private SupplierOrder supplierOrder;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "article_id", nullable = false)
     private Article article;
 

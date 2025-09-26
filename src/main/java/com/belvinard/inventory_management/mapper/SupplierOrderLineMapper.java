@@ -14,8 +14,15 @@ public interface SupplierOrderLineMapper {
     @Mapping(source = "article.unitPriceExclTax", target = "unitPriceExclTax")
     @Mapping(source = "article.rateTva", target = "rateTva")
     @Mapping(source = "article.unitPriceAllTax", target = "unitPriceAllTax")
-    @Mapping(expression = "java(supplierOrderLine.getQuantity().multiply(supplierOrderLine.getArticle().getUnitPriceAllTax()))", target = "totalLinePrice")
+    @Mapping(target = "totalLinePrice", expression = "java(calculateTotalLinePrice(supplierOrderLine))")
     SupplierOrderLineResponseDto toResponseDto(SupplierOrderLine supplierOrderLine);
+    
+    default java.math.BigDecimal calculateTotalLinePrice(SupplierOrderLine line) {
+        if (line.getArticle() != null && line.getArticle().getUnitPriceAllTax() != null && line.getQuantity() != null) {
+            return line.getQuantity().multiply(line.getArticle().getUnitPriceAllTax());
+        }
+        return java.math.BigDecimal.ZERO;
+    }
     
     @Mapping(target = "supplierOrder", ignore = true)
     @Mapping(target = "article", ignore = true)
