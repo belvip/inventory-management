@@ -5,9 +5,10 @@ import com.belvinard.inventory_management.dto.response.CompanyResponseDto;
 import com.belvinard.inventory_management.model.Company;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 
-@Mapper(componentModel = "spring", uses = {AddressMapper.class, CategoryMapper.class, SupplierMapper.class},
+@Mapper(componentModel = "spring",unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {AddressMapper.class, CategoryMapper.class, SupplierMapper.class},
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface CompanyMapper {
 

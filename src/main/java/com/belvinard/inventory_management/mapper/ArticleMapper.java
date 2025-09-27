@@ -5,8 +5,9 @@ import com.belvinard.inventory_management.dto.response.ArticleResponseDto;
 import com.belvinard.inventory_management.model.Article;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ArticleMapper {
     @Mapping(source = "createdDate", target = "createdDate")
     @Mapping(source = "updatedDate", target = "updatedDate")

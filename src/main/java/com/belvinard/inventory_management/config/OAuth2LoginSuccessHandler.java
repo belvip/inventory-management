@@ -57,13 +57,15 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
             String email = attributes.getOrDefault("email", "").toString();
             String name = attributes.getOrDefault("name", "").toString();
             if ("github".equals(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId())) {
-                username = attributes.getOrDefault("login", "").toString();
+                String githubLogin = attributes.getOrDefault("login", "").toString();
+                username = adjustUsernameLength(githubLogin);
                 idAttributeKey = "id";
             } else if ("google".equals(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId())) {
-                username = email.split("@")[0];
+                String emailPrefix = email.split("@")[0];
+                username = adjustUsernameLength(emailPrefix);
                 idAttributeKey = "sub";
             } else {
-                username = "";
+                username = "user";
                 idAttributeKey = "id";
             }
             System.out.println("HELLO OAUTH: " + email + " : " + name + " : " + username);
@@ -93,6 +95,8 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                         }
                         newUser.setEmail(email);
                         newUser.setUserName(username);
+                        newUser.setFirstName(name.split(" ")[0].isEmpty() ? "User" : name.split(" ")[0]);
+                        newUser.setLastName(name.split(" ").length > 1 ? name.split(" ")[1] : "OAuth");
                         newUser.setSignUpMethod(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId());
                         getUserService().registerUser(newUser);
                         DefaultOAuth2User oauthUser = new DefaultOAuth2User(
@@ -142,8 +146,8 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
         String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
 
 
-        // Redirect to backend success endpoint with JWT token
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8282/api/v1/auth/oauth2/success")
+        // Redirect to frontend with JWT token
+        String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/auth/callback")
                 .queryParam("token", jwtToken)
                 .build().toUriString();
         this.setDefaultTargetUrl(targetUrl);
@@ -152,6 +156,24 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
     private UserService getUserService() {
         return applicationContext.getBean(UserService.class);
+    }
+    
+    private String adjustUsernameLength(String originalUsername) {
+        if (originalUsername == null || originalUsername.isEmpty()) {
+            return "user";
+        }
+        
+        // Si trop court, ajouter des chiffres
+        if (originalUsername.length() < 4) {
+            return originalUsername + "123".substring(0, 4 - originalUsername.length());
+        }
+        
+        // Si trop long, tronquer à 10 caractères
+        if (originalUsername.length() > 10) {
+            return originalUsername.substring(0, 10);
+        }
+        
+        return originalUsername;
     }
 }
 
