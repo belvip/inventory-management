@@ -5,8 +5,9 @@ import com.belvinard.inventory_management.dto.response.SupplierOrderLineResponse
 import com.belvinard.inventory_management.model.SupplierOrderLine;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SupplierOrderLineMapper {
     @Mapping(source = "article.id", target = "articleId")
     @Mapping(source = "article.codeArticle", target = "articleCode")

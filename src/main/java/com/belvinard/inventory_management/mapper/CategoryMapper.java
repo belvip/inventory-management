@@ -6,8 +6,9 @@ import com.belvinard.inventory_management.model.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", uses = ArticleMapper.class,
+@Mapper(componentModel = "spring",unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = ArticleMapper.class,
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface CategoryMapper {
     @Mapping(source = "createdDate", target = "createdDate")

@@ -6,8 +6,9 @@ import com.belvinard.inventory_management.model.ClientOrder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", uses = {OrderClientLineMapper.class},
+@Mapper(componentModel = "spring",unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {OrderClientLineMapper.class},
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface ClientOrderMapper {
 

@@ -5,8 +5,9 @@ import com.belvinard.inventory_management.dto.response.SupplierResponseDto;
 import com.belvinard.inventory_management.model.Supplier;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", uses = {SupplierOrderMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {SupplierOrderMapper.class})
 public interface SupplierMapper {
     SupplierResponseDto toResponseDto(Supplier supplier);
     

@@ -5,8 +5,9 @@ import com.belvinard.inventory_management.dto.response.SaleResponseDto;
 import com.belvinard.inventory_management.model.Sale;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", uses = {SaleLineMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {SaleLineMapper.class})
 public interface SaleMapper {
     
     @Mapping(source = "saleStatus", target = "status")

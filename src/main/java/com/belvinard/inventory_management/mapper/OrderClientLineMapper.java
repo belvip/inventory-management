@@ -5,7 +5,7 @@ import com.belvinard.inventory_management.dto.response.OrderClientLineResponseDt
 import com.belvinard.inventory_management.model.OrderClientLine;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface OrderClientLineMapper {
 
     @Mapping(target = "id", ignore = true)

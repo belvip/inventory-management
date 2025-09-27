@@ -37,8 +37,6 @@ public class SecurityConfig {
     private static final String ROLE_ADMIN = "ADMIN";
     private static final String ROLE_MANAGER = "MANAGER";
     private static final String ROLE_SALES = "SALES";
-    //@Value("${DEFAULT_USER_PASSWORD:password}")
-    //private String defaultPassword;
     private static final String EMAIL_SIGNUP_METHOD = "email";
 
     private final AuthEntryPointJwt unauthorizedHandler;
@@ -59,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/demo/**").permitAll()
                         .requestMatchers("/api/v1/auth/oauth2/success").permitAll()
+                        .requestMatchers("/login").permitAll()
                         .requestMatchers("/api/v1/users/update-password").authenticated()
                         .requestMatchers("/api/v1/users/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/api/v1/auth/**").permitAll()
