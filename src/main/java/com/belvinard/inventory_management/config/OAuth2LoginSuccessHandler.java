@@ -147,7 +147,9 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
 
         // Redirect to frontend with JWT token
-        String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/auth/callback")
+        // Use only the first URL if multiple URLs are configured
+        String redirectUrl = frontendUrl.contains(",") ? frontendUrl.split(",")[0].trim() : frontendUrl;
+        String targetUrl = UriComponentsBuilder.fromUriString(redirectUrl + "/auth/callback")
                 .queryParam("token", jwtToken)
                 .build().toUriString();
         this.setDefaultTargetUrl(targetUrl);
