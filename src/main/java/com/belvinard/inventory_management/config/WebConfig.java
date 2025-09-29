@@ -10,7 +10,8 @@ public class WebConfig implements WebMvcConfigurer {
     private final OrderStatusConverter orderStatusConverter;
     private final ArticleStatusConverter articleStatusConverter;
 
-    public WebConfig(OrderStatusConverter orderStatusConverter, ArticleStatusConverter articleStatusConverter) {
+    public WebConfig(OrderStatusConverter orderStatusConverter,
+                     ArticleStatusConverter articleStatusConverter) {
         this.orderStatusConverter = orderStatusConverter;
         this.articleStatusConverter = articleStatusConverter;
     }
