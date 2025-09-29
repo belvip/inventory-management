@@ -47,6 +47,17 @@ public class JwtUtils {
                 .compact();
     }
 
+    public String generateTokenWithClaims(String username, String email, String roles) {
+        return Jwts.builder()
+                .subject(username)
+                .claim("email", email)
+                .claim("roles", roles)
+                .issuedAt(new Date())
+                .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key())
+                .compact();
+    }
+
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parser()
                         .verifyWith((SecretKey) key())
