@@ -1,0 +1,1 @@
+http://localhost:8282/oauth2/authorization/google
