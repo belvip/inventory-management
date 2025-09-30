@@ -52,6 +52,7 @@ taskkill /F /PID 6148
 image: belvinar/new-inventory
 
 # Development
+docker-compose down
 docker-compose up --build
 
 # When ready for production

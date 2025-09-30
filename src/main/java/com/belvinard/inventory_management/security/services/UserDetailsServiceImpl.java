@@ -19,10 +19,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // findByUserName must return Optional<User>
-        User user = userRepository.findByUserName(username)
+        // Try to find by email first (for OAuth2), then by username
+        User user = userRepository.findByEmail(username)
+                .or(() -> userRepository.findByUserName(username))
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        "User not found with username: " + username
+                        "User not found with username/email: " + username
                 ));
 
         return UserDetailsImpl.build(user);
