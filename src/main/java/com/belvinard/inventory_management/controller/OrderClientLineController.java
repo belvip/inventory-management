@@ -38,7 +38,7 @@ public class OrderClientLineController {
                     @ApiResponse(responseCode = "404", description = "Order or Article not found")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @PostMapping("/create")
     public ResponseEntity<OrderClientLineResponseDto> addLine(
             @Valid @RequestBody OrderClientLineRequestDto dto) {
@@ -53,7 +53,7 @@ public class OrderClientLineController {
                     @ApiResponse(responseCode = "404", description = "Line not found")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/{id}")
     public ResponseEntity<OrderClientLineResponseDto> getLineById(
             @Parameter(description = "Order line ID", required = true)
@@ -68,7 +68,7 @@ public class OrderClientLineController {
                             content = @Content(schema = @Schema(implementation = OrderClientLineResponseDto.class)))
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/order/{clientOrderId}")
     public ResponseEntity<List<OrderClientLineResponseDto>> getAllLinesForOrder(
             @Parameter(description = "Client Order ID", required = true)
@@ -85,7 +85,7 @@ public class OrderClientLineController {
                     @ApiResponse(responseCode = "404", description = "Line not found")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @PatchMapping("/{id}/quantity")
     public ResponseEntity<OrderClientLineResponseDto> updateLineQuantity(
             @PathVariable Long id,
@@ -104,7 +104,7 @@ public class OrderClientLineController {
                     @ApiResponse(responseCode = "404", description = "Line not found")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removeLine(
             @Parameter(description = "Order line ID", required = true)
@@ -121,7 +121,7 @@ public class OrderClientLineController {
                     @ApiResponse(responseCode = "404", description = "Order not found")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/order/{clientOrderId}/total")
     public ResponseEntity<BigDecimal> calculateTotal(
             @Parameter(description = "Client Order ID", required = true)

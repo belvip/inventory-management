@@ -55,7 +55,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "404", description = "Article not found",
                     content = @Content)
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/{id}")
     public ResponseEntity<ArticleResponseDto> getArticleById(@PathVariable Long id) {
         ArticleResponseDto article = articleService.getArticleById(id);
@@ -71,7 +71,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "400", description = "Invalid code supplied",
                     content = @Content)
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/code/{code}")
     public ResponseEntity<ArticleResponseDto> getArticleByCode(@PathVariable String code) {
         ArticleResponseDto article = articleService.getArticleByCode(code);
@@ -130,7 +130,7 @@ public class ArticleController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Archived articles retrieved successfully")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/archived")
     public ResponseEntity<List<ArticleResponseDto>> getAllArchivedArticles() {
         List<ArticleResponseDto> archivedArticles = articleService.getAllArchivedArticles();
@@ -179,10 +179,11 @@ public class ArticleController {
     }
 
     @Operation(
-            summary = "Get all articles",
+            summary = "Get all articles - ADMIN, MANAGER, SALES, USER",
             description = "Fetch all articles with pagination and sorting (default sort by designation)"
     )
     @ApiResponse(responseCode = "200", description = "Articles retrieved successfully")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/all")
     public ResponseEntity<PagedResponse<ArticleResponseDto>> getAllArticles(
             @Parameter(description = "Page number (0-based)", example = "0")

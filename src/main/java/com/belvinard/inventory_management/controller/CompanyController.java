@@ -52,9 +52,10 @@ public class CompanyController {
     // GET ALL COMPANIES
     // ===========================================================
     @Operation(
-            summary = "Get all companies (paginated) - public",
+            summary = "Get all companies (paginated) - ADMIN, MANAGER, SALES, USER",
             description = "Retrieve a paginated and sortable list of companies. Default pageNumber=0, pageSize=50, sortBy=id, sortOrder=asc"
     )
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved companies",
                     content = @Content(mediaType = "application/json",
@@ -83,7 +84,7 @@ public class CompanyController {
             @ApiResponse(responseCode = "200", description = "Company found"),
             @ApiResponse(responseCode = "404", description = "Company not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/{id}")
     public ResponseEntity<CompanyResponseDto> getCompanyById(@PathVariable Long id) {
          CompanyResponseDto company = companyService.getCompanyById(id);
