@@ -57,7 +57,7 @@ public class CategoryController {
     )
     @ApiResponse(responseCode = "200", description = "Category found")
     @ApiResponse(responseCode = "404", description = "Category not found")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_MANAGER') or hasRole('ROLE_USER')")
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponseDto> getCategoryById(
             @Parameter(description = "Category ID", example = "1")
@@ -114,7 +114,7 @@ public class CategoryController {
     )
     @ApiResponse(responseCode = "200", description = "Category found for company")
     @ApiResponse(responseCode = "404", description = "Company or category not found")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_MANAGER') or hasRole('ROLE_USER')")
     @GetMapping("/by-company/{companyId}")
     public ResponseEntity<CategoryResponseDto> getCategoryByCompanyId(
             @Parameter(description = "Company ID to search for categories", example = "5")
@@ -124,10 +124,11 @@ public class CategoryController {
     }
 
     @Operation(
-            summary = "Get All Categories",
+            summary = "Get All Categories - ADMIN, MANAGER, SALES, USER",
             description = "Fetch all categories with pagination and sorting (default sort by companyId)"
     )
     @ApiResponse(responseCode = "200", description = "Categories retrieved successfully")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/all")
     public ResponseEntity<PagedResponse<CategoryResponseDto>> getAllCategories(
             @Parameter(description = "Page number (0-based)", example = "0")

@@ -44,6 +44,7 @@ public class SecurityConfig {
     private static final String ROLE_ADMIN = "ADMIN";
     private static final String ROLE_MANAGER = "MANAGER";
     private static final String ROLE_SALES = "SALES";
+    private static final String ROLE_USER = "USER";
     private static final String EMAIL_SIGNUP_METHOD = "email";
 
     private final AuthEntryPointJwt unauthorizedHandler;
@@ -94,24 +95,29 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/update-password").authenticated()
                         .requestMatchers("/api/v1/users/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/companies/all").permitAll()
-                        .requestMatchers("/api/v1/categories/all").permitAll()
+                        .requestMatchers("/api/v1/companies/all").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
+                        .requestMatchers("/api/v1/categories/all").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/categories/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/api/v1/categories/update").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
-                        .requestMatchers("/api/v1/categories/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
-                        .requestMatchers("/api/v1/by-company/{companyId}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/categories/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
+                        .requestMatchers("/api/v1/categories/by-company/{companyId}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/companies/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
-                        .requestMatchers("/api/v1/companies/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
+                        .requestMatchers("/api/v1/companies/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/companies/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/api/v1/articles/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
-                        .requestMatchers("/api/v1/articles/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/articles/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/articles/update/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
-                        .requestMatchers("/api/v1/articles/code/{code}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/articles/code/{code}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
+                        .requestMatchers("/api/v1/articles/all").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
+                        .requestMatchers("/api/v1/articles/archived").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/articles/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/api/v1/articles/{id}/image").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
-                        .requestMatchers("/api/v1/clients/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/clients/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/orders/{id}/cancel").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
-                        .requestMatchers("/api/v1/orders/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
+                        .requestMatchers("/api/v1/orders/all").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
+                        .requestMatchers("/api/v1/orders/client/{clientId}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
+                        .requestMatchers("/api/v1/orders/status/{status}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
+                        .requestMatchers("/api/v1/orders/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/order-lines/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
                         .requestMatchers("/api/v1/sales/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/api/v1/sales/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
