@@ -129,8 +129,8 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
         User currentUser = getUserService().findByEmail(email).orElse(null);
         String userRole = currentUser != null ? currentUser.getRole().getRoleName().name() : "ROLE_USER";
         
-        // Generate JWT token with claims
-        String jwtToken = jwtUtils.generateTokenWithClaims(username, email, userRole);
+        // Generate JWT token with claims - use email as username for consistency
+        String jwtToken = jwtUtils.generateTokenWithClaims(email, email, userRole);
 
 
         // Redirect to frontend with JWT token
