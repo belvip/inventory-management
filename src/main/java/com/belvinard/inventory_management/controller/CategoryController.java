@@ -95,7 +95,7 @@ public class CategoryController {
     )
     @ApiResponse(responseCode = "204", description = "Category deleted successfully")
     @ApiResponse(responseCode = "404", description = "Category not found")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_MANAGER') or hasRole('ROLE_USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(
             @Parameter(description = "Category ID to delete", example = "1")

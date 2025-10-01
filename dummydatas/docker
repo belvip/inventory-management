@@ -56,9 +56,9 @@ docker-compose down
 docker-compose up --build
 
 # When ready for production
- docker build -t belvinar/new-inventory:v1.0.0 .
- docker tag belvinar/new-inventory:v1.0.0 belvinar/new-inventory:latest
- docker push belvinar/new-inventory:v1.0.0
+ docker build -t belvinar/new-inventory:v2.0.0 .
+ docker tag belvinar/new-inventory:v2.0.0 belvinar/new-inventory:latest
+ docker push belvinar/new-inventory:v2.0.0
  docker push belvinar/new-inventory:latest
 
 ## pull
@@ -76,5 +76,11 @@ docker run -d --name inventory-app --env-file .env -p 8282:8282 belvinar/new-inv
 # Or on production server
 docker pull belvinar/new-inventory:latest
 docker run -d --name inventory-app --env-file .env -p 8282:8282 belvinar/new-inventory:latest
+
+
+
+docker stop inventory-app && docker rm inventory-app
+docker run -d --name inventory-app --env-file .env -p 8282:8282 belvinar/new-inventory:latest
+
 
 
