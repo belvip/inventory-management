@@ -70,7 +70,7 @@ public class ClientOrderController {
                     @ApiResponse(responseCode = "404", description = "Order not found")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
     @GetMapping("/{id}")
     public ResponseEntity<ClientOrderResponseDto> getOrderById(
             @Parameter(description = "ID of the order to retrieve", required = true)

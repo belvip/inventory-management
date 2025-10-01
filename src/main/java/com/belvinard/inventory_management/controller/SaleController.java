@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/sales")
 @RequiredArgsConstructor
-@Tag(name = "Sales", description = "Sales management operations")
+@Tag(name = "Sales", description = "Sales management operations - Access restricted to the admin")
 public class SaleController {
 
     private final SaleService saleService;
@@ -51,7 +51,7 @@ public class SaleController {
             content = @Content(mediaType = "application/json")
         )
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<SaleResponseDto> createSale(
         @Parameter(description = "Sale creation request", required = true)
@@ -70,7 +70,7 @@ public class SaleController {
         @ApiResponse(responseCode = "400", description = "Cannot update CONFIRMED sale"),
         @ApiResponse(responseCode = "404", description = "Sale not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<SaleResponseDto> updateSale(
         @Parameter(description = "Sale ID", required = true) @PathVariable Long id,
@@ -107,7 +107,7 @@ public class SaleController {
         @ApiResponse(responseCode = "400", description = "Invalid status transition"),
         @ApiResponse(responseCode = "404", description = "Sale not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<SaleResponseDto> updateSaleStatus(
         @Parameter(description = "Sale ID", required = true) @PathVariable Long id,
@@ -126,7 +126,7 @@ public class SaleController {
         @ApiResponse(responseCode = "400", description = "Cannot cancel CONFIRMED sale"),
         @ApiResponse(responseCode = "404", description = "Sale not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<SaleResponseDto> cancelSale(
         @Parameter(description = "Sale ID", required = true) @PathVariable Long id
@@ -161,7 +161,7 @@ public class SaleController {
         @ApiResponse(responseCode = "200", description = "Sale found successfully"),
         @ApiResponse(responseCode = "404", description = "Sale not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")
     @GetMapping("/{id}")
     public ResponseEntity<SaleResponseDto> getSaleById(
         @Parameter(description = "Sale ID", required = true) @PathVariable Long id
@@ -177,7 +177,7 @@ public class SaleController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Sales retrieved successfully")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")
     @GetMapping
     public ResponseEntity<List<SaleResponseDto>> getAllSales() {
         List<SaleResponseDto> sales = saleService.getAll();
@@ -193,7 +193,7 @@ public class SaleController {
         @ApiResponse(responseCode = "400", description = "Cannot generate lines for CANCELLED sales"),
         @ApiResponse(responseCode = "404", description = "Sale not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{id}/generate-lines")
     public ResponseEntity<SaleResponseDto> generateSaleLines(
         @Parameter(description = "Sale ID", required = true) @PathVariable("id") Long saleId

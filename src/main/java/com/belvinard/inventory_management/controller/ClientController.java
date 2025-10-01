@@ -31,7 +31,7 @@ public class ClientController {
     @ApiResponse(responseCode = "201", description = "Client created successfully",
             content = @Content(schema = @Schema(implementation = ClientResponseDto.class)))
     @ApiResponse(responseCode = "400", description = "Validation error")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
     @PostMapping("create")
     public ResponseEntity<ClientResponseDto> createClient(@Valid @RequestBody ClientRequestDto dto) {
         ClientResponseDto createdClient = clientService.createClient(dto);
@@ -42,7 +42,7 @@ public class ClientController {
     @ApiResponse(responseCode = "200", description = "Client found",
             content = @Content(schema = @Schema(implementation = ClientResponseDto.class)))
     @ApiResponse(responseCode = "404", description = "Client not found")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
     @GetMapping("/{id}")
     public ResponseEntity<ClientResponseDto> getClientById(
             @Parameter(description = "ID of the client to fetch", required = true)
@@ -53,7 +53,7 @@ public class ClientController {
     @Operation(summary = "Get all clients with pagination - ADMIN or MANAGER or SALES", description = "Fetches all clients with optional pagination and sorting")
     @ApiResponse(responseCode = "200", description = "Clients fetched successfully",
             content = @Content(schema = @Schema(implementation = PagedResponse.class)))
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
     @GetMapping("/all")
     public ResponseEntity<PagedResponse<ClientResponseDto>> getAllClients(
             @Parameter(description = "Page number (default: 0)") @RequestParam(defaultValue = "0") Integer pageNumber,
@@ -68,7 +68,7 @@ public class ClientController {
     @ApiResponse(responseCode = "200", description = "Client updated successfully",
             content = @Content(schema = @Schema(implementation = ClientResponseDto.class)))
     @ApiResponse(responseCode = "404", description = "Client not found")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
     @PutMapping("/{id}")
     public ResponseEntity<ClientResponseDto> updateClient(
             @Parameter(description = "ID of the client to update", required = true)
@@ -80,7 +80,7 @@ public class ClientController {
     @Operation(summary = "Delete client by ID - ADMIN or MANAGER or SALES", description = "Deletes an existing client from the system")
     @ApiResponse(responseCode = "204", description = "Client deleted successfully")
     @ApiResponse(responseCode = "404", description = "Client not found")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClient(
             @Parameter(description = "ID of the client to delete", required = true)
