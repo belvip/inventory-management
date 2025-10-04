@@ -25,10 +25,25 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     public String getJwtFromHeader(HttpServletRequest request) {
+        // Try to get JWT from Authorization header first
         String bearerToken = request.getHeader("Authorization");
         logger.debug("Authorization Header: {}", bearerToken);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7); // Remove Bearer prefix
+        }
+        
+        // Fallback to cookie if header not present
+        return getJwtFromCookie(request);
+    }
+    
+    public String getJwtFromCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("authToken".equals(cookie.getName())) {
+                    logger.debug("JWT found in cookie: {}", cookie.getName());
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }
