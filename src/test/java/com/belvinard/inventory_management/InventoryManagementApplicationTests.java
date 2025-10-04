@@ -3,7 +3,7 @@ package com.belvinard.inventory_management;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(classes = InventoryManagementApplication.class)
 class InventoryManagementApplicationTests {
 
 	@Test

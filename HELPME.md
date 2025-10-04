@@ -9,3 +9,6 @@ https://new-inventory-latest.onrender.com/oauth2/authorization/google
 
 
 git rm --cached .env
+
+INFO: WARNING: MINIO_ACCESS_KEY and MINIO_SECRET_KEY are deprecated.
+minio-1  |          Please use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD

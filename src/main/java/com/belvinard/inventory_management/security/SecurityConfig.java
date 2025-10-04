@@ -52,44 +52,26 @@ public class SecurityConfig {
     @Lazy
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final Environment env;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
 
-        String corsAllowedOrigins = env.getProperty("FRONTEND_URL");
-        List<String> allowedOrigins = Arrays.stream(corsAllowedOrigins.split(",")).map(String::trim).toList();
-        configuration.setAllowedOrigins(allowedOrigins);
-        // Allow common HTTP methods
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        // Allow common headers
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", "Accept"));
-        // Expose headers for frontend access
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "X-Total-Count"));
-        // Allow credentials (like cookies or auth tokens)
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Apply this configuration to all paths
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+            .cors(cors -> cors.configurationSource(corsConfigurationSource));
         http.authorizeHttpRequests(requests ->
                 requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/demo/**").permitAll()
+                        .requestMatchers("/api/cors-test/**").permitAll()
                         .requestMatchers("/api/v1/auth/oauth2/success").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/api/v1/users/update-password").authenticated()
