@@ -273,8 +273,19 @@ public class UserServiceImpl implements UserService {
 
         passwordResetTokenRepository.save(resetToken);
 
-        // Use only the first URL if multiple URLs are configured
-        String baseUrl = frontendUrl.contains(",") ? frontendUrl.split(",")[0].trim() : frontendUrl;
+        // Determine the correct frontend URL based on the request context
+        String baseUrl;
+        if (frontendUrl.contains(",")) {
+            String[] urls = frontendUrl.split(",");
+            // Use Vercel URL (production) if available, otherwise use first URL
+            baseUrl = java.util.Arrays.stream(urls)
+                    .map(String::trim)
+                    .filter(url -> url.contains("vercel.app"))
+                    .findFirst()
+                    .orElse(urls[0].trim());
+        } else {
+            baseUrl = frontendUrl;
+        }
         String resetUrl = baseUrl + "/reset-password?token=" + token;
         // Send email to user
         emailService.sendPasswordResetEmail(user.getEmail(), resetUrl);;
