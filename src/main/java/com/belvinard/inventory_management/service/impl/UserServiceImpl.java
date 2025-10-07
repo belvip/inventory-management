@@ -2,7 +2,9 @@ package com.belvinard.inventory_management.service.impl;
 
 import com.belvinard.inventory_management.dto.AddressDto;
 import com.belvinard.inventory_management.dto.request.ResetPasswordRequest;
+import com.belvinard.inventory_management.dto.request.UpdateUserRequestDto;
 import com.belvinard.inventory_management.dto.request.UserRequestDto;
+import com.belvinard.inventory_management.dto.response.UpdateUserResponseDto;
 import com.belvinard.inventory_management.dto.response.UserResponseDto;
 
 import com.belvinard.inventory_management.exception.APIException;
@@ -127,7 +129,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto updateUser(Long userId, UserRequestDto dto) {
+    public UpdateUserResponseDto updateUser(Long userId, UpdateUserRequestDto dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
@@ -136,23 +138,13 @@ public class UserServiceImpl implements UserService {
         user.setUserName(dto.userName());
         user.setEmail(dto.email());
 
-        if (dto.password() != null && !dto.password().isBlank()) {
-            user.setPassword(passwordEncoder.encode(dto.password()));
-        }
-
         if (dto.address() != null) {
-            Address address = new Address(
-                dto.address().address1(),
-                dto.address().address2(),
-                dto.address().city(),
-                dto.address().postalCode(),
-                dto.address().country()
-            );
+            Address address = addressMapper.toEntity(dto.address());
             user.setAddress(address);
         }
 
         User updated = userRepository.save(user);
-        return createResponseDto(updated);
+        return createUpdateResponseDto(updated);
     }
 
     @Override
@@ -162,7 +154,6 @@ public class UserServiceImpl implements UserService {
 
         String fileName = minioService.uploadImage(image);
         userFromDb.setImage(fileName);
-        String imageUrl = minioService.getPreSignedUrl(fileName, 15);
         User updatedUser = userRepository.save(userFromDb);
 
         // mapper to dto
@@ -174,24 +165,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
         return createResponseDto(user);
-    }
-
-
-    @Override
-    public String getPresignedImageUrl(Long id) {
-        // 1. Chercher l’article
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article with id " + id + " not found !!"));
-
-        // 2. Vérifier s’il y a une image
-        String fileName = user.getImage();
-
-        if (fileName == null || fileName.isBlank()) {
-            throw new APIException("No image found for this article");
-        }
-
-        // 3. Retourner l’URL signée
-        return minioService.getPreSignedUrl(fileName, 900); // 15 minutes
     }
 
 
@@ -359,6 +332,18 @@ public class UserServiceImpl implements UserService {
             addressDto,
             baseResponse.createdDate(),
             baseResponse.updatedDate()
+        );
+    }
+    
+    private UpdateUserResponseDto createUpdateResponseDto(User user) {
+        AddressDto addressDto = user.getAddress() != null ? addressMapper.toDto(user.getAddress()) : null;
+        return new UpdateUserResponseDto(
+            user.getId(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getUserName(),
+            user.getEmail(),
+            addressDto
         );
     }
 
