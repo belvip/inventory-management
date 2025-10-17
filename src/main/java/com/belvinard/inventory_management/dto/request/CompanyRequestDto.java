@@ -20,7 +20,6 @@ public record CompanyRequestDto(
 
         Address address,
 
-        @NotBlank(message = "The fiscal code is required")
         @Size(min = 5, max = 20, message = "The fiscal code must contain between 5 and 20 characters")
         String fiscalCode,
 
