@@ -20,13 +20,9 @@ public record CompanyRequestDto(
 
         Address address,
 
-        @Size(min = 5, max = 20, message = "The fiscal code must contain between 5 and 20 characters")
+        @Size(min = 0, max = 20, message = "The fiscal code must contain a maximum of 20 characters")
         String fiscalCode,
 
-        @Pattern(
-                regexp = "^[^\\s]+(?i)\\.(jpg|jpeg|png|gif|webp|bmp)$",
-                message = "The filename must end with a valid image extension (jpg, jpeg, png, gif, webp, bmp)."
-        )
         String image,
 
         @NotBlank(message = "The email is required")
