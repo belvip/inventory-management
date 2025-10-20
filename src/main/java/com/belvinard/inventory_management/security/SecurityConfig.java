@@ -85,7 +85,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/categories/by-company/{companyId}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/companies/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/api/v1/companies/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
-                        .requestMatchers("/api/v1/companies/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/v1/companies/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/api/v1/articles/create").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/api/v1/articles/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/articles/update/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
