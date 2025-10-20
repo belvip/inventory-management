@@ -172,6 +172,23 @@ public class CompanyController {
         return new ResponseEntity<>(updatedCompany, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get company image URL - Admin or Manager")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image URL retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "Company not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @GetMapping("/{id}/image_url")
+    public ResponseEntity<String> getCompanyImageUrl(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "15") Integer expirationMinutes
+    ) {
+        String imageUrl = companyService.getCompanyImageUrl(id, expirationMinutes);
+        return ResponseEntity.ok(imageUrl);
+    }
+
 
 
 }

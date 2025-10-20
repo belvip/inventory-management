@@ -56,14 +56,14 @@ docker-compose down
 docker-compose up --build
 
 # When ready for production
- docker build -t belvinar/new-inventory:v7.0.0 .
- docker tag belvinar/new-inventory:v7.0.0 belvinar/new-inventory:latest
- docker push belvinar/new-inventory:v7.0.0
+ docker build -t belvinar/new-inventory:v8.0.0 .
+ docker tag belvinar/new-inventory:v8.0.0 belvinar/new-inventory:latest
+ docker push belvinar/new-inventory:v8.0.0
  docker push belvinar/new-inventory:latest
 
 ## pull
 # Get specific version (never changes)
-docker pull belvinar/new-inventory:v7.0.0
+docker pull belvinar/new-inventory:v8.0.0
 
 # Get newest version (changes with updates)
 docker pull belvinar/new-inventory:latest

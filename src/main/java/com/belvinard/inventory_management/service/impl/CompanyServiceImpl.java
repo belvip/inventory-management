@@ -140,10 +140,25 @@ public class CompanyServiceImpl implements CompanyService {
 
         String fileName = minioService.uploadImage(image);
         companyFromDb.setImage(fileName);
-        //String imageUrl = minioService.getPreSignedUrl(fileName, 15);
+        String imageUrl = minioService.getPreSignedUrl(fileName, 15);
         Company updatedCompany = companyRepository.save(companyFromDb);
 
         return companyMapper.toResponseDto(updatedCompany);
+    }
+
+    @Override
+    public String getCompanyImageUrl(Long id, Integer expirationMinutes) {
+        // Fetch the company or throw if not found
+        Company companyFromDb = companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
+
+        // Check if company has an image
+        if (companyFromDb.getImage() == null || companyFromDb.getImage().isEmpty()) {
+            throw new ResourceNotFoundException("No image found for company with id: " + id);
+        }
+
+        // Generate and return presigned URL
+        return minioService.getPreSignedUrl(companyFromDb.getImage(), expirationMinutes);
     }
 
 
