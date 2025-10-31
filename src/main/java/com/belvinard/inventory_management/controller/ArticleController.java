@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -212,9 +213,10 @@ public class ArticleController {
                     content = @Content)
     })
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-    @PutMapping(value = "/{id}/image")
+    @PutMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ArticleResponseDto> updateArticleImage(
             @PathVariable Long id,
+            @Parameter(description = "File to upload", required = true)
             @RequestParam("image") MultipartFile image
     ) throws IOException {
         if (image.isEmpty()) {
@@ -223,5 +225,24 @@ public class ArticleController {
         ArticleResponseDto updatedArticle = articleService.updateArticleImage(id, image);
         return ResponseEntity.ok(updatedArticle);
     }
+
+    @Operation(summary = "Get article image URL - Admin or Manager")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image URL retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "Article not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @GetMapping("/{id}/image_url")
+    public ResponseEntity<String> getCompanyImageUrl(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "15") Integer expirationMinutes
+    ) {
+        String imageUrl = articleService.getArticleImageUrl(id, expirationMinutes);
+        return ResponseEntity.ok(imageUrl);
+    }
+
+
 
 }

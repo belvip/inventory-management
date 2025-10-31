@@ -181,6 +181,18 @@ public class ArticleServiceImpl implements ArticleService {
         return articleMapper.toResponseDto(updatedArticle);
     }
 
+    @Override
+    public String getArticleImageUrl(Long id, Integer expirationMinutes) {
+        Article articleFromDb = articleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+
+        if (articleFromDb.getImage() == null || articleFromDb.getImage().isEmpty()) {
+            throw new ResourceNotFoundException("No image found for article with id: " + id);
+
+        }
+        return minioService.getPreSignedUrl(articleFromDb.getImage(), expirationMinutes);
+    }
+
 
     @Override
     public ArticleResponseDto restoreArticle(Long id) {
