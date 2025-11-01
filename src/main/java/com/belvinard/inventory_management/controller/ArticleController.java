@@ -179,6 +179,18 @@ public class ArticleController {
     }
 
     @Operation(
+            summary = "Count low stock articles - ADMIN, MANAGER, SALES",
+            description = "Returns the count of articles with stock quantity less than or equal to 10"
+    )
+    @ApiResponse(responseCode = "200", description = "Low stock count retrieved successfully")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/low-stock/count")
+    public ResponseEntity<Long> countLowStockArticles() {
+        Long count = articleService.countLowStockArticles();
+        return ResponseEntity.ok(count);
+    }
+
+    @Operation(
             summary = "Get all articles - ADMIN, MANAGER, SALES, USER",
             description = "Fetch all articles with pagination and sorting (default sort by designation)"
     )
