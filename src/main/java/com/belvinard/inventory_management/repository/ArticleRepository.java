@@ -3,6 +3,8 @@ package com.belvinard.inventory_management.repository;
 import com.belvinard.inventory_management.model.Article;
 import com.belvinard.inventory_management.model.ArticleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,4 +15,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     Optional<Article> findByCodeArticle(String s);
 
     List<Article> findByStatus(ArticleStatus articleStatus);
+
+    @Query("SELECT COUNT(a) FROM Article a WHERE (a.quantityInStock - a.reservedQuantity) <= :threshold")
+    Long countByAvailableQuantityLessThanEqual(@Param("threshold") Long threshold);
 }

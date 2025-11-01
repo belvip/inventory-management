@@ -10,9 +10,7 @@ import com.belvinard.inventory_management.mapper.ArticleMapper;
 import com.belvinard.inventory_management.model.Article;
 import com.belvinard.inventory_management.model.ArticleStatus;
 import com.belvinard.inventory_management.model.Category;
-import com.belvinard.inventory_management.repository.ArticleRepository;
 import com.belvinard.inventory_management.repository.CategoryRepository;
-import com.belvinard.inventory_management.service.ArticleService;
 import com.belvinard.inventory_management.service.MinioService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -186,11 +184,16 @@ public class ArticleServiceImpl implements ArticleService {
         Article articleFromDb = articleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
 
-        if (articleFromDb.getImage() == null || articleFromDb.getImage().isEmpty()) {
-            throw new ResourceNotFoundException("No image found for article with id: " + id);
-
+        if (articleFromDb.getImage() != null && !articleFromDb.getImage().isEmpty()) {
+            return minioService.getPreSignedUrl(articleFromDb.getImage(), expirationMinutes);
         }
-        return minioService.getPreSignedUrl(articleFromDb.getImage(), expirationMinutes);
+
+        return minioService.getPreSignedUrl("default.jpg", expirationMinutes);
+    }
+
+    @Override
+    public Long countLowStockArticles() {
+        return articleRepository.countByQuantityInStockLessThanEqual(10L);
     }
 
 
