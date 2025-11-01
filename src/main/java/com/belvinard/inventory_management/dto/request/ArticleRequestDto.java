@@ -14,7 +14,7 @@ public record ArticleRequestDto(
         String codeArticle,
 
         @NotBlank(message = "Designation is mandatory")
-        @Size(min = 4, max = 100, message = "Designation must be between 4 and 100 characters")
+        @Size(min = 3, max = 100, message = "Designation must be between 3 and 100 characters")
         String designation,
 
         Long quantityInStock,
