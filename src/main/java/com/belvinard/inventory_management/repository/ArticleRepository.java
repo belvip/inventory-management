@@ -17,6 +17,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findByStatus(ArticleStatus articleStatus);
 
 
-    @Query("SELECT COUNT(a) FROM Article a WHERE a.quantityInStock <= :threshold")
-    Long countByQuantityInStockLessThanEqual(@Param("threshold") Long threshold);
+    @Query("SELECT COUNT(a) FROM Article a WHERE (a.quantityInStock - a.reservedQuantity) <= :threshold")
+    Long countByAvailableQuantityLessThanEqual(@Param("threshold") Long threshold);
+
 }
