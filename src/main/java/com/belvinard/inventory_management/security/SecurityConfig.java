@@ -74,7 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/articles/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
                         .requestMatchers("/api/v1/articles/update/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/api/v1/articles/code/{code}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
-                        .requestMatchers("/api/v1/articles/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/v1/articles/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/api/v1/articles/{id}/image").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
                         .requestMatchers("/api/v1/clients/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
                         .requestMatchers("/api/v1/orders/{id}/cancel").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)

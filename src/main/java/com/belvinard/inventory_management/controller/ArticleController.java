@@ -223,4 +223,31 @@ public class ArticleController {
         return ResponseEntity.ok(updatedArticle);
     }
 
+    @Operation(summary = "Get article image URL - Admin or Manager")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image URL retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "Article not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @GetMapping("/{id}/image_url")
+    public ResponseEntity<String> getArticleImageUrl(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "15") Integer expirationMinutes
+    ) {
+        String imageUrl = articleService.getArticleImageUrl(id, expirationMinutes);
+        return ResponseEntity.ok(imageUrl);
+    }
+
+    @Operation(summary = "Count low stock articles - Admin or Manager")
+    @ApiResponse(responseCode = "200", description = "Low stock count retrieved successfully")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @GetMapping("/low-stock/count")
+    public ResponseEntity<Long> countLowStockArticles() {
+        Long count = articleService.countLowStockArticles();
+        return ResponseEntity.ok(count);
+    }
+
+
 }
