@@ -95,14 +95,14 @@ public class ArticleController {
 
 
     @Operation(
-            summary = "Archive an article Only ADMIN",
+            summary = "Archive an article Only - ADMIN and MANAGER",
             description = "Sets the article status to ARCHIVED"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Article archived successfully"),
             @ApiResponse(responseCode = "404", description = "Article not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @PutMapping("/{id}/archive")
     public ResponseEntity<ArticleResponseDto> archiveArticle(@PathVariable Long id) {
         ArticleResponseDto archivedArticle = articleService.archiveArticle(id);
@@ -117,7 +117,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "200", description = "Article restored successfully"),
             @ApiResponse(responseCode = "404", description = "Article not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @PutMapping("/{id}/restore")
     public ResponseEntity<ArticleResponseDto> restoreArticle(@PathVariable Long id) {
         ArticleResponseDto restoredArticle = articleService.restoreArticle(id);
