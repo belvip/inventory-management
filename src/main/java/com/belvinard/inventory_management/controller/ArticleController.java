@@ -254,4 +254,15 @@ public class ArticleController {
         return ResponseEntity.ok(imageUrl);
     }
 
+
+    @Operation(summary = "Count low stock articles - Admin or Manager")
+    @ApiResponse(responseCode = "200", description = "Low stock count retrieved successfully")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @GetMapping("/low-stock/count")
+    public ResponseEntity<Long> countLowStockArticles() {
+        Long count = articleService.countLowStockArticles();
+        return ResponseEntity.ok(count);
+    }
+
+
 }

@@ -31,6 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
 
+    private static final String ARTICLE_NOT_FOUND_MSG = "Article not found with id: ";
     private final ArticleRepository articleRepository;
     private final CategoryRepository categoryRepository;
     private final ArticleMapper articleMapper;
@@ -111,7 +112,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleResponseDto updateArticle(Long id, ArticleRequestDto dto) {
         // 1️⃣ Check if the article exists
         Article existingArticle = articleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ARTICLE_NOT_FOUND_MSG + id));
 
         articleRepository.findByCodeArticle(dto.codeArticle())
                 .filter(a -> !a.getId().equals(id))
@@ -172,7 +173,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleResponseDto updateArticleImage(Long id, MultipartFile image) throws IOException {
         Article articleFromDb = articleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ARTICLE_NOT_FOUND_MSG + id));
 
         String fileName = minioService.uploadImage(image);
         articleFromDb.setImage(fileName);
@@ -185,6 +186,7 @@ public class ArticleServiceImpl implements ArticleService {
     public String getArticleImageUrl(Long id, Integer expirationMinutes) {
         Article articleFromDb = articleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+
 
         if (articleFromDb.getImage() != null && !articleFromDb.getImage().isEmpty()) {
             return minioService.getPreSignedUrl(articleFromDb.getImage(), expirationMinutes);

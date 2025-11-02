@@ -19,3 +19,4 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     @Query("SELECT COUNT(a) FROM Article a WHERE (a.quantityInStock - a.reservedQuantity) <= :threshold")
     Long countByAvailableQuantityLessThanEqual(@Param("threshold") Long threshold);
 }
+
