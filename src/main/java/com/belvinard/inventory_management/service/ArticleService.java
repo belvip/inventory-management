@@ -22,7 +22,6 @@ public interface ArticleService {
     PagedResponse getAllArticle(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
     ArticleResponseDto updateArticleImage(Long id, MultipartFile image) throws java.io.IOException;
     String getArticleImageUrl(Long id, Integer expirationMinutes);
-
     Long countLowStockArticles();
 
 }
