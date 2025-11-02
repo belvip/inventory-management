@@ -9,7 +9,6 @@ import com.belvinard.inventory_management.repository.UserRepository;
 import com.belvinard.inventory_management.security.jwt.AuthEntryPointJwt;
 import com.belvinard.inventory_management.security.jwt.AuthTokenFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,13 +26,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -130,7 +125,6 @@ public class SecurityConfig {
         http.addFilterBefore(authTokenFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
-        // Disable form login and HTTP basic for JWT-only authentication
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
         return http.build();

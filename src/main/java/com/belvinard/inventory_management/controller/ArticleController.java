@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -224,7 +225,7 @@ public class ArticleController {
                     content = @Content)
     })
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-    @PutMapping(value = "/{id}/image")
+    @PutMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ArticleResponseDto> updateArticleImage(
             @PathVariable Long id,
             @RequestParam("image") MultipartFile image

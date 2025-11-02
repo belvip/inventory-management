@@ -10,7 +10,9 @@ import com.belvinard.inventory_management.mapper.ArticleMapper;
 import com.belvinard.inventory_management.model.Article;
 import com.belvinard.inventory_management.model.ArticleStatus;
 import com.belvinard.inventory_management.model.Category;
+import com.belvinard.inventory_management.repository.ArticleRepository;
 import com.belvinard.inventory_management.repository.CategoryRepository;
+import com.belvinard.inventory_management.service.ArticleService;
 import com.belvinard.inventory_management.service.MinioService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -193,7 +195,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Long countLowStockArticles() {
-        return articleRepository.countByQuantityInStockLessThanEqual(10L);
+        return articleRepository.countByAvailableQuantityLessThanEqual(10L);
     }
 
 
