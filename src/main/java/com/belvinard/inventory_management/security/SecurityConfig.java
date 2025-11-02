@@ -85,7 +85,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/articles/{id}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/articles/code/{code}").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
                         .requestMatchers("/api/v1/articles/all").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES, ROLE_USER)
-                        .requestMatchers("/api/v1/articles/archived").hasAnyRole(ROLE_ADMIN)
                         .requestMatchers("/api/v1/articles/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER)
 
                         .requestMatchers("/api/v1/clients/**").hasAnyRole(ROLE_ADMIN, ROLE_MANAGER, ROLE_SALES)
