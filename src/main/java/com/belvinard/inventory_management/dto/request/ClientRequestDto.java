@@ -13,11 +13,9 @@ public record ClientRequestDto(
 
         Address address,
 
-        @NotBlank(message = "Email is required")
         @Email(message = "The email must be valid")
         String email,
 
-        @NotBlank(message = "The phone number is required")
         @Pattern(
                 regexp = "^(?:(?:\\+237|237)[-.\\s]?)?(?:(?:[67][25-9]\\d{7})|(?:2\\d{2}\\d{6}))$",
                 message = "The phone number must be a valid Cameroonian number (mobile or fixed). Examples: 671234567, 222123456, +237-233123456"
