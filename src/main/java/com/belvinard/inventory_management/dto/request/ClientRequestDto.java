@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 
 public record ClientRequestDto(
         @NotBlank(message = "The client name is required")
-        @Size(min = 4, max = 100, message = "The name must contain between 4 and 100 characters")
+        @Size(min = 3, max = 100, message = "The name must contain between 4 and 100 characters")
         String name,
 
         Address address,

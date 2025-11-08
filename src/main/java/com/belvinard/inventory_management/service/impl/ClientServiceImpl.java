@@ -25,15 +25,23 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientResponseDto createClient(ClientRequestDto dto) {
-        // ✅ Check for duplicate (by email or phone number)
-        if (clientRepository.existsByEmail(dto.email())) {
+        // ✅ Check for duplicate (by email or phone number) - only if not empty
+        if (dto.email() != null && !dto.email().trim().isEmpty() && clientRepository.existsByEmail(dto.email())) {
             throw new ResourceConflictException ("A client with email " + dto.email() + " already exists.");
         }
-        if (clientRepository.existsByPhoneNumber(dto.phoneNumber())) {
+        if (dto.phoneNumber() != null && !dto.phoneNumber().trim().isEmpty() && clientRepository.existsByPhoneNumber(dto.phoneNumber())) {
             throw new ResourceConflictException("A client with phone number " + dto.phoneNumber() + " already exists.");
         }
 
         Client client = clientMapper.toEntity(dto);
+        // Convert empty strings to null to avoid unique constraint issues
+        if (client.getEmail() != null && client.getEmail().trim().isEmpty()) {
+            client.setEmail(null);
+        }
+        if (client.getPhoneNumber() != null && client.getPhoneNumber().trim().isEmpty()) {
+            client.setPhoneNumber(null);
+        }
+        
         Client savedArticle = clientRepository.save(client);
         return clientMapper.toResponseDto(savedArticle);
     }
@@ -67,20 +75,24 @@ public class ClientServiceImpl implements ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + id));
 
-        // ✅ Prevent duplicate email or phone (only if changed)
-        if (!client.getEmail().equalsIgnoreCase(dto.email()) &&
-                clientRepository.existsByEmail(dto.email())) {
-            throw new DuplicateResourceException("A client with email " + dto.email() + " already exists.");
+        // Convert empty strings to null
+        String newEmail = (dto.email() != null && !dto.email().trim().isEmpty()) ? dto.email() : null;
+        String newPhoneNumber = (dto.phoneNumber() != null && !dto.phoneNumber().trim().isEmpty()) ? dto.phoneNumber() : null;
+        
+        // ✅ Prevent duplicate email or phone (only if changed and not null)
+        if (newEmail != null && (client.getEmail() == null || !client.getEmail().equalsIgnoreCase(newEmail)) &&
+                clientRepository.existsByEmail(newEmail)) {
+            throw new DuplicateResourceException("A client with email " + newEmail + " already exists.");
         }
-        if (!client.getPhoneNumber().equals(dto.phoneNumber()) &&
-                clientRepository.existsByPhoneNumber(dto.phoneNumber())) {
-            throw new DuplicateResourceException("A client with phone number " + dto.phoneNumber() + " already exists.");
+        if (newPhoneNumber != null && (client.getPhoneNumber() == null || !client.getPhoneNumber().equals(newPhoneNumber)) &&
+                clientRepository.existsByPhoneNumber(newPhoneNumber)) {
+            throw new DuplicateResourceException("A client with phone number " + newPhoneNumber + " already exists.");
         }
 
         client.setName(dto.name());
         client.setAddress(dto.address());
-        client.setEmail(dto.email());
-        client.setPhoneNumber(dto.phoneNumber());
+        client.setEmail(newEmail);
+        client.setPhoneNumber(newPhoneNumber);
 
         Client updated = clientRepository.save(client);
         return clientMapper.toResponseDto(updated);
