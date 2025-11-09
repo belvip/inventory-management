@@ -68,6 +68,13 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + id));
 
+        // Update client if clientId has changed
+        if (!order.getClient().getId().equals(dto.clientId())) {
+            Client newClient = clientRepository.findById(dto.clientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Client with ID " + dto.clientId() + " not found"));
+            order.setClient(newClient);
+        }
+
         // ✅ DO NOT update stateOrder here — business logic enforces dedicated endpoint
         order.setCode(dto.code());
         order.setComments(dto.comments());
