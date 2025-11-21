@@ -37,6 +37,11 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleMapper articleMapper;
     private final MinioService minioService;
 
+    private Category findCategoryById(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+    }
+
     @Override
     public ArticleResponseDto createArticle(ArticleRequestDto dto) {
 
@@ -44,8 +49,7 @@ public class ArticleServiceImpl implements ArticleService {
             throw new ResourceConflictException("Article with code " + dto.codeArticle() + " already exists");
         }
 
-        Category category = categoryRepository.findById(dto.categoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + dto.categoryId()));
+        Category category = findCategoryById(dto.categoryId());
 
         Article article = articleMapper.toEntity(dto);
 
@@ -63,7 +67,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleResponseDto getArticleById(Long id) {
         Article article = articleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ARTICLE_NOT_FOUND_MSG+ id));
 
         return articleMapper.toResponseDto(article);
     }
@@ -73,7 +77,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     public ArticleResponseDto deleteArticle(Long id) {
         Article article = articleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ARTICLE_NOT_FOUND_MSG + id));
 
         articleRepository.delete(article);
         return articleMapper.toResponseDto(article);
@@ -130,6 +134,7 @@ public class ArticleServiceImpl implements ArticleService {
         existingArticle.setRateTva(dto.rateTva() != null ? dto.rateTva() : BigDecimal.ZERO);
 
         existingArticle.setImage(dto.image());
+        existingArticle.setCategory(findCategoryById(dto.categoryId()));
 
         // 4️⃣ Recalculate the price with tax (Hibernate @PreUpdate will also do this before saving)
         existingArticle.calculateUnitPriceAllTax();
@@ -185,7 +190,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public String getArticleImageUrl(Long id, Integer expirationMinutes) {
         Article articleFromDb = articleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(ARTICLE_NOT_FOUND_MSG+ id));
 
 
         if (articleFromDb.getImage() != null && !articleFromDb.getImage().isEmpty()) {
