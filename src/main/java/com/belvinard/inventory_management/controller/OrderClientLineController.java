@@ -128,4 +128,18 @@ public class OrderClientLineController {
             @PathVariable Long clientOrderId) {
         return ResponseEntity.ok(orderClientLineService.calculateOrderTotal(clientOrderId));
     }
+
+    @Operation(
+            summary = "Get all order lines",
+            description = "Retrieves all order lines in the system",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "List of all order lines",
+                            content = @Content(schema = @Schema(implementation = OrderClientLineResponseDto.class)))
+            }
+    )
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @GetMapping("/all")
+    public ResponseEntity<List<OrderClientLineResponseDto>> getAllLines() {
+        return ResponseEntity.ok(orderClientLineService.getAllLines());
+    }
 }

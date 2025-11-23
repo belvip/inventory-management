@@ -212,4 +212,11 @@ public class OrderClientLineServiceImpl implements OrderClientLineService {
         }
         return orderClientLineRepository.existsByClientOrderIdAndArticleId(clientOrderId, articleId);
     }
+
+    @Override
+    public List<OrderClientLineResponseDto> getAllLines() {
+        return orderClientLineRepository.findAll().stream()
+                .map(orderClientLineMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
 }
