@@ -10,6 +10,7 @@ import com.belvinard.inventory_management.model.ClientOrder;
 import com.belvinard.inventory_management.model.OrderStatus;
 import com.belvinard.inventory_management.repository.ClientOrderRepository;
 import com.belvinard.inventory_management.repository.ClientRepository;
+import com.belvinard.inventory_management.repository.SaleRepository;
 import com.belvinard.inventory_management.service.ClientOrderService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
     private final ClientOrderRepository clientOrderRepository;
     private final ClientOrderMapper clientOrderMapper;
     private final ClientRepository clientRepository;
+    private final SaleRepository saleRepository;
 
     /* -----------------------------------------
        ALLOWED STATUS TRANSITIONS (Centralized)
@@ -197,13 +199,15 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             throw new IllegalStateException("Cannot complete order without order lines.");
         }
 
-        if (!hasAssociatedSale()) {
+        if (!hasAssociatedSale(order)) {
             throw new IllegalStateException("Cannot complete order without an associated sale.");
         }
     }
 
-    private boolean hasAssociatedSale() {
-        return true;
+    private boolean hasAssociatedSale(ClientOrder order) {
+        return saleRepository.findAll().stream()
+                .anyMatch(sale -> sale.getClientOrder() != null && 
+                         sale.getClientOrder().getId().equals(order.getId()));
     }
 
     /* ========================================================================
