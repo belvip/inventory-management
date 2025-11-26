@@ -152,7 +152,7 @@ public class ClientOrderController {
             @ApiResponse(responseCode = "400", description = "Invalid status transition"),
             @ApiResponse(responseCode = "404", description = "Order not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER'))")
     @PatchMapping("/{id}/status")
     public ResponseEntity<ClientOrderResponseDto> updateOrderStatus(
             @PathVariable Long id,

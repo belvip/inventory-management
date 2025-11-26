@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,66 +33,71 @@ public class ClientOrderServiceImpl implements ClientOrderService {
     private final ClientOrderMapper clientOrderMapper;
     private final ClientRepository clientRepository;
 
+    /* -----------------------------------------
+       ALLOWED STATUS TRANSITIONS (Centralized)
+    ----------------------------------------- */
+    private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = Map.of(
+            OrderStatus.PENDING, Set.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED),
+            OrderStatus.CONFIRMED, Set.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.PENDING),
+            OrderStatus.CANCELLED, Set.of(OrderStatus.PENDING),
+            OrderStatus.COMPLETED, Set.of(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.CANCELLED)
+    );
+
+    /* ========================================================================
+                            CREATE ORDER
+    ======================================================================== */
     @Override
-    public ClientOrderResponseDto createOrder(ClientOrderRequestDto orderRequestDto) {
+    public ClientOrderResponseDto createOrder(ClientOrderRequestDto request) {
 
-        Client client = clientRepository.findById(orderRequestDto.clientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Client with ID " + orderRequestDto.clientId() + " not found"));
+        Client client = clientRepository.findById(request.clientId())
+                .orElseThrow(() -> new ResourceNotFoundException("Client with ID " + request.clientId() + " not found"));
 
-        if (clientOrderRepository.existsByCode(orderRequestDto.code())) {
-            throw new DuplicateResourceException("Order code " + orderRequestDto.code() + " already exists");
+        if (clientOrderRepository.existsByCode(request.code())) {
+            throw new DuplicateResourceException("Order code " + request.code() + " already exists");
         }
 
-        ClientOrder order = clientOrderMapper.toEntity(orderRequestDto);
-
+        ClientOrder order = clientOrderMapper.toEntity(request);
         order.setClient(client);
-
-        if (orderRequestDto.orderDate() == null) {
-            order.setOrderDate(LocalDate.now());
-        } else {
-            order.setOrderDate(orderRequestDto.orderDate());
-        }
-
+        order.setOrderDate(request.orderDate() != null ? request.orderDate() : LocalDate.now());
         order.setStateOrder(OrderStatus.PENDING);
 
-        ClientOrder saved = clientOrderRepository.save(order);
-
-        return clientOrderMapper.toResponseDto(saved);
+        return clientOrderMapper.toResponseDto(clientOrderRepository.save(order));
     }
 
+    /* ========================================================================
+                            GET ORDER
+    ======================================================================== */
     @Override
     public ClientOrderResponseDto getOrderById(Long id) {
-        ClientOrder order = clientOrderRepository.findById(id)
+        return clientOrderRepository.findById(id)
+                .map(clientOrderMapper::toResponseDto)
                 .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + id));
-
-        return clientOrderMapper.toResponseDto(order);
     }
 
+    /* ========================================================================
+                            UPDATE ORDER (fields only)
+    ======================================================================== */
     @Override
     public ClientOrderResponseDto updateOrder(Long id, ClientOrderRequestDto dto) {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + id));
 
-        // Update client if clientId has changed
         if (!order.getClient().getId().equals(dto.clientId())) {
             Client newClient = clientRepository.findById(dto.clientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Client with ID " + dto.clientId() + " not found"));
             order.setClient(newClient);
         }
 
-        // ✅ DO NOT update stateOrder here — business logic enforces dedicated endpoint
         order.setCode(dto.code());
         order.setComments(dto.comments());
-        order.setOrderDate(dto.orderDate() != null
-                ? dto.orderDate()
-                : order.getOrderDate());
+        order.setOrderDate(dto.orderDate() != null ? dto.orderDate() : order.getOrderDate());
 
-        ClientOrder updated = clientOrderRepository.save(order);
-        return clientOrderMapper.toResponseDto(updated);
+        return clientOrderMapper.toResponseDto(clientOrderRepository.save(order));
     }
 
-
-
+    /* ========================================================================
+                            GET ORDERS BY CLIENT
+    ======================================================================== */
     @Override
     public List<ClientOrderResponseDto> getOrdersByClient(Long clientId) {
         Client client = clientRepository.findById(clientId)
@@ -102,177 +108,139 @@ public class ClientOrderServiceImpl implements ClientOrderService {
                 .toList();
     }
 
+    /* ========================================================================
+                            DELETE ORDER
+    ======================================================================== */
     @Override
     public void deleteOrder(Long id) {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + id));
 
-        if (order.getStateOrder() == OrderStatus.COMPLETED || order.getStateOrder() == OrderStatus.CANCELLED) {
+        if (Set.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED).contains(order.getStateOrder())) {
             throw new IllegalStateException("Orders with status " + order.getStateOrder() + " cannot be deleted.");
         }
 
         clientOrderRepository.delete(order);
     }
 
+    /* ========================================================================
+                            UPDATE ORDER STATUS
+    ======================================================================== */
     @Override
     public ClientOrderResponseDto updateOrderStatus(Long id, OrderStatus newStatus) {
+
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + id));
 
-        OrderStatus currentStatus = order.getStateOrder();
-
-        validateStatusTransition(currentStatus, newStatus);
-        validateTimeConstraints(order, currentStatus, newStatus);
-        validateOrderHasLinesForConfirmation(order, currentStatus, newStatus);
-        validateCompletionRequirements(order, newStatus);
+        validateStatusChangeRules(order, newStatus);
 
         order.setStateOrder(newStatus);
-        ClientOrder updatedOrder = clientOrderRepository.save(order);
-
-        return clientOrderMapper.toResponseDto(updatedOrder);
+        return clientOrderMapper.toResponseDto(clientOrderRepository.save(order));
     }
-    
-    private void validateOrderHasLinesForConfirmation(ClientOrder order, OrderStatus currentStatus, OrderStatus newStatus) {
-        if (currentStatus == OrderStatus.PENDING && newStatus == OrderStatus.CONFIRMED && 
-            (order.getOrderClientLineList() == null || order.getOrderClientLineList().isEmpty())) {
-            throw new IllegalStateException("Cannot confirm order without order lines. Please add at least one item to the order.");
+
+    @Override
+    public List<ClientOrderResponseDto> getOrdersByStatus(OrderStatus status) {
+        return clientOrderRepository.findByStateOrder(status).stream()
+                .map(clientOrderMapper::toResponseDto)
+                .toList();
+    }
+
+    /* ========================================================================
+                            STATUS CHANGE VALIDATION
+    ======================================================================== */
+    private void validateStatusChangeRules(ClientOrder order, OrderStatus newStatus) {
+        OrderStatus current = order.getStateOrder();
+
+        validateAllowedTransition(current, newStatus);
+        validateTimeConstraints(order, current);
+        validateOrderLinesForConfirmation(order, current, newStatus);
+        validateCompletionRequirements(order, newStatus);
+    }
+
+    private void validateAllowedTransition(OrderStatus current, OrderStatus next) {
+        if (!ALLOWED_TRANSITIONS.get(current).contains(next)) {
+            throw new IllegalStateException("Invalid transition from " + current + " to " + next);
         }
     }
 
+    private void validateTimeConstraints(ClientOrder order, OrderStatus currentStatus) {
 
-    /**
-     * Vérifie si une commande peut encore changer d'état
-     * selon son statut actuel et la limite de 30 jours.
-     */
-    private void validateTimeConstraints(ClientOrder order, OrderStatus currentStatus, OrderStatus newStatus) {
+        if (!Set.of(OrderStatus.CONFIRMED, OrderStatus.COMPLETED, OrderStatus.CANCELLED)
+                .contains(currentStatus)) return;
 
-        // Statuts soumis à la règle de 30 jours
-        Set<OrderStatus> restrictedStatuses = Set.of(
-                OrderStatus.CANCELLED,
-                OrderStatus.CONFIRMED,
-                OrderStatus.COMPLETED
-        );
+        LocalDate lastUpdate = Optional.ofNullable(order.getUpdatedDate())
+                .orElse(order.getCreatedDate() != null
+                        ? order.getCreatedDate()
+                        : order.getOrderDate());
 
-        // Si le statut actuel n'est pas concerné → aucune restriction
-        if (!restrictedStatuses.contains(currentStatus)) {
-            return;
-        }
+        long daysElapsed = ChronoUnit.DAYS.between(lastUpdate, LocalDate.now());
 
-        LocalDate statusChangeDate = getStatusChangeDate(order, currentStatus);
-        long daysSinceStatusChange = ChronoUnit.DAYS.between(statusChangeDate, LocalDate.now());
-
-        if (daysSinceStatusChange > MAX_MODIFICATION_DAYS) {
+        if (daysElapsed > MAX_MODIFICATION_DAYS) {
             throw new IllegalStateException(
-                    "Cannot modify an order with status " + currentStatus +
-                            " after " + MAX_MODIFICATION_DAYS + " days."
+                    "Modification not allowed after " + MAX_MODIFICATION_DAYS +
+                            " days for orders with status " + currentStatus
             );
         }
     }
 
-    private LocalDate getStatusChangeDate(ClientOrder order, OrderStatus currentStatus) {
-
-        // On utilise updatedDate comme date du dernier changement de statut.
-        // Fallback sur createdDate puis orderDate.
-        return Optional.ofNullable(order.getUpdatedDate())
-                .orElse(Optional.ofNullable(order.getCreatedDate())
-                        .orElse(order.getOrderDate()));
+    private void validateOrderLinesForConfirmation(ClientOrder order, OrderStatus current, OrderStatus next) {
+        if (current == OrderStatus.PENDING && next == OrderStatus.CONFIRMED &&
+                (order.getOrderClientLineList() == null || order.getOrderClientLineList().isEmpty())) {
+            throw new IllegalStateException("Cannot confirm order without order lines.");
+        }
     }
 
-
-    private void validateCompletionRequirements(ClientOrder order, OrderStatus newStatus) {
-
-        if (newStatus != OrderStatus.COMPLETED) {
-            return;
-        }
+    private void validateCompletionRequirements(ClientOrder order, OrderStatus next) {
+        if (next != OrderStatus.COMPLETED) return;
 
         if (order.getOrderClientLineList() == null || order.getOrderClientLineList().isEmpty()) {
             throw new IllegalStateException("Cannot complete order without order lines.");
         }
 
-        if (!hasAssociatedSale(order)) {
+        if (!hasAssociatedSale()) {
             throw new IllegalStateException("Cannot complete order without an associated sale.");
         }
     }
 
-
-    private boolean hasAssociatedSale(ClientOrder order) {
-        // Cette méthode devrait vérifier l'existence d'une vente pour cette commande
-        // Pour l'instant, on retourne true car la logique complète nécessiterait l'injection du SaleRepository
+    private boolean hasAssociatedSale() {
         return true;
     }
 
-
-    @Override
-    public List<ClientOrderResponseDto> getOrdersByStatus(OrderStatus status) {
-        List<ClientOrder> orders = clientOrderRepository.findByStateOrder(status);
-        if (orders.isEmpty()) {
-            throw new ResourceNotFoundException("No orders found with status: " + status);
-        }
-        return orders.stream()
-                .map(clientOrderMapper::toResponseDto)
-                .toList();
-    }
-
+    /* ========================================================================
+                            CANCEL ORDER
+    ======================================================================== */
     @Override
     @Transactional
     public ClientOrderResponseDto cancelOrder(Long id) {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ORDER_NOT_FOUND_MSG + id));
-        
+
         if (order.getStateOrder() == OrderStatus.CONFIRMED) {
             throw new IllegalStateException("Cannot cancel a CONFIRMED order");
         }
-        
+
         if (order.getStateOrder() == OrderStatus.CANCELLED) {
             throw new IllegalStateException("Order is already CANCELLED");
         }
-        
-        // Libérer les réservations de stock
+
         if (order.getOrderClientLineList() != null) {
-            order.getOrderClientLineList().forEach(orderLine -> {
-                if (orderLine.getArticle() != null) {
-                    orderLine.releaseReservation();
-                }
+            order.getOrderClientLineList().forEach(line -> {
+                if (line.getArticle() != null) line.releaseReservation();
             });
         }
-        
+
         order.setStateOrder(OrderStatus.CANCELLED);
-        ClientOrder cancelledOrder = clientOrderRepository.save(order);
-        
-        return clientOrderMapper.toResponseDto(cancelledOrder);
+        return clientOrderMapper.toResponseDto(clientOrderRepository.save(order));
     }
 
+    /* ========================================================================
+                            GET ALL ORDERS
+    ======================================================================== */
     @Override
     public List<ClientOrderResponseDto> getAllOrders() {
         return clientOrderRepository.findAll().stream()
                 .map(clientOrderMapper::toResponseDto)
                 .toList();
-    }
-
-    private void validateStatusTransition(OrderStatus current, OrderStatus next) {
-        if (current == OrderStatus.PENDING) {
-            if (next != OrderStatus.CONFIRMED && next != OrderStatus.CANCELLED) {
-                throw new IllegalStateException("Order can only be CONFIRMED or CANCELLED from PENDING status.");
-            }
-        }
-
-        if (current == OrderStatus.CONFIRMED) {
-            if (next != OrderStatus.COMPLETED && next != OrderStatus.CANCELLED && next != OrderStatus.PENDING) {
-                throw new IllegalStateException("Order can only be COMPLETED, CANCELLED or returned to PENDING after CONFIRMATION.");
-            }
-        }
-
-        if (current == OrderStatus.CANCELLED) {
-            if (next != OrderStatus.PENDING) {
-                throw new IllegalStateException("Cancelled order can only be returned to PENDING status.");
-            }
-        }
-
-        if (current == OrderStatus.COMPLETED) {
-            if (next != OrderStatus.PENDING && next != OrderStatus.CONFIRMED && next != OrderStatus.CANCELLED) {
-                throw new IllegalStateException("Completed order can only be returned to PENDING, CONFIRMED or CANCELLED status.");
-            }
-        }
     }
 
 }
