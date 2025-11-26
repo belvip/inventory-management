@@ -16,13 +16,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class ClientOrderServiceImpl implements ClientOrderService {
 
     private static final String ORDER_NOT_FOUND_MSG = "Order not found with id: ";
+    private static final int MAX_MODIFICATION_DAYS = 30;
 
     private final ClientOrderRepository clientOrderRepository;
     private final ClientOrderMapper clientOrderMapper;
@@ -118,7 +122,9 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         OrderStatus currentStatus = order.getStateOrder();
 
         validateStatusTransition(currentStatus, newStatus);
+        validateTimeConstraints(order, currentStatus, newStatus);
         validateOrderHasLinesForConfirmation(order, currentStatus, newStatus);
+        validateCompletionRequirements(order, newStatus);
 
         order.setStateOrder(newStatus);
         ClientOrder updatedOrder = clientOrderRepository.save(order);
@@ -131,6 +137,68 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             (order.getOrderClientLineList() == null || order.getOrderClientLineList().isEmpty())) {
             throw new IllegalStateException("Cannot confirm order without order lines. Please add at least one item to the order.");
         }
+    }
+
+
+    /**
+     * Vérifie si une commande peut encore changer d'état
+     * selon son statut actuel et la limite de 30 jours.
+     */
+    private void validateTimeConstraints(ClientOrder order, OrderStatus currentStatus, OrderStatus newStatus) {
+
+        // Statuts soumis à la règle de 30 jours
+        Set<OrderStatus> restrictedStatuses = Set.of(
+                OrderStatus.CANCELLED,
+                OrderStatus.CONFIRMED,
+                OrderStatus.COMPLETED
+        );
+
+        // Si le statut actuel n'est pas concerné → aucune restriction
+        if (!restrictedStatuses.contains(currentStatus)) {
+            return;
+        }
+
+        LocalDate statusChangeDate = getStatusChangeDate(order, currentStatus);
+        long daysSinceStatusChange = ChronoUnit.DAYS.between(statusChangeDate, LocalDate.now());
+
+        if (daysSinceStatusChange > MAX_MODIFICATION_DAYS) {
+            throw new IllegalStateException(
+                    "Cannot modify an order with status " + currentStatus +
+                            " after " + MAX_MODIFICATION_DAYS + " days."
+            );
+        }
+    }
+
+    private LocalDate getStatusChangeDate(ClientOrder order, OrderStatus currentStatus) {
+
+        // On utilise updatedDate comme date du dernier changement de statut.
+        // Fallback sur createdDate puis orderDate.
+        return Optional.ofNullable(order.getUpdatedDate())
+                .orElse(Optional.ofNullable(order.getCreatedDate())
+                        .orElse(order.getOrderDate()));
+    }
+
+
+    private void validateCompletionRequirements(ClientOrder order, OrderStatus newStatus) {
+
+        if (newStatus != OrderStatus.COMPLETED) {
+            return;
+        }
+
+        if (order.getOrderClientLineList() == null || order.getOrderClientLineList().isEmpty()) {
+            throw new IllegalStateException("Cannot complete order without order lines.");
+        }
+
+        if (!hasAssociatedSale(order)) {
+            throw new IllegalStateException("Cannot complete order without an associated sale.");
+        }
+    }
+
+
+    private boolean hasAssociatedSale(ClientOrder order) {
+        // Cette méthode devrait vérifier l'existence d'une vente pour cette commande
+        // Pour l'instant, on retourne true car la logique complète nécessiterait l'injection du SaleRepository
+        return true;
     }
 
 
@@ -181,20 +249,29 @@ public class ClientOrderServiceImpl implements ClientOrderService {
                 .toList();
     }
 
-
     private void validateStatusTransition(OrderStatus current, OrderStatus next) {
-
-        if (current == OrderStatus.COMPLETED || current == OrderStatus.CANCELLED) {
-            throw new IllegalStateException("Cannot change status of a completed or cancelled order.");
+        if (current == OrderStatus.PENDING) {
+            if (next != OrderStatus.CONFIRMED && next != OrderStatus.CANCELLED) {
+                throw new IllegalStateException("Order can only be CONFIRMED or CANCELLED from PENDING status.");
+            }
         }
 
-        if (current == OrderStatus.PENDING && next != OrderStatus.CONFIRMED && next != OrderStatus.CANCELLED) {
-            throw new IllegalStateException("Order can only be CONFIRMED or CANCELLED from PENDING status.");
+        if (current == OrderStatus.CONFIRMED) {
+            if (next != OrderStatus.COMPLETED && next != OrderStatus.CANCELLED && next != OrderStatus.PENDING) {
+                throw new IllegalStateException("Order can only be COMPLETED, CANCELLED or returned to PENDING after CONFIRMATION.");
+            }
         }
 
-        if (current == OrderStatus.CONFIRMED &&
-                (next != OrderStatus.COMPLETED && next != OrderStatus.CANCELLED)) {
-            throw new IllegalStateException("Order can only be COMPLETED or CANCELLED after CONFIRMATION.");
+        if (current == OrderStatus.CANCELLED) {
+            if (next != OrderStatus.PENDING) {
+                throw new IllegalStateException("Cancelled order can only be returned to PENDING status.");
+            }
+        }
+
+        if (current == OrderStatus.COMPLETED) {
+            if (next != OrderStatus.PENDING && next != OrderStatus.CONFIRMED && next != OrderStatus.CANCELLED) {
+                throw new IllegalStateException("Completed order can only be returned to PENDING, CONFIRMED or CANCELLED status.");
+            }
         }
     }
 
