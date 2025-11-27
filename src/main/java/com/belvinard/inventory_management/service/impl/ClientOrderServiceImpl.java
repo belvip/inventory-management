@@ -28,7 +28,7 @@ import java.util.Set;
 public class ClientOrderServiceImpl implements ClientOrderService {
 
     private static final String ORDER_NOT_FOUND_MSG = "Order not found with id: ";
-    private static final int MAX_MODIFICATION_DAYS = 30;
+    private static final int MAX_MODIFICATION_DAYS = 7;
 
     private final ClientOrderRepository clientOrderRepository;
     private final ClientOrderMapper clientOrderMapper;
@@ -42,7 +42,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             OrderStatus.PENDING, Set.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED),
             OrderStatus.CONFIRMED, Set.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.PENDING),
             OrderStatus.CANCELLED, Set.of(OrderStatus.PENDING),
-            OrderStatus.COMPLETED, Set.of(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.CANCELLED)
+            OrderStatus.COMPLETED, Set.of(OrderStatus.CONFIRMED)
     );
 
     /* ========================================================================
