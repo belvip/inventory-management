@@ -10,6 +10,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {SupplierOrderLineMapper.class})
 public interface SupplierOrderMapper {
    @Mapping(source = "supplierOrderLineList", target = "supplierOrderLineList")
+   @Mapping(source = "supplier.id", target = "supplierId")
    SupplierOrderResponseDto toResponseDto(SupplierOrder supplierOrder);
    
    @Mapping(target = "supplier", ignore = true)

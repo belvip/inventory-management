@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 public record SupplierOrderRequestDto(
         @NotBlank(message = "Order code is mandatory")
-        @Size(min = 4, max = 50, message = "Order code must be between 4 and 50 characters")
+        @Size(min = 3, max = 50, message = "Order code must be between 3 and 50 characters")
         @Pattern(
                 regexp = "ORD-\\d{3}|ORD[A-Z]{3}",
                 message = "The code must be in the format ORD-XXX (e.g. ORD-123) or ORDABC"
