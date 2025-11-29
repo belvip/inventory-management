@@ -28,7 +28,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SupplierOrderServiceImpl implements SupplierOrderService {
     
-    private static final int MAX_MODIFICATION_DAYS = 30;
+    private static final int MAX_MODIFICATION_DAYS = 7;
     
     private final SupplierOrderRepository supplierOrderRepository;
     private final SupplierOrderMapper supplierOrderMapper;
@@ -155,7 +155,7 @@ public class SupplierOrderServiceImpl implements SupplierOrderService {
         OrderStatus current = order.getStateOrder();
         
         validateAllowedTransition(current, newStatus);
-        validateTimeConstraints(order, current);
+        validateTimeConstraints(order, current, newStatus);
         validateCompletionRequirements(order, newStatus);
     }
     
@@ -165,21 +165,26 @@ public class SupplierOrderServiceImpl implements SupplierOrderService {
         }
     }
     
-    private void validateTimeConstraints(SupplierOrder order, OrderStatus currentStatus) {
-        Set<OrderStatus> timeRestrictedStatuses = Set.of(
-                OrderStatus.CANCELLED, OrderStatus.CONFIRMED, OrderStatus.COMPLETED
-        );
-        
-        if (!timeRestrictedStatuses.contains(currentStatus)) {
+    private void validateTimeConstraints(SupplierOrder order, OrderStatus currentStatus, OrderStatus newStatus) {
+        // Seulement appliquer la contrainte de temps pour les transitions vers un statut antérieur
+        if (!isBackwardTransition(currentStatus, newStatus)) {
             return;
         }
         
         if (isOrderModificationExpired(order)) {
             throw new APIException(
-                    "Cannot modify an order with status " + currentStatus +
-                            " after " + MAX_MODIFICATION_DAYS + " days."
+                    "Cannot revert to previous status after " + MAX_MODIFICATION_DAYS +
+                            " days. Current: " + currentStatus + ", Requested: " + newStatus
             );
         }
+    }
+    
+    private boolean isBackwardTransition(OrderStatus current, OrderStatus next) {
+        // Définir les transitions "vers l'arrière" (retour à un statut antérieur)
+        return (current == OrderStatus.CONFIRMED && next == OrderStatus.PENDING) ||
+               (current == OrderStatus.COMPLETED && next == OrderStatus.CONFIRMED) ||
+               (current == OrderStatus.CANCELLED && next == OrderStatus.PENDING) ||
+               (current == OrderStatus.COMPLETED && next == OrderStatus.PENDING);
     }
     
     private boolean isOrderModificationExpired(SupplierOrder order) {
@@ -213,7 +218,7 @@ public class SupplierOrderServiceImpl implements SupplierOrderService {
             throw new APIException("Supplier order is already CANCELLED");
         }
         
-        validateTimeConstraints(order, order.getStateOrder());
+    
     }
     
     private void increaseStockFromOrder(SupplierOrder order) {

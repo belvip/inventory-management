@@ -154,7 +154,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         OrderStatus current = order.getStateOrder();
 
         validateAllowedTransition(current, newStatus);
-        validateTimeConstraints(order, current);
+        validateTimeConstraints(order, current, newStatus);
         validateOrderLinesForConfirmation(order, current, newStatus);
         validateCompletionRequirements(order, newStatus);
     }
@@ -165,10 +165,11 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         }
     }
 
-    private void validateTimeConstraints(ClientOrder order, OrderStatus currentStatus) {
-
-        if (!Set.of(OrderStatus.CONFIRMED, OrderStatus.COMPLETED, OrderStatus.CANCELLED)
-                .contains(currentStatus)) return;
+    private void validateTimeConstraints(ClientOrder order, OrderStatus currentStatus, OrderStatus newStatus) {
+        // Seulement appliquer la contrainte de temps pour les transitions vers un statut antérieur
+        if (!isBackwardTransition(currentStatus, newStatus)) {
+            return;
+        }
 
         LocalDate lastUpdate = Optional.ofNullable(order.getUpdatedDate())
                 .orElse(order.getCreatedDate() != null
@@ -179,10 +180,17 @@ public class ClientOrderServiceImpl implements ClientOrderService {
 
         if (daysElapsed > MAX_MODIFICATION_DAYS) {
             throw new IllegalStateException(
-                    "Modification not allowed after " + MAX_MODIFICATION_DAYS +
-                            " days for orders with status " + currentStatus
+                    "Cannot revert to previous status after " + MAX_MODIFICATION_DAYS +
+                            " days. Current: " + currentStatus + ", Requested: " + newStatus
             );
         }
+    }
+    
+    private boolean isBackwardTransition(OrderStatus current, OrderStatus next) {
+        // Définir les transitions "vers l'arrière" (retour à un statut antérieur)
+        return (current == OrderStatus.CONFIRMED && next == OrderStatus.PENDING) ||
+               (current == OrderStatus.COMPLETED && next == OrderStatus.CONFIRMED) ||
+               (current == OrderStatus.CANCELLED && next == OrderStatus.PENDING);
     }
 
     private void validateOrderLinesForConfirmation(ClientOrder order, OrderStatus current, OrderStatus next) {
