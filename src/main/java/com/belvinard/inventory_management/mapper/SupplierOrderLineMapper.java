@@ -9,6 +9,7 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SupplierOrderLineMapper {
+    @Mapping(source = "supplierOrder.supplier.id", target = "supplierId")
     @Mapping(source = "article.id", target = "articleId")
     @Mapping(source = "article.codeArticle", target = "articleCode")
     @Mapping(source = "article.designation", target = "articleDesignation")
