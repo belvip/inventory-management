@@ -23,7 +23,7 @@ import java.util.List;
 public class Client extends BaseEntity {
 
     @NotBlank(message = "The client name is required")
-    @Size(min = 4, max = 100, message = "The name must contain between 4 and 100 characters")
+    @Size(min = 3, max = 100, message = "The name must contain between 4 and 100 characters")
     @Column(nullable = false, length = 100)
     private String name;
 
@@ -31,15 +31,13 @@ public class Client extends BaseEntity {
     private Address address;
 
     @Email(message = "The email must be valid")
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = true)
     private String email;
 
-    @NotBlank(message = "The phone number is required")
     @Pattern(
-            regexp = "^(?:(?:\\+237|237)[-.\\s]?)?(?:[67][25-9]\\d{7}|2\\d{2}\\d{6})$",
+            regexp = "^$|^(?:(?:\\+237|237)[-.\\s]?)?(?:[67][25-9]\\d{7}|2\\d{2}\\d{6})$",
             message = "The phone number must be a valid Cameroonian number (mobile or fixed). Examples: 671234567, 222123456, +237-233123456"
     )
-    @Column(nullable = false, length = 20)
     private String phoneNumber;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL,

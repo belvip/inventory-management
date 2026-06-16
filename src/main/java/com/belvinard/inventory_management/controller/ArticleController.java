@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +56,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "404", description = "Article not found",
                     content = @Content)
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/{id}")
     public ResponseEntity<ArticleResponseDto> getArticleById(@PathVariable Long id) {
         ArticleResponseDto article = articleService.getArticleById(id);
@@ -71,7 +72,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "400", description = "Invalid code supplied",
                     content = @Content)
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/code/{code}")
     public ResponseEntity<ArticleResponseDto> getArticleByCode(@PathVariable String code) {
         ArticleResponseDto article = articleService.getArticleByCode(code);
@@ -94,14 +95,14 @@ public class ArticleController {
 
 
     @Operation(
-            summary = "Archive an article Only ADMIN",
+            summary = "Archive an article Only - ADMIN and MANAGER",
             description = "Sets the article status to ARCHIVED"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Article archived successfully"),
             @ApiResponse(responseCode = "404", description = "Article not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @PutMapping("/{id}/archive")
     public ResponseEntity<ArticleResponseDto> archiveArticle(@PathVariable Long id) {
         ArticleResponseDto archivedArticle = articleService.archiveArticle(id);
@@ -116,7 +117,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "200", description = "Article restored successfully"),
             @ApiResponse(responseCode = "404", description = "Article not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @PutMapping("/{id}/restore")
     public ResponseEntity<ArticleResponseDto> restoreArticle(@PathVariable Long id) {
         ArticleResponseDto restoredArticle = articleService.restoreArticle(id);
@@ -130,7 +131,7 @@ public class ArticleController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Archived articles retrieved successfully")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/archived")
     public ResponseEntity<List<ArticleResponseDto>> getAllArchivedArticles() {
         List<ArticleResponseDto> archivedArticles = articleService.getAllArchivedArticles();
@@ -179,10 +180,23 @@ public class ArticleController {
     }
 
     @Operation(
-            summary = "Get all articles",
+            summary = "Count low stock articles - ADMIN, MANAGER, SALES",
+            description = "Returns the count of articles with stock quantity less than or equal to 10"
+    )
+    @ApiResponse(responseCode = "200", description = "Low stock count retrieved successfully")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @GetMapping("/low-stock/count")
+    public ResponseEntity<Long> countLowStockArticles() {
+        Long count = articleService.countLowStockArticles();
+        return ResponseEntity.ok(count);
+    }
+
+    @Operation(
+            summary = "Get all articles - ADMIN, MANAGER, SALES, USER",
             description = "Fetch all articles with pagination and sorting (default sort by designation)"
     )
     @ApiResponse(responseCode = "200", description = "Articles retrieved successfully")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/all")
     public ResponseEntity<PagedResponse<ArticleResponseDto>> getAllArticles(
             @Parameter(description = "Page number (0-based)", example = "0")
@@ -211,7 +225,7 @@ public class ArticleController {
                     content = @Content)
     })
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-    @PutMapping(value = "/{id}/image")
+    @PutMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ArticleResponseDto> updateArticleImage(
             @PathVariable Long id,
             @RequestParam("image") MultipartFile image
@@ -240,14 +254,7 @@ public class ArticleController {
         return ResponseEntity.ok(imageUrl);
     }
 
-    @Operation(summary = "Count low stock articles - Admin or Manager")
-    @ApiResponse(responseCode = "200", description = "Low stock count retrieved successfully")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-    @GetMapping("/low-stock/count")
-    public ResponseEntity<Long> countLowStockArticles() {
-        Long count = articleService.countLowStockArticles();
-        return ResponseEntity.ok(count);
-    }
+
 
 
 }

@@ -1,6 +1,7 @@
 package com.belvinard.inventory_management.controller;
 
 import com.belvinard.inventory_management.dto.request.*;
+import com.belvinard.inventory_management.dto.response.UpdateUserResponseDto;
 import com.belvinard.inventory_management.dto.response.UserResponseDto;
 import com.belvinard.inventory_management.model.Role;
 import com.belvinard.inventory_management.repository.RoleRepository;
@@ -69,16 +70,16 @@ public class UserController {
             description = "Allows an ADMIN to update an existing user's details.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User updated successfully",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDto.class))),
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UpdateUserResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = "Validation failed", content = @Content),
                     @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
             }
     )
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<UserResponseDto> updateUser(
+    public ResponseEntity<UpdateUserResponseDto> updateUser(
             @PathVariable Long id,
-            @RequestBody @Valid UserRequestDto dto
+            @RequestBody @Valid UpdateUserRequestDto dto
     ) {
         return ResponseEntity.ok(userService.updateUser(id, dto));
     }

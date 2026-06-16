@@ -18,15 +18,29 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class SupplierOrderServiceImpl implements SupplierOrderService {
+    
+    private static final int MAX_MODIFICATION_DAYS = 7;
+    
     private final SupplierOrderRepository supplierOrderRepository;
     private final SupplierOrderMapper supplierOrderMapper;
     private final SupplierRepository supplierRepository;
     private final ArticleRepository articleRepository;
+    
+    private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = Map.of(
+            OrderStatus.PENDING, Set.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED),
+            OrderStatus.CONFIRMED, Set.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.PENDING),
+            OrderStatus.CANCELLED, Set.of(OrderStatus.PENDING),
+            OrderStatus.COMPLETED, Set.of(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.CANCELLED)
+    );
     
     @Override
     @Transactional
@@ -87,11 +101,10 @@ public class SupplierOrderServiceImpl implements SupplierOrderService {
         SupplierOrder order = findOrderById(id);
         OrderStatus newStatus = OrderStatus.valueOf(state.toUpperCase());
         
-        validateStatusTransition(order.getStateOrder(), newStatus);
+        validateStatusChangeRules(order, newStatus);
         
         order.setStateOrder(newStatus);
         
-        // Si passage à COMPLETED, augmenter le stock
         if (newStatus == OrderStatus.COMPLETED) {
             increaseStockFromOrder(order);
         }
@@ -138,21 +151,61 @@ public class SupplierOrderServiceImpl implements SupplierOrderService {
         }
     }
     
-    private void validateStatusTransition(OrderStatus current, OrderStatus next) {
-        if (current == OrderStatus.COMPLETED) {
-            throw new APIException("Cannot change status of a COMPLETED supplier order");
+    private void validateStatusChangeRules(SupplierOrder order, OrderStatus newStatus) {
+        OrderStatus current = order.getStateOrder();
+        
+        validateAllowedTransition(current, newStatus);
+        validateTimeConstraints(order, current, newStatus);
+        validateCompletionRequirements(order, newStatus);
+    }
+    
+    private void validateAllowedTransition(OrderStatus current, OrderStatus next) {
+        if (!ALLOWED_TRANSITIONS.get(current).contains(next)) {
+            throw new APIException("Invalid transition from " + current + " to " + next);
+        }
+    }
+    
+    private void validateTimeConstraints(SupplierOrder order, OrderStatus currentStatus, OrderStatus newStatus) {
+        // Seulement appliquer la contrainte de temps pour les transitions vers un statut antérieur
+        if (!isBackwardTransition(currentStatus, newStatus)) {
+            return;
         }
         
-        if (current == OrderStatus.CANCELLED) {
-            throw new APIException("Cannot change status of a CANCELLED supplier order");
+        if (isOrderModificationExpired(order)) {
+            throw new APIException(
+                    "Cannot revert to previous status after " + MAX_MODIFICATION_DAYS +
+                            " days. Current: " + currentStatus + ", Requested: " + newStatus
+            );
+        }
+    }
+    
+    private boolean isBackwardTransition(OrderStatus current, OrderStatus next) {
+        // Définir les transitions "vers l'arrière" (retour à un statut antérieur)
+        return (current == OrderStatus.CONFIRMED && next == OrderStatus.PENDING) ||
+               (current == OrderStatus.COMPLETED && next == OrderStatus.CONFIRMED) ||
+               (current == OrderStatus.CANCELLED && next == OrderStatus.PENDING) ||
+               (current == OrderStatus.COMPLETED && next == OrderStatus.PENDING);
+    }
+    
+    private boolean isOrderModificationExpired(SupplierOrder order) {
+        LocalDate statusChangeDate = getStatusChangeDate(order);
+        long daysSinceStatusChange = ChronoUnit.DAYS.between(statusChangeDate, LocalDate.now());
+        return daysSinceStatusChange > MAX_MODIFICATION_DAYS;
+    }
+    
+    private LocalDate getStatusChangeDate(SupplierOrder order) {
+        return Optional.ofNullable(order.getUpdatedDate())
+                .orElse(Optional.ofNullable(order.getCreatedDate())
+                        .orElse(order.getOrderDate()));
+    }
+    
+    private void validateCompletionRequirements(SupplierOrder order, OrderStatus next) {
+        if (next != OrderStatus.COMPLETED) {
+            return;
         }
         
-        if (current == OrderStatus.PENDING && next != OrderStatus.CONFIRMED && next != OrderStatus.CANCELLED) {
-            throw new APIException("From PENDING, can only go to CONFIRMED or CANCELLED");
-        }
-        
-        if (current == OrderStatus.CONFIRMED && next != OrderStatus.COMPLETED && next != OrderStatus.CANCELLED) {
-            throw new APIException("From CONFIRMED, can only go to COMPLETED or CANCELLED");
+        if (order.getSupplierOrderLineList() == null || order.getSupplierOrderLineList().isEmpty()) {
+            throw new APIException("Cannot complete order without order lines.");
         }
     }
     
@@ -164,6 +217,8 @@ public class SupplierOrderServiceImpl implements SupplierOrderService {
         if (order.getStateOrder() == OrderStatus.CANCELLED) {
             throw new APIException("Supplier order is already CANCELLED");
         }
+        
+    
     }
     
     private void increaseStockFromOrder(SupplierOrder order) {

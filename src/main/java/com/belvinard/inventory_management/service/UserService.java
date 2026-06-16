@@ -1,7 +1,9 @@
 package com.belvinard.inventory_management.service;
 
 import com.belvinard.inventory_management.dto.request.ResetPasswordRequest;
+import com.belvinard.inventory_management.dto.request.UpdateUserRequestDto;
 import com.belvinard.inventory_management.dto.request.UserRequestDto;
+import com.belvinard.inventory_management.dto.response.UpdateUserResponseDto;
 import com.belvinard.inventory_management.dto.response.UserResponseDto;
 import com.belvinard.inventory_management.model.User;
 import jakarta.validation.Valid;
@@ -24,11 +26,9 @@ public interface UserService {
 
     List<UserResponseDto> getAllUsers();
 
-    UserResponseDto updateUser(Long userId, UserRequestDto dto);
+    UpdateUserResponseDto updateUser(Long userId, UpdateUserRequestDto dto);
 
     UserResponseDto updateUserImage(Long userId, MultipartFile image) throws IOException;
-
-    String getPresignedImageUrl(Long id);
 
     UserResponseDto findByUsername(String username);
     

@@ -9,6 +9,7 @@ public record SupplierOrderResponseDto(
         Long id,
         String code,
         LocalDate orderDate,
+        Long supplierId,
         String comments,
         OrderStatus stateOrder,
         List<SupplierOrderLineResponseDto> supplierOrderLineList,

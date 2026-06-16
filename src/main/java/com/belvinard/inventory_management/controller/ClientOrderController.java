@@ -48,7 +48,7 @@ public class ClientOrderController {
             responseCode = "409",
             description = "Order code already exists"
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @PostMapping("/create")
     public ResponseEntity<ClientOrderResponseDto> createOrder(
             @Valid
@@ -90,7 +90,7 @@ public class ClientOrderController {
                     @ApiResponse(responseCode = "409", description = "Duplicate order code")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @PutMapping("/{id}")
     public ResponseEntity<ClientOrderResponseDto> updateOrder(
             @Parameter(description = "ID of the order to update", required = true)
@@ -116,7 +116,7 @@ public class ClientOrderController {
                     @ApiResponse(responseCode = "404", description = "Client not found")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/client/{clientId}")
     public ResponseEntity<List<ClientOrderResponseDto>> getOrdersByClient(
             @Parameter(description = "ID of the client", required = true)
@@ -135,7 +135,7 @@ public class ClientOrderController {
                     @ApiResponse(responseCode = "400", description = "Cannot delete delivered or canceled orders")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(
             @Parameter(description = "ID of the order to delete", required = true)
@@ -152,7 +152,7 @@ public class ClientOrderController {
             @ApiResponse(responseCode = "400", description = "Invalid status transition"),
             @ApiResponse(responseCode = "404", description = "Order not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<ClientOrderResponseDto> updateOrderStatus(
             @PathVariable Long id,
@@ -174,7 +174,7 @@ public class ClientOrderController {
                     @ApiResponse(responseCode = "404", description = "No orders found for the given status")
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/status/{status}")
     public ResponseEntity<List<ClientOrderResponseDto>> getOrdersByStatus(@PathVariable OrderStatus status) {
         return ResponseEntity.ok(clientOrderService.getOrdersByStatus(status));
@@ -188,7 +188,7 @@ public class ClientOrderController {
                             content = @Content(schema = @Schema(implementation = ClientOrderResponseDto.class)))
             }
     )
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/all")
     public ResponseEntity<List<ClientOrderResponseDto>> getAllOrders() {
         return ResponseEntity.ok(clientOrderService.getAllOrders());

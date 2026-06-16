@@ -158,5 +158,21 @@
     "email": "bambili.bio@farms.cm",
     "phoneNumber": "+237678112233",
     "website": "www.bambilibiofarms.cm"
+  },
+  {
+    "name": "Bambili Bio-Farms",
+    "description": "Ferme agritouristique spécialisée dans la culture biologique de cacao et café.",
+    "address": {
+      "address1": "",
+      "address2": "",
+      "city": "",
+      "postalCode": "",
+      "country": ""
+    },
+    "fiscalCode": "",
+    "image": "",
+    "email": "bambili.bio@farms.cm",
+    "phoneNumber": "+237678112233",
+    "website": ""
   }
 ]

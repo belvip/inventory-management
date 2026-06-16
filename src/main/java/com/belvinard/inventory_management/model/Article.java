@@ -28,7 +28,7 @@ public class Article extends BaseEntity {
     private String codeArticle;
 
     @NotBlank(message = "Designation is mandatory")
-    @Size(min = 4, max = 100, message = "Designation must be between 4 and 100 characters")
+    @Size(min = 3, max = 100, message = "Designation must be between 3 and 100 characters")
     private String designation;
 
     private Long quantityInStock;

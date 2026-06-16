@@ -12,4 +12,4 @@ public record UpdateUserRoleRequest(
 
         @NotBlank(message = "Role name is required")
         String roleName
-) {}
+) {}    

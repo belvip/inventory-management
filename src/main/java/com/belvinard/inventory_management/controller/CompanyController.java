@@ -52,9 +52,10 @@ public class CompanyController {
     // GET ALL COMPANIES
     // ===========================================================
     @Operation(
-            summary = "Get all companies (paginated) - public",
+            summary = "Get all companies (paginated) - ADMIN, MANAGER, SALES, USER",
             description = "Retrieve a paginated and sortable list of companies. Default pageNumber=0, pageSize=50, sortBy=id, sortOrder=asc"
     )
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved companies",
                     content = @Content(mediaType = "application/json",
@@ -83,7 +84,7 @@ public class CompanyController {
             @ApiResponse(responseCode = "200", description = "Company found"),
             @ApiResponse(responseCode = "404", description = "Company not found")
     })
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     @GetMapping("/{id}")
     public ResponseEntity<CompanyResponseDto> getCompanyById(@PathVariable Long id) {
          CompanyResponseDto company = companyService.getCompanyById(id);
@@ -169,6 +170,23 @@ public class CompanyController {
 
         CompanyResponseDto updatedCompany = companyService.updateCompanyImage(id, image);
         return new ResponseEntity<>(updatedCompany, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get company image URL - Admin or Manager")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image URL retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "Company not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @GetMapping("/{id}/image_url")
+    public ResponseEntity<String> getCompanyImageUrl(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "15") Integer expirationMinutes
+    ) {
+        String imageUrl = companyService.getCompanyImageUrl(id, expirationMinutes);
+        return ResponseEntity.ok(imageUrl);
     }
 
 

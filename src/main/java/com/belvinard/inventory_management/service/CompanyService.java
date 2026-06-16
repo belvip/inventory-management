@@ -17,4 +17,6 @@ public interface CompanyService {
     void deleteCompany(Long id);
 
     CompanyResponseDto updateCompanyImage(Long id, MultipartFile image) throws java.io.IOException;
+
+    String getCompanyImageUrl(Long id, Integer expirationMinutes);
 }

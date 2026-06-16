@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 public record SupplierOrderLineResponseDto(
         Long id,
+        Long supplierId,
         Long articleId,
         String articleCode,
         String articleDesignation,

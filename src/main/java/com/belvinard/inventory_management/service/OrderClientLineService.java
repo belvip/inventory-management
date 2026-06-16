@@ -14,6 +14,7 @@ public interface OrderClientLineService {
     List<OrderClientLineResponseDto> getAllLinesForOrder(Long clientOrderId);
     OrderClientLineResponseDto updateLineQuantity(Long id, BigDecimal newQuantity);
     void removeLineFromOrder(Long id);
+    List<OrderClientLineResponseDto> getAllLines();
 
     // Utility methods
     BigDecimal calculateOrderTotal(Long clientOrderId);

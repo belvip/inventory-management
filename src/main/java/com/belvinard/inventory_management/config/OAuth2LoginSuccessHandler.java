@@ -68,7 +68,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                 username = "user";
                 idAttributeKey = "id";
             }
-            System.out.println("HELLO OAUTH: " + email + " : " + name + " : " + username);
+            System.out.println("HELLO : " + email + " : " + name + " : " + username);
 
 
             getUserService().findByEmail(email)
@@ -125,29 +125,18 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
         System.out.println("OAuth2LoginSuccessHandler: " + username + " : " + email);
 
 
-        // Create UserDetailsImpl instance
-        UserDetailsImpl userDetails = new UserDetailsImpl(
-                null,                    // id
-                username,               // username
-                email,                  // email
-                null,                   // password
-                false,                  // is2faEnabled
-                true,                   // accountNonLocked
-                true,                   // accountNonExpired
-                true,                   // credentialsNonExpired
-                true,                   // enabled
-                oauth2User.getAuthorities().stream()
-                        .map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
-                        .collect(Collectors.toList())
-        );
-
-
-        // Generate JWT token
-        String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
+        // Get user from database to get role
+        User currentUser = getUserService().findByEmail(email).orElse(null);
+        String userRole = currentUser != null ? currentUser.getRole().getRoleName().name() : "ROLE_USER";
+        
+        // Generate JWT token with claims - use email as username for consistency
+        String jwtToken = jwtUtils.generateTokenWithClaims(email, email, userRole);
 
 
         // Redirect to frontend with JWT token
-        String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/auth/callback")
+        // Use only the first URL if multiple URLs are configured
+        String redirectUrl = frontendUrl.contains(",") ? frontendUrl.split(",")[0].trim() : frontendUrl;
+        String targetUrl = UriComponentsBuilder.fromUriString(redirectUrl + "/auth/callback")
                 .queryParam("token", jwtToken)
                 .build().toUriString();
         this.setDefaultTargetUrl(targetUrl);
